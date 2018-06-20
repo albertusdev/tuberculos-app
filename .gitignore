@@ -3,3 +3,5 @@ build/
 gen/
 .packages
 .flutter-plugins
+
+android/app/google-services.json
