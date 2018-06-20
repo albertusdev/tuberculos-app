@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import "package:redux/redux.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
+import "package:tuberculos/utils.dart";
 
 class RegisterField {
   TextEditingController controller;
@@ -57,15 +58,20 @@ class ActionChangeField {
   ActionChangeField(this.key, this.value);
 }
 
+class ActionChooseRole {
+  UserRole role;
+  ActionChooseRole(this.role);
+}
+
 class RegisterState {
   static final int maxStep = 3;
 
   int currentStep;
   bool isLoading;
-  Map<String, RegisterField> fields;
+  Map<String, dynamic> fields;
 
   RegisterState(
-      {int currentStep, bool isLoading, Map<String, RegisterField> fields}) {
+      {int currentStep, bool isLoading, Map<String, dynamic> fields}) {
     this.currentStep = currentStep ?? 1;
     this.isLoading = isLoading ?? false;
     this.fields = fields ??
@@ -74,13 +80,19 @@ class RegisterState {
           "password": new RegisterField(hint: "Password"),
           "firstName": new RegisterField(hint: "First Name"),
           "lastName": new RegisterField(hint: "Last Name"),
+          "role": UserRole.pasien,
+          "apotekerUsername": null,
+          "sipa": new RegisterField(hint: "No. SIPA"),
+          "alamat": new RegisterField(hint: "Alamat"),
+          "namaApotek": new RegisterField(hint: "Nama Apotek"),
+          "alamatApotek": new RegisterField(hint: "Alamat Apotek"),
         };
   }
 
   RegisterState clone({
     int currentStep,
     bool isLoading,
-    Map<String, RegisterField> fields,
+    Map<String, dynamic> fields,
   }) {
     return new RegisterState(
       currentStep: currentStep ?? this.currentStep,
@@ -105,13 +117,16 @@ RegisterState registerReducer(RegisterState state, action) {
   } else if (action is ActionClearLoading) {
     newState = state.clone(isLoading: false);
   } else if (action is ActionChangeField) {
-    Map<String, RegisterField> fields = new Map.from(state.fields);
+    Map<String, dynamic> fields = new Map.from(state.fields);
     fields[action.key] = action.value;
+    newState = state.clone(fields: fields);
+  } else if (action is ActionChooseRole) {
+    Map<String, dynamic> fields = new Map.from(state.fields);
+    fields["role"] = action.role;
     newState = state.clone(fields: fields);
   } else {
     newState = state.clone();
   }
-  print("reduce");
   return newState;
 }
 

@@ -85,7 +85,7 @@ class _FirstStepWidgetState extends State<_FirstStepWidget> {
     return new StoreBuilder<RegisterState>(
       builder: (context, store) {
         RegisterState state = store.state;
-        Map<String, RegisterField> fields = state.fields;
+        Map<String, dynamic> fields = state.fields;
         return new Center(
           child: new Container(
             margin: new EdgeInsets.symmetric(horizontal: 50.0),
@@ -160,15 +160,23 @@ class _FirstStepWidgetState extends State<_FirstStepWidget> {
                                 try {
                                   bool emailHasNotExist =
                                       await verifyEmailHasNotExist(store);
+                                  RegisterField current =
+                                      fields["email"] as RegisterField;
                                   if (emailHasNotExist) {
                                     store.dispatch(new ActionNextPage());
+                                    store.dispatch(new ActionChangeField(
+                                        "email",
+                                        new RegisterField(
+                                          controller: current.controller,
+                                          hint: current.hint,
+                                          error: null,
+                                        )));
                                     Navigator.of(context).push(
                                         new MaterialPageRoute(
                                             builder: (context) =>
                                                 new RegisterScreen(
                                                     currentStep: 2)));
                                   } else {
-                                    RegisterField current = fields["email"];
                                     store.dispatch(new ActionChangeField(
                                         "email",
                                         new RegisterField(
@@ -204,20 +212,66 @@ class _FirstStepWidgetState extends State<_FirstStepWidget> {
 class _SecondStepWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new Center(
-        child: new Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        new Text("Step 2"),
-      ],
-    ));
+    return new StoreBuilder(
+      builder: (context, Store<RegisterState> store) {
+        return new Center(
+            child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Text(
+              "Choose your role",
+              style: Theme.of(context).textTheme.headline,
+            ),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                new OutlineButton(
+                    child: new Column(
+                      children: <Widget>[
+                        new Icon(Icons.accessibility),
+                        new Text("Pasien"),
+                      ],
+                    ),
+                    onPressed: () {
+                      store.dispatch(new ActionChooseRole(UserRole.pasien));
+                      Navigator.of(context).push(
+                            new MaterialPageRoute(
+                                builder: (context) =>
+                                    new RegisterScreen(currentStep: 3)),
+                          );
+                    }),
+                new OutlineButton(
+                  child: new Column(
+                    children: <Widget>[
+                      new Icon(Icons.local_hospital),
+                      new Text("Apoteker"),
+                    ],
+                  ),
+                  onPressed: () {
+                    store.dispatch(new ActionChooseRole(UserRole.apoteker));
+                    Navigator.of(context).push(
+                          new MaterialPageRoute(
+                              builder: (context) =>
+                                  new RegisterScreen(currentStep: 3)),
+                        );
+                  },
+                )
+              ],
+            )
+          ],
+        ));
+      },
+    );
   }
 }
 
 class _ThirdStepWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return null;
+    return new StoreBuilder(builder: (context, Store<RegisterState> store) {
+      return new Center(
+        child: new Text(store.state.fields["role"].toString()),
+      );
+    });
   }
 }
