@@ -8,76 +8,62 @@ import "package:firebase_auth/firebase_auth.dart";
 
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/utils.dart";
-import "register_field.dart";
 import "register_screen_redux.dart";
 
 class RegisterScreen extends StatelessWidget {
-  final Store<RegisterState> store = new Store<RegisterState>(
+  static final Store<RegisterState> store = new Store<RegisterState>(
     registerReducer,
     initialState: new RegisterState(),
     middleware: [thunkMiddleware],
   );
 
-  final int currentStep = 0;
+  final int currentStep;
+
+  RegisterScreen({this.currentStep = 1});
 
   Widget getCurrentStepWidget() {
-    return new StoreConnector<RegisterState, int>(
-      converter: (store) => store.state.currentStep,
-      builder: (context, currentStep) {
-        Widget widget;
-        int currentStep = store.state.currentStep;
-        switch (currentStep) {
-          case 1:
-            widget = _FirstStepWidget();
-            break;
-          case 2:
-            widget = _SecondStepWidget();
-            break;
-          case 3:
-            widget = _ThirdStepWidget();
-            break;
-        }
-        return widget;
-      },
-    );
+    Widget widget;
+    switch (currentStep) {
+      case 1:
+        widget = new _FirstStepWidget();
+        break;
+      case 2:
+        widget = new _SecondStepWidget();
+        break;
+      case 3:
+        widget = new _ThirdStepWidget();
+        break;
+    }
+    return widget;
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget child = new WillPopScope(
-      onWillPop: () {
-        if (store.state.currentStep - 1 >= 1) {
-          store.dispatch(RegisterActions.PrevPage);
-        } else {
-          Navigator.of(context).pop();
-        }
-      },
-      child: new Scaffold(
-        body: getCurrentStepWidget(),
-        bottomNavigationBar: new MaterialButton(
-          child: new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Text(
-                "Already have an account? ",
-                style: new TextStyle(
-                  color: Theme.of(context).disabledColor,
-                ),
+    Widget child = new Scaffold(
+      body: getCurrentStepWidget(),
+      bottomNavigationBar: new MaterialButton(
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Text(
+              "Already have an account? ",
+              style: new TextStyle(
+                color: Theme.of(context).disabledColor,
               ),
-              new Text(
-                " Log in.",
-                style: new TextStyle(
-                  color: Theme.of(context).accentColor,
-                  fontWeight: FontWeight.bold,
-                ),
+            ),
+            new Text(
+              " Log in.",
+              style: new TextStyle(
+                color: Theme.of(context).accentColor,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          onPressed: () {
-            Navigator.pushReplacementNamed(
-                context, Routes.loginScreen.toString());
-          },
+            ),
+          ],
         ),
+        onPressed: () {
+          Navigator.pushReplacementNamed(
+              context, Routes.loginScreen.toString());
+        },
       ),
     );
     return new StoreProvider(
@@ -93,85 +79,120 @@ class _FirstStepWidget extends StatefulWidget {
 }
 
 class _FirstStepWidgetState extends State<_FirstStepWidget> {
-
-  final GlobalKey<FormState> _firstNameKey = new GlobalKey<FormState>();
-  final GlobalKey<FormState> _lastNameKey = new GlobalKey<FormState>();
-  final GlobalKey<FormState> _emailKey = new GlobalKey<FormState>();
-  final GlobalKey<FormState> _passwordKey = new GlobalKey<FormState>();
-
-  bool isAnyFieldEmpty(RegisterState state) {
-    return state.emailField.controller.text.isEmpty ||
-        state.passwordField.controller.text.isEmpty ||
-        state.firstNameField.controller.text.isEmpty ||
-        state.lastNameField.controller.text.isEmpty;
-  }
-
+  GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder<RegisterState>(
       builder: (context, store) {
+        RegisterState state = store.state;
+        Map<String, RegisterField> fields = state.fields;
         return new Center(
           child: new Container(
             margin: new EdgeInsets.symmetric(horizontal: 50.0),
-            child: new Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                new TextFormField(
-                  key: _firstNameKey,
-                  controller: store.state.firstNameField.controller,
-                  decoration: store.state.firstNameField.decoration,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return "First Name can't be empty";
-                    }
-                  },
-                ),
-                new TextFormField(
-                  key: _lastNameKey,
-                  controller: store.state.lastNameField.controller,
-                  decoration: store.state.lastNameField.decoration,
-                ),
-                new TextFormField(
-                  key: _emailKey,
-                  controller: store.state.emailField.controller,
-                  decoration: store.state.emailField.decoration,
-                ),
-                new TextFormField(
-                  key: _passwordKey,
-                  controller: store.state.passwordField.controller,
-                  decoration: store.state.passwordField.decoration,
-                  obscureText: true,
-                ),
-                new Container(
-                  margin: new EdgeInsets.only(top: 25.0),
-                  child: new Row(
-                    children: <Widget>[
-                      new Expanded(
-                        child: new OutlineButton(
-                          borderSide: new BorderSide(
-                            color: Colors.blue,
-                          ),
-                          child: store.state.isLoading
-                              ? new SizedBox(
-                                  child: new CircularProgressIndicator(),
-                                  height: 16.0,
-                                  width: 16.0,
-                                )
-                              : new Text("Next"),
-                          onPressed: () {
-                            bool isValid = _firstNameKey.currentState.validate();
-                            if (isValid) {
-                              Scaffold.of(context).showSnackBar(
-                                new SnackBar(content: new Text("Verified"))
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ],
+            child: new Form(
+              key: _formKey,
+              child: new Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new TextFormField(
+                    controller: fields["firstName"].controller,
+                    decoration: fields["firstName"].decoration,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "First Name can't be empty";
+                      }
+                    },
                   ),
-                ),
-              ],
+                  new TextFormField(
+                    controller: fields["lastName"].controller,
+                    decoration: fields["lastName"].decoration,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Last Name can't be empty";
+                      }
+                    },
+                  ),
+                  new TextFormField(
+                    controller: fields["email"].controller,
+                    decoration: fields["email"].decoration,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "E-mail can't be empty";
+                      } else if (!isEmail(value)) {
+                        return "This is not a valid e-mail format";
+                      }
+                    },
+                  ),
+                  new TextFormField(
+                    controller: fields["password"].controller,
+                    decoration: fields["password"].decoration,
+                    obscureText: true,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return "Password can't be empty";
+                      }
+                    },
+                  ),
+                  new Container(
+                    margin: new EdgeInsets.only(top: 25.0),
+                    child: new Row(
+                      children: <Widget>[
+                        new Expanded(
+                          child: new OutlineButton(
+                            borderSide: new BorderSide(
+                              color: Colors.blue,
+                            ),
+                            child: store.state.isLoading
+                                ? new SizedBox(
+                                    child: new CircularProgressIndicator(),
+                                    height: 16.0,
+                                    width: 16.0,
+                                  )
+                                : new Text("Next"),
+                            onPressed: () async {
+                              bool isValid = _formKey.currentState?.validate();
+                              String content = "";
+                              if (!isValid) {
+                                content = "Input is not valid. Try again.";
+                                Scaffold.of(context).showSnackBar(
+                                    new SnackBar(content: new Text(content)));
+                              } else {
+                                try {
+                                  bool emailHasNotExist =
+                                      await verifyEmailHasNotExist(store);
+                                  if (emailHasNotExist) {
+                                    store.dispatch(new ActionNextPage());
+                                    Navigator.of(context).push(
+                                        new MaterialPageRoute(
+                                            builder: (context) =>
+                                                new RegisterScreen(
+                                                    currentStep: 2)));
+                                  } else {
+                                    RegisterField current = fields["email"];
+                                    store.dispatch(new ActionChangeField(
+                                        "email",
+                                        new RegisterField(
+                                          controller: current.controller,
+                                          hint: current.hint,
+                                          error:
+                                              "User with that e-mail address has already exist.",
+                                        )));
+                                  }
+                                } catch (e) {
+                                  Scaffold.of(context).showSnackBar(
+                                        new SnackBar(
+                                            content: new Text(e.toString())),
+                                      );
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

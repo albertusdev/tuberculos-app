@@ -1,69 +1,127 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import "package:redux/redux.dart";
+import "package:cloud_firestore/cloud_firestore.dart";
 
-import "register_field.dart";
+class RegisterField {
+  TextEditingController controller;
+  String hint;
+  String error;
 
-enum RegisterActions {
-  NextPage,
-  PrevPage,
-  ChangeUsername,
-  ChangePassword,
-  ChangeFirstName,
-  ChangeLastName,
-  SetLoading,
-  ClearLoading,
+  RegisterField({
+    TextEditingController controller,
+    String hint,
+    String error,
+  }) {
+    this.hint = hint ?? "";
+    this.error = error;
+    this.controller = controller ?? new TextEditingController();
+  }
+
+  @override
+  int get hashCode => controller.hashCode ^ error.hashCode ^ hint.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return identical(this, other) ||
+        (this.hint == other.hint &&
+            this.error == other.error &&
+            this.controller == other.controller);
+  }
+
+  @override
+  String toString() {
+    return 'Data: ${controller.text}, Error: $error';
+  }
+
+  InputDecoration get decoration => new InputDecoration(
+        hintText: hint,
+        errorText: error,
+      );
+
+  String get data => controller.text;
 }
 
+class ActionNextPage {}
+
+class ActionPrevPage {}
+
+class ActionSetLoading {}
+
+class ActionClearLoading {}
+
+class ActionChangeField {
+  String key;
+  RegisterField value;
+  ActionChangeField(this.key, this.value);
+}
 
 class RegisterState {
   static final int maxStep = 3;
 
-  RegisterField emailField = new RegisterField(hintText: "E-mail");
-  RegisterField passwordField = new RegisterField(hintText: "Password");
-  RegisterField firstNameField = new RegisterField(hintText: "First Name");
-  RegisterField lastNameField = new RegisterField(hintText: "Last Name");
+  int currentStep;
+  bool isLoading;
+  Map<String, RegisterField> fields;
 
-  bool isLoading = false;
+  RegisterState(
+      {int currentStep, bool isLoading, Map<String, RegisterField> fields}) {
+    this.currentStep = currentStep ?? 1;
+    this.isLoading = isLoading ?? false;
+    this.fields = fields ??
+        {
+          "email": new RegisterField(hint: "E-mail"),
+          "password": new RegisterField(hint: "Password"),
+          "firstName": new RegisterField(hint: "First Name"),
+          "lastName": new RegisterField(hint: "Last Name"),
+        };
+  }
 
-  int currentStep = 1;
-
-  RegisterState();
-
-  RegisterState.clone(RegisterState prev) {
-    currentStep = prev.currentStep;
-    isLoading = prev.isLoading;
-    emailField = prev.emailField;
-    passwordField = prev.passwordField;
-    firstNameField = prev.firstNameField;
-    lastNameField = prev.lastNameField;
+  RegisterState clone({
+    int currentStep,
+    bool isLoading,
+    Map<String, RegisterField> fields,
+  }) {
+    return new RegisterState(
+      currentStep: currentStep ?? this.currentStep,
+      isLoading: isLoading ?? this.isLoading,
+      fields: fields ?? new Map.from(this.fields),
+    );
   }
 }
 
 RegisterState registerReducer(RegisterState state, action) {
-  RegisterState newState = new RegisterState.clone(state);
-  switch (action) {
-    case RegisterActions.NextPage:
-      if (state.currentStep + 1 <= RegisterState.maxStep) {
-        newState.currentStep += 1;
-      }
-      break;
-    case RegisterActions.PrevPage:
-      if (state.currentStep - 1 >= 1) {
-        newState = new RegisterState.clone(state);
-        newState.currentStep -= 1;
-      }
-      break;
-    case (RegisterActions.SetLoading):
-      newState.isLoading = true;
-      break;
-    case (RegisterActions.ClearLoading):
-      newState.isLoading = false;
-      break;
-    default:
-      break;
+  RegisterState newState = state;
+  if (action is ActionNextPage) {
+    if (state.currentStep + 1 <= RegisterState.maxStep) {
+      newState = state.clone(currentStep: state.currentStep + 1);
+    }
+  } else if (action is ActionPrevPage) {
+    if (state.currentStep - 1 >= 1) {
+      newState = state.clone(currentStep: state.currentStep - 1);
+    }
+  } else if (action is ActionSetLoading) {
+    newState = state.clone(isLoading: true);
+  } else if (action is ActionClearLoading) {
+    newState = state.clone(isLoading: false);
+  } else if (action is ActionChangeField) {
+    Map<String, RegisterField> fields = new Map.from(state.fields);
+    fields[action.key] = action.value;
+    newState = state.clone(fields: fields);
+  } else {
+    newState = state.clone();
   }
+  print("reduce");
   return newState;
 }
 
-final void verifyEmail = (Store<RegisterState> store) async {
-
-};
+/// Return true if there is no error
+/// Return false if there is error (network error or e-mail has already exist)
+Future<bool> verifyEmailHasNotExist(Store<RegisterState> store) async {
+  store.dispatch(new ActionSetLoading());
+  String email = store.state.fields["email"].controller.text;
+  DocumentSnapshot documentSnapshot =
+      await Firestore.instance.document("users/$email").get();
+  store.dispatch(new ActionClearLoading());
+  return !documentSnapshot.exists;
+}
