@@ -2,8 +2,8 @@
 An application for pharmacist to help monitor and remind their patient to take their medicine regularly.
 
 ## Dependencies
-> Flutter
-> Dart
+- Flutter
+- Dart
 
 ## Installation
 - Install [Flutter](https://flutter.io/get-started/install/)
