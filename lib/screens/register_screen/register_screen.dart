@@ -1,10 +1,12 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 import "package:redux/redux.dart";
 import "package:flutter_redux/flutter_redux.dart";
 import "package:redux_thunk/redux_thunk.dart";
 
 import "package:firebase_auth/firebase_auth.dart";
+import "package:cloud_firestore/cloud_firestore.dart";
 
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/utils.dart";
@@ -122,6 +124,9 @@ class _FirstStepWidgetState extends State<_FirstStepWidget> {
                         return "This is not a valid e-mail format";
                       }
                     },
+                    inputFormatters: <TextInputFormatter>[
+                      new LowerCaseTextFormatter(),
+                    ],
                   ),
                   new TextFormField(
                     controller: fields["password"].controller,
@@ -187,6 +192,7 @@ class _FirstStepWidgetState extends State<_FirstStepWidget> {
                                         )));
                                   }
                                 } catch (e) {
+                                  store.dispatch(new ActionClearLoading());
                                   Scaffold.of(context).showSnackBar(
                                         new SnackBar(
                                             content: new Text(e.toString())),
@@ -265,12 +271,153 @@ class _SecondStepWidget extends StatelessWidget {
   }
 }
 
-class _ThirdStepWidget extends StatelessWidget {
+class _ThirdStepWidget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _ThirdStepWidgetState();
+}
+
+class _ThirdStepWidgetState extends State<_ThirdStepWidget> {
+  GlobalKey<FormState> _pasienFormKey = new GlobalKey<FormState>();
+  GlobalKey<FormState> _apotekerFormKey = new GlobalKey<FormState>();
+
+  Widget getPasienForm(BuildContext context, Store<RegisterState> store) {
+    Map<String, dynamic> fields = store.state.fields;
+    RegisterField alamat = fields["alamat"];
+    return new Form(
+      key: _pasienFormKey,
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new TextFormField(
+            controller: alamat.controller,
+            decoration: new InputDecoration(
+              hintText: alamat.hint,
+              errorText: alamat.error,
+            ),
+            validator: (val) =>
+                val.isEmpty ? "Alamat tidak boleh kosong" : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget getApotekerForm(BuildContext context, Store<RegisterState> store) {
+    Map<String, dynamic> fields = store.state.fields;
+    RegisterField alamatApotek = fields["alamatApotek"];
+    RegisterField namaApotek = fields["namaApotek"];
+    return new Form(
+      key: _apotekerFormKey,
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new TextFormField(
+            controller: namaApotek.controller,
+            decoration: new InputDecoration(
+              hintText: namaApotek.hint,
+              errorText: namaApotek.error,
+            ),
+            validator: (value) =>
+                value.isEmpty ? "Nama Apotek tidak boleh kosong." : null,
+          ),
+          new TextFormField(
+            controller: alamatApotek.controller,
+            decoration: new InputDecoration(
+              hintText: alamatApotek.hint,
+              errorText: alamatApotek.error,
+            ),
+            validator: (value) =>
+                value.isEmpty ? "Alamat Apotek tidak boleh kosong." : null,
+          )
+        ],
+      ),
+    );
+  }
+
+  void signUp(BuildContext context, Store<RegisterState> store) async {
+    bool isFormValid = true;
+    if (store.state.fields["role"] == UserRole.apoteker) {
+      isFormValid = _apotekerFormKey.currentState.validate();
+    } else {
+      isFormValid = _pasienFormKey.currentState.validate();
+    }
+    if (!isFormValid) {
+      Scaffold.of(context).showSnackBar(new SnackBar(content: new Text("Masukan tidak valid.")));
+      return;
+    }
+    store.dispatch(new ActionSetLoading());
+    try {
+      Map<String, String> fields = store.state.fields.map(
+          (key, value) => new MapEntry<String, String>(key, value.toString()));
+      print(fields);
+      String email = fields["email"];
+      String password = fields["password"];
+      fields.remove("password");
+      FirebaseUser user = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      DocumentReference ref = Firestore.instance.document("users/$email");
+      Firestore.instance.runTransaction((Transaction tx) async {
+        await tx.set(ref, fields);
+      });
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      String role = fields["role"];
+      String redirectRouteName = "";
+      if (isApoteker(role)) {
+        redirectRouteName = Routes.apotekerHomeScreen.toString();
+      } else {
+        redirectRouteName = Routes.pasienHomeScreen.toString();
+      }
+      while (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed(redirectRouteName);
+    } catch (e) {
+      Scaffold
+          .of(context)
+          .showSnackBar(new SnackBar(content: new Text(e.toString())));
+    }
+    store.dispatch(new ActionClearLoading());
+  }
+
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(builder: (context, Store<RegisterState> store) {
+      Widget forms;
+      if (store.state.fields["role"] == UserRole.apoteker) {
+        forms = getApotekerForm(context, store);
+      } else {
+        forms = getPasienForm(context, store);
+      }
       return new Center(
-        child: new Text(store.state.fields["role"].toString()),
+        child: new Container(
+          margin: const EdgeInsets.symmetric(horizontal: 50.0),
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              forms,
+              new Container(
+                margin: const EdgeInsets.only(top: 16.0),
+                child: new Row(
+                  children: [
+                    new Expanded(
+                      child: new OutlineButton(
+                        child: store.state.isLoading
+                            ? new SizedBox(
+                                width: 16.0,
+                                height: 16.0,
+                                child: new CircularProgressIndicator(),
+                              )
+                            : new Text("Sign Up"),
+                        onPressed: () {
+                          signUp(context, store);
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     });
   }

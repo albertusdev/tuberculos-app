@@ -1,3 +1,5 @@
+import "package:flutter/services.dart";
+
 enum UserRole {
   pasien,
   apoteker,
@@ -17,4 +19,15 @@ var emailRegex =
 bool isEmail(String str) {
   RegExp regExp = new RegExp(emailRegex);
   return regExp.hasMatch(str);
+}
+
+class LowerCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue,
+      TextEditingValue newValue) {
+    return new TextEditingValue(
+      text: newValue.text.toLowerCase(),
+      selection: newValue.selection,
+    );
+  }
 }

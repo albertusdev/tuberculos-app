@@ -33,7 +33,7 @@ class RegisterField {
 
   @override
   String toString() {
-    return 'Data: ${controller.text}, Error: $error';
+    return controller.text;
   }
 
   InputDecoration get decoration => new InputDecoration(
