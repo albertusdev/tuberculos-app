@@ -1,9 +1,10 @@
 import "package:flutter/material.dart";
-import "package:firebase_auth/firebase_auth.dart";
-import "package:cloud_firestore/cloud_firestore.dart";
-import 'package:flutter/src/scheduler/ticker.dart';
-import "package:shared_preferences/shared_preferences.dart";
 import "package:flutter/services.dart";
+
+import "package:cloud_firestore/cloud_firestore.dart";
+import "package:firebase_auth/firebase_auth.dart";
+
+import "package:shared_preferences/shared_preferences.dart";
 
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/utils.dart";
@@ -64,8 +65,6 @@ class _LoginFormState extends State<LoginForm>
       if (user != null) {
         Navigator.pushReplacementNamed(
             context, Routes.pasienHomeScreen.toString());
-      } else {
-        print("Login failed");
       }
       setState(() {
         _isLoading = false;
@@ -87,6 +86,9 @@ class _LoginFormState extends State<LoginForm>
         decoration: InputDecoration(
           hintText: _emailFieldUtils.hintText,
         ),
+        inputFormatters: <TextInputFormatter>[
+          new LowerCaseTextFormatter(),
+        ],
       ),
       new TextFormField(
         controller: _passwordFieldUtils.controller,
