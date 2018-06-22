@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 import "package:tuberculos/screens/splash_screen.dart";
 import "package:tuberculos/screens/login_screen/login_screen.dart";
@@ -30,6 +31,10 @@ class MyApp extends StatelessWidget {
 }
 
 void main() async {
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(MyApp());
 }
 

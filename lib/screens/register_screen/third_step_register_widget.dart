@@ -91,7 +91,7 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
     });
   }
 
-  void submit(BuildContext context, Store<RegisterState> store) {
+  void submit(BuildContext context, Store<RegisterState> store) async {
     bool isFormValid = true;
     if (store.state.fields["role"].data == UserRole.apoteker) {
       isFormValid =
@@ -105,8 +105,7 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
           content: new Text("Masukan tidak valid.")));
       return;
     }
-    signUp(context, store);
-
+    await signUp(context, store);
   }
 
   @override

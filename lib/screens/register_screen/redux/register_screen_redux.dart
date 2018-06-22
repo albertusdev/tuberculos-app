@@ -11,13 +11,19 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:tuberculos/utils.dart";
 import "package:tuberculos/routes.dart";
 
-abstract class RegisterField<T>  {
+abstract class RegisterField<T> {
   T get data;
+  void clear();
 }
 
 class SimpleField<T> implements RegisterField<T> {
+  Function generateInitialValueCallback;
   T data;
-  SimpleField(this.data);
+  SimpleField(this.data, {Function generateInitialValueCallback});
+  @override
+  void clear() {
+    this.data = generateInitialValueCallback();
+  }
 }
 
 class RegisterFormField implements RegisterField<String> {
@@ -46,10 +52,16 @@ class RegisterFormField implements RegisterField<String> {
             this.controller == other.controller);
   }
 
-  InputDecoration get decoration => new InputDecoration(hintText: hint, errorText: error);
+  InputDecoration get decoration =>
+      new InputDecoration(hintText: hint, errorText: error);
 
   @override
   String get data => controller?.text;
+
+  @override
+  void clear() {
+    controller.clear();
+  }
 }
 
 class ActionNextPage {}
@@ -91,7 +103,14 @@ class RegisterState {
           "alamat": new RegisterFormField(hint: "Alamat"),
           "namaApotek": new RegisterFormField(hint: "Nama Apotek"),
           "alamatApotek": new RegisterFormField(hint: "Alamat Apotek"),
-          "pasien": new SimpleField<List<String>>(<String>[]),
+          "pasien": new SimpleField<List<String>>(
+            new List<String>(),
+            generateInitialValueCallback: () {
+              return new List<String>();
+            },
+          ),
+          "isVerified": new SimpleField<bool>(false),
+          "tuberculosStage": new SimpleField<String>(""),
         };
   }
 
@@ -128,11 +147,8 @@ RegisterState registerReducer(RegisterState state, action) {
     newState = state.clone(fields: fields);
   } else if (action is ActionCleanFields) {
     state.fields.forEach((_, val) {
-      if (val is RegisterFormField) {
-        val.controller.dispose();
-      }
+      if (val is RegisterField) val.clear();
     });
-    newState = new RegisterState();
   } else {
     newState = state.clone();
   }
@@ -153,26 +169,45 @@ Future<bool> verifyEmailHasNotExist(Store<RegisterState> store) async {
 void signUp(BuildContext context, Store<RegisterState> store) async {
   store.dispatch(new ActionSetLoading());
   try {
-    Map<String, dynamic> fields = store.state.fields.map(
-        (key, value) {
-          if (value.data is UserRole) {
-            return new MapEntry<String, String>(key, value.data.toString());
-          }
-          return new MapEntry<String, dynamic>(key, value.data);
-        });
+    Map<String, dynamic> fields = store.state.fields.map((key, value) {
+      if (value.data is UserRole) {
+        return new MapEntry<String, String>(key, value.data.toString());
+      }
+      return new MapEntry<String, dynamic>(key, value.data);
+    });
     String email = fields["email"];
     String password = fields["password"];
     fields.remove("password");
+
     FirebaseUser user = await FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password);
-    DocumentReference ref = Firestore.instance.document("users/$email");
+
     Firestore.instance.runTransaction((Transaction tx) async {
+      DocumentReference ref = Firestore.instance.document("users/$email");
+      if (isPasien(fields["role"])) {
+        DocumentReference apotekerRef =
+            Firestore.instance.document("users/${fields["apotekerUsername"]}");
+        DocumentSnapshot apotekerDocumentSnapshot = await tx.get(apotekerRef);
+        try {
+          if (apotekerDocumentSnapshot.exists) {
+            List listOfPasien =
+                new List.from(apotekerDocumentSnapshot.data["pasien"]);
+            listOfPasien.add(email);
+            await tx.update(
+                apotekerDocumentSnapshot.reference, {"pasien": listOfPasien});
+          }
+        } catch (e) {
+          print(e.toString());
+        }
+      }
       await tx.set(ref, fields);
     });
     await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
+
     String role = fields["role"];
     String redirectRouteName = "";
+
     if (isApoteker(role)) {
       redirectRouteName = Routes.apotekerHomeScreen.toString();
     } else {
