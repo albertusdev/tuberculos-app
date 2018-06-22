@@ -2,27 +2,28 @@ import "package:flutter/material.dart";
 
 import "package:redux/redux.dart";
 import "package:flutter_redux/flutter_redux.dart";
+import 'package:tuberculos/routes.dart';
 
+import "package:tuberculos/services/api.dart";
 import "package:tuberculos/utils.dart";
 
 import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
-import "choose_apoteker_dialog.dart";
+import "register_screen_2_1.dart";
 
-class ThirdStepWidget extends StatefulWidget {
+class SecondStepWidget extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new ThirdStepWidgetState();
+  State<StatefulWidget> createState() => new _SecondStepWidgetState();
 }
 
-class ThirdStepWidgetState extends State<ThirdStepWidget> {
-  GlobalKey<FormState> _pasienFormKey = new GlobalKey<FormState>();
-  GlobalKey<FormState> _apotekerFormKey = new GlobalKey<FormState>();
+class _SecondStepWidgetState extends State<SecondStepWidget> {
+  GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   Widget getPasienForm(BuildContext context, Store<RegisterState> store) {
-    Map<String, dynamic> fields = store.state.fields;
+    var fields = store.state.fields;
     RegisterFormField alamat = fields["alamat"];
-    SimpleField apotekerUsername = fields["apotekerUsername"];
+    SimpleField apotekerUsername = fields["apoteker"];
     return new Form(
-      key: _pasienFormKey,
+      key: _formKey,
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -33,7 +34,7 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
               errorText: alamat.error,
             ),
             validator: (val) =>
-            val.isEmpty ? "Alamat tidak boleh kosong" : null,
+                val.isEmpty ? "Alamat tidak boleh kosong" : null,
           ),
           new FlatButton(
             onPressed: () {
@@ -47,11 +48,12 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
   }
 
   Widget getApotekerForm(BuildContext context, Store<RegisterState> store) {
-    Map<String, dynamic> fields = store.state.fields;
+    Map<String, RegisterField> fields = store.state.apotekerFields;
     RegisterFormField alamatApotek = fields["alamatApotek"];
     RegisterFormField namaApotek = fields["namaApotek"];
+    RegisterFormField sipa = fields["sipa"];
     return new Form(
-      key: _apotekerFormKey,
+      key: _formKey,
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -62,7 +64,7 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
               errorText: namaApotek.error,
             ),
             validator: (value) =>
-            value.isEmpty ? "Nama Apotek tidak boleh kosong." : null,
+                value.isEmpty ? "Nama Apotek tidak boleh kosong." : null,
           ),
           new TextFormField(
             controller: alamatApotek.controller,
@@ -71,8 +73,18 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
               errorText: alamatApotek.error,
             ),
             validator: (value) =>
-            value.isEmpty ? "Alamat Apotek tidak boleh kosong." : null,
+                value.isEmpty ? "Alamat Apotek tidak boleh kosong." : null,
           ),
+          new TextFormField(
+              controller: sipa.controller,
+              decoration: new InputDecoration(
+                hintText: sipa.hint,
+                errorText: sipa.error,
+              ),
+              validator: (value) {
+                if (value.isEmpty) return "SIPA tidak boleh kosong.";
+                if (value.length < 12) return "SIPA kurang dari 12 digit.";
+              })
         ],
       ),
     );
@@ -86,37 +98,38 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
     ).then<void>((String value) {
       // The value passed to Navigator.pop() or null.
       if (value != null) {
-        store.dispatch(new ActionChangeField("apotekerUsername", new SimpleField(value)));
+        store.dispatch(
+            new ActionSetPasienField("apoteker", new SimpleField(value)));
       }
     });
   }
 
   void submit(BuildContext context, Store<RegisterState> store) async {
-    bool isFormValid = true;
-    if (store.state.fields["role"].data == UserRole.apoteker) {
-      isFormValid =
-          _apotekerFormKey.currentState.validate();
-    } else {
-      isFormValid =
-          _pasienFormKey.currentState.validate();
-    }
+    bool isFormValid = _formKey.currentState.validate();
     if (!isFormValid) {
-      Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text("Masukan tidak valid.")));
+      Scaffold.of(context).showSnackBar(
+          new SnackBar(content: new Text("Masukan tidak valid.")));
       return;
     }
-    await signUp(context, store);
+    try {
+      await signUp(store);
+      String role = store.state.role;
+      Routes redirectRoute = isApoteker(role) ? Routes.apotekerHomeScreen : Routes.pasienHomeScreen;
+      while (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed(redirectRoute.toString());
+    } catch (e) {
+      Scaffold
+          .of(context)
+          .showSnackBar(new SnackBar(content: new Text(e.toString())));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(builder: (context, Store<RegisterState> store) {
-      Widget forms;
-      if (store.state.fields["role"].data == UserRole.apoteker) {
-        forms = getApotekerForm(context, store);
-      } else {
-        forms = getPasienForm(context, store);
-      }
+      Widget forms = store.state.role == UserRole.apoteker
+          ? getApotekerForm(context, store)
+          : getPasienForm(context, store);
       return new Center(
         child: new Container(
           margin: const EdgeInsets.symmetric(horizontal: 50.0),
@@ -132,10 +145,10 @@ class ThirdStepWidgetState extends State<ThirdStepWidget> {
                       child: new OutlineButton(
                         child: store.state.isLoading
                             ? new SizedBox(
-                          width: 16.0,
-                          height: 16.0,
-                          child: new CircularProgressIndicator(),
-                        )
+                                width: 16.0,
+                                height: 16.0,
+                                child: new CircularProgressIndicator(),
+                              )
                             : new Text("Sign Up"),
                         onPressed: () {
                           submit(context, store);

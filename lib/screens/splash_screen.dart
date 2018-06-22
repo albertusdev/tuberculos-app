@@ -14,33 +14,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkIsAuthenticated();
+    _initTimer();
   }
 
-  void _checkIsAuthenticated() async {
-    String routeName = Routes.loginScreen.toString();
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    if (user != null) {
-      try {
-        var userInfo =
-            await Firestore.instance.document("users/${user.email}").get();
-        var isUserRoleExist = userInfo?.data?.containsKey("role") ?? false;
-        if (isUserRoleExist) {
-          var userRole = userInfo.data["role"];
-          if (isApoteker(userRole)) {
-            routeName = Routes.apotekerHomeScreen.toString();
-          } else if (isPasien(userRole)) {
-            routeName = Routes.pasienHomeScreen.toString();
-          }
-        }
-      } catch (e) {
-        Scaffold
-            .of(context)
-            .showSnackBar(new SnackBar(content: new Text(e.toString())));
-      }
-    }
-    new Timer(new Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, routeName);
+  void _initTimer() async {
+    new Timer(new Duration(seconds: 1), () {
+      Navigator.pushReplacementNamed(context, Routes.loginScreen.toString());
     });
   }
 

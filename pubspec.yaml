@@ -4,9 +4,13 @@ description: An application for pharmacist to help monitor and remind their pati
 dependencies:
   cloud_firestore:
   firebase_auth:
+  firebase_database:
+  firebase_storage:
   flutter:
     sdk: flutter
   flutter_redux:
+  google_sign_in:
+  image_picker:
   redux:
   redux_epics:
   redux_thunk:

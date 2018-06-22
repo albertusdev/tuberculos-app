@@ -8,7 +8,7 @@ import "package:tuberculos/routes.dart";
 
 import "package:tuberculos/screens/logout_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
-import "package:tuberculos/screens/pasien_screens/pasien_chat_screen.dart";
+import "package:tuberculos/screens/chat_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart";
 
 class NavigationIconView {
@@ -140,7 +140,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
         title: 'Chat',
         color: Colors.indigo,
         vsync: this,
-        child: new PasienChatScreen(),
+        child: new ChatScreen(),
       ),
       new NavigationIconView(
         icon: const Icon(Icons.exit_to_app),

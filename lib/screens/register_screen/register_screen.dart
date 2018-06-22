@@ -9,11 +9,9 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 
 import "package:tuberculos/routes.dart";
-import "package:tuberculos/utils.dart";
 
-import "first_step_register_widget.dart";
-import "second_step_register_widget.dart";
-import "third_step_register_widget.dart";
+import "register_screen_1.dart";
+import "register_screen_2.dart";
 
 import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
 
@@ -37,9 +35,6 @@ class RegisterScreen extends StatelessWidget {
       case 2:
         widget = new SecondStepWidget();
         break;
-      case 3:
-        widget = new ThirdStepWidget();
-        break;
     }
     return widget;
   }
@@ -48,29 +43,40 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child = new Scaffold(
       body: getCurrentStepWidget(),
-      bottomNavigationBar: new MaterialButton(
-        child: new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              "Already have an account? ",
-              style: new TextStyle(
-                color: Theme.of(context).disabledColor,
-              ),
+      bottomNavigationBar: new StoreConnector<RegisterState, bool>(
+        builder: (BuildContext context, bool isLoading) {
+          List<Widget> children = <Widget>[];
+          if (isLoading) children.add(new LinearProgressIndicator());
+          children.add(new MaterialButton(
+            child: new Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new Text(
+                  "Already have an account? ",
+                  style: new TextStyle(
+                    color: Theme.of(context).disabledColor,
+                  ),
+                ),
+                new Text(
+                  " Log in.",
+                  style: new TextStyle(
+                    color: Theme.of(context).accentColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            new Text(
-              " Log in.",
-              style: new TextStyle(
-                color: Theme.of(context).accentColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        onPressed: () {
-          Navigator.pushReplacementNamed(
-              context, Routes.loginScreen.toString());
+            onPressed: () {
+              Navigator.pushReplacementNamed(
+                  context, Routes.loginScreen.toString());
+            },
+          ));
+          return new Column(
+            mainAxisSize: MainAxisSize.min,
+            children: children,
+          );
         },
+        converter: (Store<RegisterState> store) => store.state.isLoading,
       ),
     );
     return new StoreProvider(
