@@ -20,22 +20,12 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
 
   Widget getPasienForm(BuildContext context, Store<RegisterState> store) {
     var fields = store.state.fields;
-    RegisterFormField alamat = fields["alamat"];
     SimpleField apotekerUsername = fields["apoteker"];
     return new Form(
       key: _formKey,
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new TextFormField(
-            controller: alamat.controller,
-            decoration: new InputDecoration(
-              hintText: alamat.hint,
-              errorText: alamat.error,
-            ),
-            validator: (val) =>
-                val.isEmpty ? "Alamat tidak boleh kosong" : null,
-          ),
           new Row(
             children: <Widget>[
               new Expanded(

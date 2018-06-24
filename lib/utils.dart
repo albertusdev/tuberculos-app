@@ -10,11 +10,21 @@ bool isEmail(String str) {
 
 class LowerCaseTextFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue,
-      TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     return new TextEditingValue(
       text: newValue.text.toLowerCase(),
       selection: newValue.selection,
     );
   }
+}
+
+String getInitialsOfDisplayName(String displayName) {
+  List<String> names = displayName.split(" ");
+  if (names.length > 1) {
+    names = [names[0], names.last];
+  }
+  print(names);
+  return displayName.split(" ").fold(
+      "", (String prev, String cur) => prev + (cur.length > 0 ? cur[0] : ""));
 }

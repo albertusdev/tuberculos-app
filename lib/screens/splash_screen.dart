@@ -35,10 +35,6 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: new Container(
-        margin: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 50.0),
-        child: LinearProgressIndicator(),
-      ),
     );
   }
 }

@@ -262,10 +262,12 @@ void signUp(Store<RegisterState> store) async {
     DocumentSnapshot apotekerDocumentSnapshot =
         await apotekerDocumentRef.get();
     Map<String, dynamic> apotekerData = new Map<String, dynamic>.from(apotekerDocumentSnapshot.data);
+
     apotekerData["pasiens"] = new List.from(apotekerData["pasiens"]);
     apotekerData["pasiens"].add(fields);
     apotekerDocumentRef.setData(apotekerData, merge: true);
   }
+
   await ref.setData(fields);
   await signInFirebaseWithGoogleSignIn(store.state.googleSignIn);
 

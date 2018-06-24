@@ -9,24 +9,26 @@ import "package:flutter_redux/flutter_redux.dart";
 import "package:google_sign_in/google_sign_in.dart";
 
 import "package:redux/redux.dart";
-import "package:redux_thunk/redux_thunk.dart";
 
-import "package:tuberculos/routes.dart";
+import "package:tuberculos/models/user.dart";
 import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
-import "package:tuberculos/utils.dart";
 import "package:tuberculos/services/api.dart";
-
+import "package:tuberculos/widgets/continue_with_google_button.dart";
 import "register_screen.dart";
 
 class FirstStepWidget extends StatelessWidget {
-  void onUserRoleButtonPressed(
-      {BuildContext context, Store<RegisterState> store, String role}) async {
+
+  void _handleOnContinueWithGooglePressed(
+      {BuildContext context, Store<RegisterState> store}) async {
+    String role = store.state.role;
     GoogleSignIn googleSignIn = store.state.googleSignIn;
     GoogleSignInAccount user = googleSignIn.currentUser;
     try {
       await googleSignIn.signOut();
       user = await googleSignIn.signIn();
       if (user == null) throw "Mohon login dengan akun Google.";
+
+      store.dispatch(new ActionSetLoading());
 
       String email = user.email;
 
@@ -53,54 +55,90 @@ class FirstStepWidget extends StatelessWidget {
     store.dispatch(new ActionClearLoading());
   }
 
+  Widget _buildWidget(BuildContext context, Store<RegisterState> store) {
+    String role = store.state.role;
+    return new Center(
+      child: new Container(
+        margin: new EdgeInsets.symmetric(horizontal: 50.0),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Container(
+              margin: new EdgeInsets.all(16.0),
+              child: new Text(
+                "TuberculosApp",
+                style: new TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 32.0),
+              ),
+            ),
+            new Text("Daftar sebagai", style: Theme.of(context).textTheme.headline),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                new Flexible(
+                  child: new FlatButton(
+                    child: new Column(
+                      children: <Widget>[
+                        new Icon(
+                          Icons.accessibility,
+                          color: role == User.pasien
+                              ? Theme.of(context).accentColor
+                              : null,
+                        ),
+                        new Text("Pasien",
+                            style: new TextStyle(
+                                color: role == User.pasien
+                                    ? Theme.of(context).accentColor
+                                    : null)),
+                      ],
+                    ),
+                    padding: new EdgeInsets.symmetric(vertical: 16.0),
+                    onPressed: () => store.dispatch(new ActionSetRole(User.pasien)),
+                  ),
+                ),
+                new Flexible(
+                  child: new FlatButton(
+                    child: new Column(
+                      children: <Widget>[
+                        new Icon(
+                          Icons.local_hospital,
+                          color: role == User.apoteker
+                              ? Theme.of(context).accentColor
+                              : null,
+                        ),
+                        new Text(
+                          "Apoteker",
+                          style: new TextStyle(
+                            color: role == User.apoteker
+                                ? Theme.of(context).accentColor
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onPressed: () => store.dispatch(new ActionSetRole(User.apoteker)),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  ),
+                ),
+              ],
+            ),
+            new Container(
+              margin: new EdgeInsets.only(top: 16.0),
+              child: new ContinueWithGoogleButton(onPressed: () {
+                _handleOnContinueWithGooglePressed(context: context, store: store);
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(
       builder: (context, Store<RegisterState> store) {
-        return new Center(
-            child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Container(
-              margin: const EdgeInsets.symmetric(vertical: 32.0),
-              child: new Text(
-                "Choose your role",
-                style: Theme.of(context).textTheme.headline,
-              ),
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                new OutlineButton(
-                  child: new Column(
-                    children: <Widget>[
-                      new Icon(Icons.accessibility),
-                      new Text("Pasien"),
-                    ],
-                  ),
-                  shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(30.0)),
-                  padding: const EdgeInsets.all(16.0),
-                  onPressed: () => onUserRoleButtonPressed(
-                      context: context, store: store, role: UserRole.pasien),
-                ),
-                new OutlineButton(
-                  child: new Column(
-                    children: <Widget>[
-                      new Icon(Icons.local_hospital),
-                      new Text("Apoteker"),
-                    ],
-                  ),
-                  shape: new RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(75.0)),
-                  padding: const EdgeInsets.all(16.0),
-                  onPressed: () => onUserRoleButtonPressed(
-                      context: context, store: store, role: UserRole.apoteker),
-                )
-              ],
-            )
-          ],
-        ));
+        return _buildWidget(context, store);
       },
     );
   }

@@ -15,6 +15,9 @@ class MyApp extends StatelessWidget {
     return  MaterialApp(
       title: "TuberculosApp",
       home:  SplashScreen(),
+      theme: new ThemeData(
+        accentColor: Colors.green,
+      ),
       routes: <String, WidgetBuilder>{
         (Routes.loginScreen.toString()): (BuildContext context) =>
              LoginScreen(),

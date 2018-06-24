@@ -7,9 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import "package:google_sign_in/google_sign_in.dart";
@@ -17,60 +14,54 @@ import "package:google_sign_in/google_sign_in.dart";
 import 'package:image_picker/image_picker.dart';
 
 import "package:tuberculos/services/api.dart";
+import "package:tuberculos/utils.dart";
 
-final ThemeData kDefaultTheme = new ThemeData(
-  primarySwatch: Colors.purple,
-  accentColor: Colors.orangeAccent[400],
-);
-
-final auth = FirebaseAuth.instance;
-final reference = Firestore.instance.document('messages');
-
-const String _name = "Your Name";
-
-final googleSignIn = new GoogleSignIn();
+import "package:tuberculos/models/user.dart";
+import "package:tuberculos/models/chat.dart";
 
 @override
-class ChatMessage extends StatelessWidget {
-  ChatMessage({this.snapshot, this.animation});
-  final DocumentSnapshot snapshot;
+class ChatMessageWidget extends StatelessWidget {
+  ChatMessageWidget({this.chatMessage, this.animation});
+  final ChatMessage chatMessage;
   final Animation animation;
 
   Widget build(BuildContext context) {
-    return new SizeTransition(
-      sizeFactor: new CurvedAnimation(parent: animation, curve: Curves.easeOut),
-      axisAlignment: 0.0,
-      child: new Container(
-        margin: const EdgeInsets.symmetric(vertical: 10.0),
-        child: new Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new Container(
-              margin: const EdgeInsets.only(right: 16.0),
-              child: new CircleAvatar(
-                  backgroundImage:
-                      new NetworkImage(snapshot.data['senderPhotoUrl'])),
+    User owner = chatMessage.sender;
+    return new Container(
+      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child: new Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Container(
+            margin: const EdgeInsets.only(right: 16.0),
+            child: new CircleAvatar(
+              backgroundImage: owner.photoUrl != null
+                  ? new NetworkImage(owner.photoUrl)
+                  : null,
+              child: owner.photoUrl == null
+                  ? new Text(getInitialsOfDisplayName(owner.displayName))
+                  : null,
             ),
-            new Expanded(
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  new Text(snapshot.data['senderName'],
-                      style: Theme.of(context).textTheme.subhead),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 5.0),
-                    child: snapshot.data['imageUrl'] != null
-                        ? new Image.network(
-                            snapshot.data['imageUrl'],
-                            width: 250.0,
-                          )
-                        : new Text(snapshot.data['text']),
-                  ),
-                ],
-              ),
+          ),
+          new Expanded(
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                new Text(owner.displayName,
+                    style: Theme.of(context).textTheme.subhead),
+                new Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: chatMessage.imageUrl != null
+                      ? new Image.network(
+                          chatMessage.imageUrl,
+                          width: 250.0,
+                        )
+                      : new Text(chatMessage.text),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -78,85 +69,72 @@ class ChatMessage extends StatelessWidget {
 
 class ChatScreen extends StatefulWidget {
   final CollectionReference documentRef;
+  final GoogleSignIn googleSignIn;
 
-  ChatScreen({Key key, this.documentRef}) : super(key: key);
+  ChatScreen({Key key, this.documentRef, this.googleSignIn}) : super(key: key);
 
   @override
-  State createState() => new ChatScreenState(documentRef);
+  State createState() => new ChatScreenState(documentRef, googleSignIn);
 }
 
-class ChatScreenState extends State<ChatScreen> {
-  CollectionReference documentRef;
+class ChatScreenState extends State<ChatScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _textController = new TextEditingController();
-  bool _isComposing = false;
+  Animation<double> _animation;
+  AnimationController _animationController;
 
-  ChatScreenState(CollectionReference documentRef) {
+  bool _isComposing = false;
+  CollectionReference documentRef;
+  GoogleSignIn googleSignIn;
+
+  ChatScreenState(CollectionReference documentRef, GoogleSignIn googleSignIn) {
     if (documentRef == null) {
       this.documentRef = getMessageCollectionReference("mock");
     } else {
       this.documentRef = documentRef;
     }
+    this.googleSignIn = googleSignIn ?? new GoogleSignIn();
+    if (this.googleSignIn.currentUser == null) {
+      this.googleSignIn.signInSilently();
+      if (this.googleSignIn.currentUser == null) {
+        this.googleSignIn.signIn();
+      }
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    print(documentRef?.document()?.documentID);
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Consultation Chat"),
-      ),
-      body: new Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            new Flexible(
-              child: new StreamBuilder(
-                stream: documentRef.snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  Widget child;
-                  if (!snapshot.hasData) {
-                    return new Center(
-                      child: new Text("Empty messages..."),
-                    );
-                  }
-                  final data = snapshot.data.documents;
-                  final int dataCount = data.length;
-                  if (dataCount > 0) {
-                    child = new ListView.builder(
-                      itemCount: dataCount,
-                      itemBuilder: (_, int index) {
-                        final DocumentSnapshot document = data[index];
-                        return new ListTile(
-                          title: new Text('${document["sender"]}'),
-                          subtitle: new Text(
-                              document["message"] ?? '<No message retrieved>'),
-                        );
-                      },
-                    );
-                  } else {
-                    child = new Center(
-                      child: new Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          new Text(
-                              "Maaf, belum ada Apoteker yang terdaftar dalam sistem."),
-                        ],
-                      ),
-                    );
-                  }
-                  return child;
-                },
-              ),
-            ),
-            new Container(
-              decoration: new BoxDecoration(color: Theme.of(context).cardColor),
-              child: new Column(children: <Widget>[
-                new Divider(height: 1.0),
-                _buildTextComposer(),
-              ]),
-            ),
-          ]),
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _animationController = new AnimationController(
+        duration: const Duration(milliseconds: 200), vsync: this);
+    _animation = new Tween(begin: 0.0, end: 300.0).animate(_animationController)
+      ..addListener(() {
+        setState(() {
+          // the state that has changed here is the animation object’s value
+        });
+      });
+    _animationController.forward();
+  }
+
+  void _sendMessage({String text, String imageUrl}) {
+    assert(googleSignIn.currentUser != null);
+    User sender = new User.fromGoogleSignInAccount(googleSignIn.currentUser);
+    ChatMessage chatMessage = new ChatMessage(
+      imageUrl: imageUrl,
+      isRead: false,
+      sender: sender,
+      sentTimestamp: new DateTime.now(),
+      text: text,
     );
+    print(chatMessage.toJson());
+    documentRef.add(chatMessage.toJson());
+  }
+
+  Future<Null> _handleSubmitted(String text) async {
+    _textController.clear();
+    setState(() => _isComposing = false);
+    _sendMessage(text: text);
   }
 
   Widget _buildTextComposer() {
@@ -209,21 +187,56 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<Null> _handleSubmitted(String text) async {
-    _textController.clear();
-    setState(() {
-      _isComposing = false;
-    });
-    _sendMessage(text: text);
-  }
-
-  void _sendMessage({String text, String imageUrl}) {
-    documentRef.add({
-      "text": text,
-      "imageUrl": imageUrl,
-      "senderName": googleSignIn.currentUser.displayName,
-      "senderPhotoUrl": googleSignIn.currentUser.photoUrl,
-      "timestamp": new DateTime.now(),
-    });
+  @override
+  Widget build(BuildContext context) {
+    print(documentRef?.document()?.documentID);
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text("Consultation Chat"),
+      ),
+      body: new Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            new Flexible(
+              child: new StreamBuilder(
+                stream: documentRef.snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  Widget child;
+                  if (!snapshot.hasData) {
+                    return new Center(
+                      child: new CircularProgressIndicator(),
+                    );
+                  }
+                  final data = snapshot.data.documents
+                      .map(
+                          (document) => new ChatMessage.fromJson(document.data))
+                      .toList()
+                        ..sort((ChatMessage a, ChatMessage b) =>
+                            a.sentTimestamp.compareTo(b.sentTimestamp));
+                  final int dataCount = data.length;
+                  if (dataCount > 0) {
+                    return new ListView.builder(
+                      itemCount: dataCount,
+                      itemBuilder: (_, int index) {
+                        return new ChatMessageWidget(
+                            chatMessage: data[index], animation: _animation);
+                      },
+                    );
+                  }
+                  return new Center(
+                      child: new Text("Belum ada percakapan di sini."));
+                },
+              ),
+            ),
+            new Container(
+              decoration: new BoxDecoration(color: Theme.of(context).cardColor),
+              child: new Column(children: <Widget>[
+                new Divider(height: 1.0),
+                _buildTextComposer(),
+              ]),
+            ),
+          ]),
+    );
   }
 }

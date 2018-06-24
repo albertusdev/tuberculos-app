@@ -44,10 +44,10 @@ DocumentReference getMessageDocumentReference(String chatId) {
 }
 
 CollectionReference getMessageCollectionReference(String chatId) {
-  return Firestore.instance.collection("chats/$chatId");
+  return Firestore.instance.collection("chats/$chatId/messages");
 }
 
-void signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
+Future<void> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
   if (user == null) {
     user = await googleSignIn.signIn();
@@ -59,7 +59,7 @@ void signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
   );
 }
 
-void updateProfileInFirestore(GoogleSignInAccount account, String role) async {
+Future<void> updateProfileInFirestore(GoogleSignInAccount account, String role) async {
   assert (account != null);
   DocumentReference ref = getUserDocumentReference(role: role, email: account.email);
   ref.updateData({
