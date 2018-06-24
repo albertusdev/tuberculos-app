@@ -10,6 +10,7 @@ dependencies:
     sdk: flutter
   flutter_redux:
   google_sign_in:
+  json_annotation:
   image_picker:
   redux:
   redux_epics:
@@ -23,6 +24,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  json_serializable:
 
 
 # For information on the generic Dart part of this file, see the
