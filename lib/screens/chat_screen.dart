@@ -84,6 +84,7 @@ class ChatScreenState extends State<ChatScreen>
   AnimationController _animationController;
 
   bool _isComposing = false;
+  bool _isUploading = false;
   CollectionReference documentRef;
   GoogleSignIn googleSignIn;
 
@@ -117,7 +118,7 @@ class ChatScreenState extends State<ChatScreen>
     _animationController.forward();
   }
 
-  void _sendMessage({String text, String imageUrl}) {
+  Future<Null> _sendMessage({String text, String imageUrl}) async {
     assert(googleSignIn.currentUser != null);
     User sender = new User.fromGoogleSignInAccount(googleSignIn.currentUser);
     ChatMessage chatMessage = new ChatMessage(
@@ -128,7 +129,26 @@ class ChatScreenState extends State<ChatScreen>
       text: text,
     );
     print(chatMessage.toJson());
-    documentRef.add(chatMessage.toJson());
+    await documentRef.add(chatMessage.toJson());
+  }
+
+  Future<Null> _uploadPicture() async {
+    setState(() {
+      _isUploading = true;
+    });
+    File imageFile =
+    await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (imageFile != null) {
+      int random = new Random().nextInt(100000);
+      StorageReference ref =
+      FirebaseStorage.instance.ref().child("image_$random.jpg");
+      StorageUploadTask uploadTask = ref.putFile(imageFile);
+      Uri downloadUrl = (await uploadTask.future).downloadUrl;
+      await _sendMessage(imageUrl: downloadUrl.toString());
+    }
+    setState(() {
+      _isUploading = false;
+    });
   }
 
   Future<Null> _handleSubmitted(String text) async {
@@ -138,52 +158,48 @@ class ChatScreenState extends State<ChatScreen>
   }
 
   Widget _buildTextComposer() {
-    return new IconTheme(
-      data: new IconThemeData(color: Theme.of(context).accentColor),
-      child: new Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: new Row(
-          children: <Widget>[
-            new Container(
+    Widget textComposer = new Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: new Row(
+        children: <Widget>[
+          new Container(
+            margin: new EdgeInsets.symmetric(horizontal: 4.0),
+            child: new IconButton(
+                icon: new Icon(Icons.image),
+                onPressed: _uploadPicture,
+            ),
+          ),
+          new Flexible(
+            child: new TextField(
+              controller: _textController,
+              onChanged: (String text) {
+                setState(() {
+                  _isComposing = text.length > 0;
+                });
+              },
+              onSubmitted: _handleSubmitted,
+              decoration:
+                  new InputDecoration.collapsed(hintText: "Send a message"),
+            ),
+          ),
+          new Container(
               margin: new EdgeInsets.symmetric(horizontal: 4.0),
               child: new IconButton(
-                  icon: new Icon(Icons.photo_camera),
-                  onPressed: () async {
-                    File imageFile = await ImagePicker.pickImage(
-                        source: ImageSource.gallery);
-                    int random = new Random().nextInt(100000);
-                    StorageReference ref = FirebaseStorage.instance
-                        .ref()
-                        .child("image_$random.jpg");
-                    StorageUploadTask uploadTask = ref.putFile(imageFile);
-                    Uri downloadUrl = (await uploadTask.future).downloadUrl;
-                    _sendMessage(imageUrl: downloadUrl.toString());
-                  }),
-            ),
-            new Flexible(
-              child: new TextField(
-                controller: _textController,
-                onChanged: (String text) {
-                  setState(() {
-                    _isComposing = text.length > 0;
-                  });
-                },
-                onSubmitted: _handleSubmitted,
-                decoration:
-                    new InputDecoration.collapsed(hintText: "Send a message"),
-              ),
-            ),
-            new Container(
-                margin: new EdgeInsets.symmetric(horizontal: 4.0),
-                child: new IconButton(
-                  icon: new Icon(Icons.send),
-                  onPressed: _isComposing
-                      ? () => _handleSubmitted(_textController.text)
-                      : null,
-                )),
-          ],
-        ),
+                icon: new Icon(Icons.send),
+                onPressed: _isComposing
+                    ? () => _handleSubmitted(_textController.text)
+                    : null,
+              )),
+        ],
       ),
+    );
+
+    List<Widget> children = <Widget>[];
+    if (_isUploading) children.add(new LinearProgressIndicator());
+    children.add(textComposer);
+    return new Column(
+      mainAxisSize: MainAxisSize.min,
+      children: children,
     );
   }
 

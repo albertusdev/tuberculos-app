@@ -67,6 +67,7 @@ class _LoginScreenState extends State<StatefulWidget> {
   @override
   Widget build(BuildContext context) {
     List<Widget> bottomNavigationBarChildren = [
+      new Divider(height: 8.0),
       new MaterialButton(
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.center,

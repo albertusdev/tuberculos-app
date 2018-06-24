@@ -46,20 +46,25 @@ class RegisterScreen extends StatelessWidget {
       bottomNavigationBar: new StoreConnector<RegisterState, bool>(
         builder: (BuildContext context, bool isLoading) {
           List<Widget> children = <Widget>[
+            new Divider(height: 8.0),
             new MaterialButton(
               child: new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new Text(
-                    "Already have an account? ",
-                    style: new TextStyle(
-                      color: Theme.of(context).disabledColor,
+                  new Container(
+                    margin: new EdgeInsets.only(right: 4.0),
+                    child: new Text(
+                      "Sudah punya akun?",
+                      style: new TextStyle(
+                        color: Theme.of(context).disabledColor,
+                      ),
                     ),
                   ),
                   new Text(
-                    " Log in.",
+                    "Masuk di sini.",
                     style: new TextStyle(
                       color: Theme.of(context).accentColor,
+                      decoration: TextDecoration.underline,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

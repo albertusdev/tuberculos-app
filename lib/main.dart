@@ -16,7 +16,9 @@ class MyApp extends StatelessWidget {
       title: "TuberculosApp",
       home:  SplashScreen(),
       theme: new ThemeData(
+        primaryColor: Colors.green,
         accentColor: Colors.green,
+        iconTheme: const IconThemeData(color: Colors.green),
       ),
       routes: <String, WidgetBuilder>{
         (Routes.loginScreen.toString()): (BuildContext context) =>
