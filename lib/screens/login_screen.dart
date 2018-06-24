@@ -30,7 +30,7 @@ class LoginScreen extends StatelessWidget {
       }
 
       signInFirebaseWithGoogleSignIn(googleSignIn);
-
+      while (Navigator.of(context).canPop()) Navigator.of(context).pop();
       Routes route = role == UserRole.apoteker
           ? Routes.apotekerHomeScreen
           : Routes.pasienHomeScreen;

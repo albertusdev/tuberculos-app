@@ -4,4 +4,7 @@ gen/
 .packages
 .flutter-plugins
 
+android/key.properties
+**/key.jks
+
 android/app/google-services.json

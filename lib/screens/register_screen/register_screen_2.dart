@@ -36,11 +36,21 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
             validator: (val) =>
                 val.isEmpty ? "Alamat tidak boleh kosong" : null,
           ),
-          new FlatButton(
-            onPressed: () {
-              showChooseApotekerDialog(context: context, store: store);
-            },
-            child: new Text(apotekerUsername.data ?? "Pilih Apoteker-mu"),
+          new Row(
+            children: <Widget>[
+              new Expanded(
+                child: new Container(
+                  margin: new EdgeInsets.symmetric(vertical: 16.0),
+                  child: new OutlineButton(
+                    onPressed: () {
+                      showChooseApotekerDialog(context: context, store: store);
+                    },
+                    child:
+                        new Text(apotekerUsername.data ?? "Pilih Apoteker-mu"),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -114,7 +124,9 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     try {
       await signUp(store);
       String role = store.state.role;
-      Routes redirectRoute = isApoteker(role) ? Routes.apotekerHomeScreen : Routes.pasienHomeScreen;
+      Routes redirectRoute = isApoteker(role)
+          ? Routes.apotekerHomeScreen
+          : Routes.pasienHomeScreen;
       while (Navigator.of(context).canPop()) Navigator.of(context).pop();
       Navigator.of(context).pushReplacementNamed(redirectRoute.toString());
     } catch (e) {

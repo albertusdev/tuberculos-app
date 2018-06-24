@@ -50,6 +50,7 @@ class FirstStepWidget extends StatelessWidget {
             content: new Text(e.toString()),
           ));
     }
+    store.dispatch(new ActionClearLoading());
   }
 
   @override

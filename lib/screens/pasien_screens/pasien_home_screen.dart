@@ -180,14 +180,20 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
   }
 
   void _changeTab(int index) async {
-    setState(() {
-      _navigationViews[_currentIndex].controller.reverse();
-      _currentIndex = index;
-      _navigationViews[_currentIndex].controller.forward();
-    });
-    if (index == _navigationViews.length - 1) {
+    if (index == _navigationViews.length - 2) {
+      Navigator.of(context).push(new MaterialPageRoute(
+        builder: (BuildContext context) => new ChatScreen(),
+      ));
+    } else if (index == _navigationViews.length - 1) {
+      // If press Logout
       await FirebaseAuth.instance.signOut();
       Navigator.of(context).pushReplacementNamed(Routes.loginScreen.toString());
+    } else {
+      setState(() {
+        _navigationViews[_currentIndex].controller.reverse();
+        _currentIndex = index;
+        _navigationViews[_currentIndex].controller.forward();
+      });
     }
   }
 
@@ -216,7 +222,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
           .map((NavigationIconView navigationView) => navigationView.item)
           .toList(),
       currentIndex: _currentIndex,
-      type: _type,
+      type: BottomNavigationBarType.fixed,
       onTap: (int index) {
         _changeTab(index);
         history.add(index);
@@ -226,26 +232,6 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
     Widget app = new Scaffold(
       appBar: new AppBar(
         title: const Text('Pasien - TuberculosApps'),
-        actions: <Widget>[
-          new PopupMenuButton<BottomNavigationBarType>(
-            onSelected: (BottomNavigationBarType value) {
-              setState(() {
-                _type = value;
-              });
-            },
-            itemBuilder: (BuildContext context) =>
-                <PopupMenuItem<BottomNavigationBarType>>[
-                  const PopupMenuItem<BottomNavigationBarType>(
-                    value: BottomNavigationBarType.fixed,
-                    child: const Text('Fixed'),
-                  ),
-                  const PopupMenuItem<BottomNavigationBarType>(
-                    value: BottomNavigationBarType.shifting,
-                    child: const Text('Shifting'),
-                  )
-                ],
-          )
-        ],
       ),
       body: new Center(child: _buildTransitionsStack()),
       bottomNavigationBar: botNavBar,

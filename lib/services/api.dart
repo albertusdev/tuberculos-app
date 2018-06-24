@@ -34,10 +34,18 @@ Future<DocumentReference> createNewDocument(String collectionName, Map<String, d
     Firestore.instance.collection(collectionName).add(val);
 
 Future<DocumentReference> createNewMessageDocument(Map<String, dynamic> val) =>
-    createNewDocument("messages", val);
+    createNewDocument("chats", val);
 
 DocumentReference getUserDocumentReference({String role, String email}) =>
     Firestore.instance.document("${role}s/$email");
+
+DocumentReference getMessageDocumentReference(String chatId) {
+  return Firestore.instance.document("chats/$chatId");
+}
+
+CollectionReference getMessageCollectionReference(String chatId) {
+  return Firestore.instance.collection("chats/$chatId");
+}
 
 void signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
@@ -50,3 +58,14 @@ void signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
     accessToken: credentials.accessToken,
   );
 }
+
+void updateProfileInFirestore(GoogleSignInAccount account, String role) async {
+  assert (account != null);
+  DocumentReference ref = getUserDocumentReference(role: role, email: account.email);
+  ref.updateData({
+    "email": account.email,
+    "displayName": account.displayName,
+    "photoUrl": account.photoUrl,
+  });
+}
+

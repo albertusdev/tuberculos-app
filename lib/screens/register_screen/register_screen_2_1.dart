@@ -29,6 +29,17 @@ class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
     controller.dispose();
   }
 
+  Widget _getCircleAvatarChild(document) {
+    if (document["photoUrl"] == null) {
+      if (document["displayName"] != null) {
+        return new Text(document["displayName"]);
+      } else {
+        return new Text("...");
+      }
+    }
+    return null;
+  }
+
   Widget _buildStreams() {
     return new StreamBuilder<QuerySnapshot>(
         stream: apotekerReference.snapshots(),
@@ -55,11 +66,14 @@ class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
                 final DocumentSnapshot document = data[index];
                 return new ListTile(
                     leading: new CircleAvatar(
-                        backgroundImage: new NetworkImage(
-                            document['photoUrl'])),
-                    title:
-                    new Text(document['email'] ?? '<No message retrieved>'),
-                    subtitle: new Text('${document["displayName"]}'),
+                      backgroundImage: document['photoUrl'] != null
+                          ? new NetworkImage(document['photoUrl'])
+                          : null,
+                      child: _getCircleAvatarChild(document),
+                    ),
+                    subtitle:
+                        new Text(document['email'] ?? '<No message retrieved>'),
+                    title: new Text('${document["displayName"]}'),
                     onTap: () {
                       Navigator.pop(context, document["email"]);
                     });
@@ -77,17 +91,7 @@ class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
             );
           }
           return child;
-          return new Column(
-            children: <Widget>[
-              new Container(
-                margin: new EdgeInsets.symmetric(horizontal: 16.0),
-                child: new TextField(controller: controller,),
-              ),
-              child,
-            ]
-          );
-        }
-    );
+        });
   }
 
   @override

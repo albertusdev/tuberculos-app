@@ -45,32 +45,33 @@ class RegisterScreen extends StatelessWidget {
       body: getCurrentStepWidget(),
       bottomNavigationBar: new StoreConnector<RegisterState, bool>(
         builder: (BuildContext context, bool isLoading) {
-          List<Widget> children = <Widget>[];
+          List<Widget> children = <Widget>[
+            new MaterialButton(
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Text(
+                    "Already have an account? ",
+                    style: new TextStyle(
+                      color: Theme.of(context).disabledColor,
+                    ),
+                  ),
+                  new Text(
+                    " Log in.",
+                    style: new TextStyle(
+                      color: Theme.of(context).accentColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              onPressed: () {
+                Navigator.pushReplacementNamed(
+                    context, Routes.loginScreen.toString());
+              },
+            )
+          ];
           if (isLoading) children.add(new LinearProgressIndicator());
-          children.add(new MaterialButton(
-            child: new Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                new Text(
-                  "Already have an account? ",
-                  style: new TextStyle(
-                    color: Theme.of(context).disabledColor,
-                  ),
-                ),
-                new Text(
-                  " Log in.",
-                  style: new TextStyle(
-                    color: Theme.of(context).accentColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            onPressed: () {
-              Navigator.pushReplacementNamed(
-                  context, Routes.loginScreen.toString());
-            },
-          ));
           return new Column(
             mainAxisSize: MainAxisSize.min,
             children: children,
