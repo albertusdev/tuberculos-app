@@ -9,6 +9,7 @@ class User {
   final String displayName;
   final String photoUrl;
   final String role;
+  final DateTime dateTimeCreated;
 
   User({this.email, this.displayName, this.photoUrl, this.role});
 
@@ -21,12 +22,15 @@ class User {
       : email = json["email"],
         displayName = json["displayName"],
         photoUrl = json["photoUrl"],
-        role = json["role"];
+        role = json["role"],
+        dateTimeCreated = json["dateTimeCreated"]
+      ;
 
   Map<String, dynamic> toJson() => {
         "email": email,
         "displayName": displayName,
         "photoUrl": photoUrl,
         "role": role,
+        "dateTimeCreated": dateTimeCreated,
       };
 }

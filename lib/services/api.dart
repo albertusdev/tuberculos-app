@@ -51,6 +51,10 @@ CollectionReference getMessageCollectionReference(String chatId) {
   return Firestore.instance.collection("chats/$chatId/messages");
 }
 
+CollectionReference getPassiensCollectionReference(String apotekerEmail) {
+  return Firestore.instance.collection("apotekers/$apotekerEmail/pasiens");
+}
+
 Future<void> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
   if (user == null) {

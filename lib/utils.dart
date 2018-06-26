@@ -8,12 +8,46 @@ bool isEmail(String str) {
   return regExp.hasMatch(str);
 }
 
+bool isNumeric(String c) {
+  assert(c.length == 1);
+  return c.codeUnitAt(0) >= "0".codeUnitAt(0) && c.codeUnitAt(0) <= "9".codeUnitAt(0);
+}
+
 class LowerCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
     return new TextEditingValue(
       text: newValue.text.toLowerCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
+class SipaTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    String newText = "";
+    for (int i = 0; i < newValue.text.length; ++i) {
+      if (isNumeric(newValue.text[i])) {
+        newText += newValue.text[i];
+      }
+    }
+    String temp = "";
+    if (newText.length <= 12) {
+      for (int i = 0; i < newText.length; ++i) {
+        if (i > 0 && i % 4 == 0) {
+          temp += "-${newText[i]}";
+        } else {
+          temp += newText[i];
+        }
+      }
+    } else {
+      temp = oldValue.text;
+    }
+    return new TextEditingValue(
+      text: temp,
       selection: newValue.selection,
     );
   }

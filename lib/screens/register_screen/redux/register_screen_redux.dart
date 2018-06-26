@@ -9,6 +9,9 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:google_sign_in/google_sign_in.dart";
 
 import "package:redux/redux.dart";
+import 'package:tuberculos/models/apoteker.dart';
+import 'package:tuberculos/models/pasien.dart';
+import 'package:tuberculos/models/user.dart';
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/services/api.dart";
 
@@ -232,13 +235,14 @@ RegisterState registerReducer(RegisterState state, action) {
   return newState;
 }
 
-void signUp(Store<RegisterState> store) async {
+Future<Map<String, dynamic>> signUp(Store<RegisterState> store) async {
   store.dispatch(new ActionSetLoading());
   GoogleSignInAccount googleSignInAccount =
       store.state.googleSignIn.currentUser;
   Map<String, dynamic> fields = store.state.fields
       .map((key, value) => new MapEntry<String, dynamic>(key, value.data));
 
+  fields["dateTimeCreated"] = new DateTime.now();
   if (googleSignInAccount != null) {
     fields["displayName"] = googleSignInAccount.displayName;
     fields["photoUrl"] = googleSignInAccount.photoUrl;
@@ -250,22 +254,13 @@ void signUp(Store<RegisterState> store) async {
 
   DocumentReference ref = getUserDocumentReference(role: role, email: email);
 
-  if (isPasien(role)) {
+  if (role == User.PASIEN) {
     DocumentReference chatRef = await createNewMessageDocument({});
     fields["chatId"] = chatRef.documentID;
-  }
 
-  if (isPasien(role)) {
     String apotekerEmail = fields["apoteker"];
-    DocumentReference apotekerDocumentRef = getUserDocumentReference(
-        role: UserRole.apoteker, email: apotekerEmail);
-    DocumentSnapshot apotekerDocumentSnapshot =
-        await apotekerDocumentRef.get();
-    Map<String, dynamic> apotekerData = new Map<String, dynamic>.from(apotekerDocumentSnapshot.data);
-
-    apotekerData["pasiens"] = new List.from(apotekerData["pasiens"]);
-    apotekerData["pasiens"].add(fields);
-    apotekerDocumentRef.setData(apotekerData, merge: true);
+    CollectionReference apotekerPasiensCollectionRef = getPassiensCollectionReference(apotekerEmail);
+    await apotekerPasiensCollectionRef.add(fields);
   }
 
   await ref.setData(fields);
@@ -274,4 +269,6 @@ void signUp(Store<RegisterState> store) async {
   store.dispatch(new ActionClearApotekerFields());
   store.dispatch(new ActionClearPasienFields());
   store.dispatch(new ActionClearLoading());
+
+  return fields;
 }

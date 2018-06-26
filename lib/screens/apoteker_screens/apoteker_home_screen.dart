@@ -3,6 +3,7 @@ import 'dart:async';
 import "package:flutter/material.dart";
 
 import "package:firebase_auth/firebase_auth.dart";
+import 'package:tuberculos/models/apoteker.dart';
 
 import "package:tuberculos/routes.dart";
 
@@ -100,10 +101,13 @@ class CustomInactiveIcon extends StatelessWidget {
 
 class ApotekerHomeScreen extends StatefulWidget {
   static final String routeName = Routes.apotekerHomeScreen.toString();
+  Apoteker currentUser;
+
+  ApotekerHomeScreen({Key key, this.currentUser}) : super(key: key);
 
   @override
   _ApotekerHomeScreenState createState() =>
-      new _ApotekerHomeScreenState();
+      new _ApotekerHomeScreenState(currentUser);
 }
 
 class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
@@ -112,6 +116,9 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
   BottomNavigationBarType _type = BottomNavigationBarType.shifting;
   List<NavigationIconView> _navigationViews;
   List<int> history = <int>[0];
+  Apoteker currentUser;
+
+  _ApotekerHomeScreenState(this.currentUser);
 
   @override
   void initState() {
