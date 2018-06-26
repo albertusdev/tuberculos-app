@@ -1,8 +1,12 @@
-import 'dart:async';
+import "dart:async";
 
 import "package:flutter/material.dart";
 
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_auth/firebase_auth.dart";
+import "package:tuberculos/models/pasien.dart";
+
+import "package:tuberculos/models/user.dart";
 
 import "package:tuberculos/routes.dart";
 
@@ -10,6 +14,8 @@ import "package:tuberculos/screens/logout_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
 import "package:tuberculos/screens/chat_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart";
+
+import "package:tuberculos/services/api.dart";
 
 class NavigationIconView {
   NavigationIconView({
@@ -100,10 +106,13 @@ class CustomInactiveIcon extends StatelessWidget {
 
 class PasienHomeScreen extends StatefulWidget {
   static final String routeName = Routes.pasienHomeScreen.toString();
+  Pasien currentUser;
+
+  PasienHomeScreen({Key key, this.currentUser}) : super(key: key);
 
   @override
   _PasienBottomNavigationDemo createState() =>
-      new _PasienBottomNavigationDemo();
+      new _PasienBottomNavigationDemo(currentUser);
 }
 
 class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
@@ -112,16 +121,20 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
   BottomNavigationBarType _type = BottomNavigationBarType.shifting;
   List<NavigationIconView> _navigationViews;
   List<int> history = <int>[0];
+  Pasien currentUser;
+
+  _PasienBottomNavigationDemo(this.currentUser);
 
   @override
   void initState() {
     super.initState();
     // To override back button behavior
+    print("init state with ${currentUser.chatId}");
     WidgetsBinding.instance.addObserver(this);
     _navigationViews = <NavigationIconView>[
       new NavigationIconView(
         icon: const Icon(Icons.access_alarm),
-        title: 'Alarm',
+        title: "Alarm",
         color: Colors.deepPurple,
         vsync: this,
         child: new PasienAlarmScreen(),
@@ -129,7 +142,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
       new NavigationIconView(
         activeIcon: const Icon(Icons.library_books),
         icon: const Icon(Icons.library_books),
-        title: 'Majalah',
+        title: "Majalah",
         color: Colors.teal,
         vsync: this,
         child: new PasienMajalahScreen(),
@@ -137,17 +150,15 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
       new NavigationIconView(
         activeIcon: const Icon(Icons.chat),
         icon: const Icon(Icons.chat_bubble),
-        title: 'Chat',
+        title: "Chat",
         color: Colors.indigo,
         vsync: this,
-        child: new ChatScreen(),
       ),
       new NavigationIconView(
         icon: const Icon(Icons.exit_to_app),
-        title: 'Logout',
+        title: "Logout",
         color: Colors.blue,
         vsync: this,
-        child: new LogoutScreen(),
       ),
     ];
 
@@ -182,7 +193,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
   void _changeTab(int index) async {
     if (index == _navigationViews.length - 2) {
       Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) => new ChatScreen(),
+        builder: (BuildContext context) => new ChatScreen(documentRef: getMessageCollectionReference(currentUser.chatId)),
       ));
     } else if (index == _navigationViews.length - 1) {
       // If press Logout
@@ -231,7 +242,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
 
     Widget app = new Scaffold(
       appBar: new AppBar(
-        title: const Text('Pasien - TuberculosApps'),
+        title: const Text("Pasien - TuberculosApps"),
       ),
       body: new Center(child: _buildTransitionsStack()),
       bottomNavigationBar: botNavBar,

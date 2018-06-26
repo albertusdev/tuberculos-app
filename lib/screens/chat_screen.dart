@@ -89,11 +89,9 @@ class ChatScreenState extends State<ChatScreen>
   GoogleSignIn googleSignIn;
 
   ChatScreenState(CollectionReference documentRef, GoogleSignIn googleSignIn) {
-    if (documentRef == null) {
-      this.documentRef = getMessageCollectionReference("mock");
-    } else {
-      this.documentRef = documentRef;
-    }
+    print ("Create chat screen state");
+    print(documentRef);
+    this.documentRef = documentRef;
     this.googleSignIn = googleSignIn ?? new GoogleSignIn();
     if (this.googleSignIn.currentUser == null) {
       this.googleSignIn.signInSilently();

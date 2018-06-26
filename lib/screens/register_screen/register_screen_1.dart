@@ -81,19 +81,19 @@ class FirstStepWidget extends StatelessWidget {
                       children: <Widget>[
                         new Icon(
                           Icons.accessibility,
-                          color: role == User.pasien
+                          color: role == User.PASIEN
                               ? Theme.of(context).accentColor
                               : null,
                         ),
                         new Text("Pasien",
                             style: new TextStyle(
-                                color: role == User.pasien
+                                color: role == User.PASIEN
                                     ? Theme.of(context).accentColor
                                     : null)),
                       ],
                     ),
                     padding: new EdgeInsets.symmetric(vertical: 16.0),
-                    onPressed: () => store.dispatch(new ActionSetRole(User.pasien)),
+                    onPressed: () => store.dispatch(new ActionSetRole(User.PASIEN)),
                   ),
                 ),
                 new Flexible(
@@ -102,21 +102,21 @@ class FirstStepWidget extends StatelessWidget {
                       children: <Widget>[
                         new Icon(
                           Icons.local_hospital,
-                          color: role == User.apoteker
+                          color: role == User.APOTEKER
                               ? Theme.of(context).accentColor
                               : null,
                         ),
                         new Text(
                           "Apoteker",
                           style: new TextStyle(
-                            color: role == User.apoteker
+                            color: role == User.APOTEKER
                                 ? Theme.of(context).accentColor
                                 : null,
                           ),
                         ),
                       ],
                     ),
-                    onPressed: () => store.dispatch(new ActionSetRole(User.apoteker)),
+                    onPressed: () => store.dispatch(new ActionSetRole(User.APOTEKER)),
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
                 ),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:tuberculos/models/pasien.dart';
 
 import "package:tuberculos/routes.dart";
 
 import "package:firebase_auth/firebase_auth.dart";
 
 import "package:google_sign_in/google_sign_in.dart";
+import 'package:tuberculos/screens/apoteker_screens/apoteker_home_screen.dart';
+import 'package:tuberculos/screens/pasien_screens/pasien_home_screen.dart';
 
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/widgets/continue_with_google_button.dart";
@@ -16,11 +19,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<StatefulWidget> {
-  String role = User.pasien;
+  String role = User.PASIEN;
   bool isLoading = false;
 
   void _handleOnSignInButtonPressed({BuildContext context}) async {
-    assert(role == User.apoteker || role == User.pasien);
+    assert(role == User.APOTEKER || role == User.PASIEN);
 
     GoogleSignIn googleSignIn = new GoogleSignIn();
     try {
@@ -43,13 +46,22 @@ class _LoginScreenState extends State<StatefulWidget> {
 
       await signInFirebaseWithGoogleSignIn(googleSignIn);
 
+      Map<String, dynamic> userJson = (await getUserDocumentSnapshot(role: role, email: email))?.data;
+
       setState(() => isLoading = false);
 
       while (Navigator.of(context).canPop()) Navigator.of(context).pop();
-      Routes route = role == UserRole.apoteker
-          ? Routes.apotekerHomeScreen
-          : Routes.pasienHomeScreen;
-      Navigator.of(context).pushReplacementNamed(route.toString());
+      Widget newRoute;
+      if (role == User.PASIEN) {
+        Pasien pasien = new Pasien.fromJson(userJson);
+        print('Current user chatId is ${pasien.chatId}');
+        newRoute = new PasienHomeScreen(currentUser: pasien);
+      } else {
+        newRoute = new ApotekerHomeScreen();
+      }
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+        builder: (BuildContext context) => newRoute
+      ));
     } catch (e) {
       Scaffold.of(context).showSnackBar(new SnackBar(
             content: new Text(e.toString()),
@@ -124,19 +136,19 @@ class _LoginScreenState extends State<StatefulWidget> {
                           children: <Widget>[
                             new Icon(
                               Icons.accessibility,
-                              color: role == User.pasien
+                              color: role == User.PASIEN
                                   ? Theme.of(context).accentColor
                                   : null,
                             ),
                             new Text("Pasien",
                                 style: new TextStyle(
-                                    color: role == User.pasien
+                                    color: role == User.PASIEN
                                         ? Theme.of(context).accentColor
                                         : null)),
                           ],
                         ),
                         padding: new EdgeInsets.symmetric(vertical: 16.0),
-                        onPressed: () => changeRole(User.pasien),
+                        onPressed: () => changeRole(User.PASIEN),
                       ),
                     ),
                     new Flexible(
@@ -145,21 +157,21 @@ class _LoginScreenState extends State<StatefulWidget> {
                           children: <Widget>[
                             new Icon(
                               Icons.local_hospital,
-                              color: role == User.apoteker
+                              color: role == User.APOTEKER
                                   ? Theme.of(context).accentColor
                                   : null,
                             ),
                             new Text(
                               "Apoteker",
                               style: new TextStyle(
-                                color: role == User.apoteker
+                                color: role == User.APOTEKER
                                     ? Theme.of(context).accentColor
                                     : null,
                               ),
                             ),
                           ],
                         ),
-                        onPressed: () => changeRole(User.apoteker),
+                        onPressed: () => changeRole(User.APOTEKER),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                       ),
                     ),

@@ -39,6 +39,10 @@ Future<DocumentReference> createNewMessageDocument(Map<String, dynamic> val) =>
 DocumentReference getUserDocumentReference({String role, String email}) =>
     Firestore.instance.document("${role}s/$email");
 
+Future<DocumentSnapshot> getUserDocumentSnapshot({String role, String email}) async {
+  return await (getUserDocumentReference(role: role, email: email)).get();
+}
+
 DocumentReference getMessageDocumentReference(String chatId) {
   return Firestore.instance.document("chats/$chatId");
 }
