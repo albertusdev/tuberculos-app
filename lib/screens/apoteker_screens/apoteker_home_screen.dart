@@ -6,6 +6,7 @@ import "package:firebase_auth/firebase_auth.dart";
 import 'package:tuberculos/models/apoteker.dart';
 
 import "package:tuberculos/routes.dart";
+import 'package:tuberculos/screens/apoteker_screens/apoteker_chat_list_screen.dart';
 
 import "package:tuberculos/screens/logout_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
@@ -147,7 +148,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
         title: 'Chat',
         color: Colors.indigo,
         vsync: this,
-        child: new ChatScreen(),
+        child: new ApotekerChatListScreen(apoteker: currentUser),
       ),
       new NavigationIconView(
         icon: const Icon(Icons.exit_to_app),
@@ -187,11 +188,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
   }
 
   void _changeTab(int index) async {
-    if (index == _navigationViews.length - 2) {
-      Navigator.of(context).push(new MaterialPageRoute(
-        builder: (BuildContext context) => new ChatScreen(),
-      ));
-    } else if (index == _navigationViews.length - 1) {
+    if (index == _navigationViews.length - 1) {
       // If press Logout
       await FirebaseAuth.instance.signOut();
       Navigator.of(context).pushReplacementNamed(Routes.loginScreen.toString());

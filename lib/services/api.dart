@@ -51,7 +51,7 @@ CollectionReference getMessageCollectionReference(String chatId) {
   return Firestore.instance.collection("chats/$chatId/messages");
 }
 
-CollectionReference getPassiensCollectionReference(String apotekerEmail) {
+CollectionReference getPasiensCollectionReference(String apotekerEmail) {
   return Firestore.instance.collection("apotekers/$apotekerEmail/pasiens");
 }
 

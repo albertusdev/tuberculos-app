@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 
 import "package:tuberculos/routes.dart";
@@ -53,11 +54,9 @@ class _LoginScreenState extends State<StatefulWidget> {
       while (Navigator.of(context).canPop()) Navigator.of(context).pop();
       Widget newRoute;
       if (role == User.PASIEN) {
-        Pasien pasien = new Pasien.fromJson(userJson);
-        print('Current user chatId is ${pasien.chatId}');
-        newRoute = new PasienHomeScreen(currentUser: pasien);
+        newRoute = new PasienHomeScreen(currentUser: new Pasien.fromJson(userJson));
       } else {
-        newRoute = new ApotekerHomeScreen();
+        newRoute = new ApotekerHomeScreen(currentUser: new Apoteker.fromJson(userJson));
       }
       Navigator.of(context).pushReplacement(new MaterialPageRoute(
         builder: (BuildContext context) => newRoute

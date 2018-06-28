@@ -259,7 +259,7 @@ Future<Map<String, dynamic>> signUp(Store<RegisterState> store) async {
     fields["chatId"] = chatRef.documentID;
 
     String apotekerEmail = fields["apoteker"];
-    CollectionReference apotekerPasiensCollectionRef = getPassiensCollectionReference(apotekerEmail);
+    CollectionReference apotekerPasiensCollectionRef = getPasiensCollectionReference(apotekerEmail);
     await apotekerPasiensCollectionRef.add(fields);
   }
 

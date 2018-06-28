@@ -27,10 +27,6 @@ class MyApp extends StatelessWidget {
              SplashScreen(),
         Routes.registerScreen.toString(): (BuildContext context) =>
              RegisterScreen(),
-        Routes.pasienHomeScreen.toString(): (BuildContext context) =>
-            PasienHomeScreen(),
-        Routes.apotekerHomeScreen.toString(): (BuildContext context) =>
-            ApotekerHomeScreen(),
       },
     );
   }
