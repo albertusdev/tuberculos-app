@@ -1,16 +1,12 @@
 import 'dart:async';
 
-import "package:flutter/material.dart";
-
 import "package:firebase_auth/firebase_auth.dart";
+import "package:flutter/material.dart";
 import 'package:tuberculos/models/apoteker.dart';
-
 import "package:tuberculos/routes.dart";
 import 'package:tuberculos/screens/apoteker_screens/apoteker_chat_list_screen.dart';
-
+import 'package:tuberculos/screens/apoteker_screens/apoteker_dashboard_screen.dart';
 import "package:tuberculos/screens/logout_screen.dart";
-import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
-import "package:tuberculos/screens/chat_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart";
 
 class NavigationIconView {
@@ -128,11 +124,11 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
     WidgetsBinding.instance.addObserver(this);
     _navigationViews = <NavigationIconView>[
       new NavigationIconView(
-        icon: const Icon(Icons.access_alarm),
-        title: 'Alarm',
+        icon: const Icon(Icons.home),
+        title: 'Home',
         color: Colors.deepPurple,
         vsync: this,
-        child: new PasienAlarmScreen(),
+        child: new ApotekerDashboardScreen(apoteker: currentUser),
       ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.library_books),
