@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/services/api.dart';
+import 'package:tuberculos/widgets/full_width_widget.dart';
 
 class ApotekerDashboardScreen extends StatefulWidget {
   final Apoteker apoteker;
@@ -16,13 +17,9 @@ class ApotekerDashboardScreen extends StatefulWidget {
 
 class _ApotekerDashboardScreenState extends State<ApotekerDashboardScreen>
     with SingleTickerProviderStateMixin {
-  Apoteker apoteker;
-  TabController tabController;
+  final Apoteker apoteker;
 
-  _ApotekerDashboardScreenState(Apoteker apoteker) {
-    this.apoteker = apoteker;
-    this.tabController = new TabController(length: 2, vsync: this);
-  }
+  _ApotekerDashboardScreenState(this.apoteker);
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +69,6 @@ class _ApotekerDashboardScreenState extends State<ApotekerDashboardScreen>
 }
 
 class VerifiedPasiensTab extends StatefulWidget {
-
   final Apoteker apoteker;
 
   VerifiedPasiensTab({Key key, this.apoteker});
@@ -88,7 +84,7 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
 
   Widget _getCircleAvatarChild(Pasien pasien) {
     if (pasien.photoUrl == null) {
-      if (pasien.displayName!= null) {
+      if (pasien.displayName != null) {
         return new Text(pasien.displayName);
       } else {
         return new Text("...");
@@ -112,40 +108,53 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
           }
           final data = snapshot.data.documents
               .map((DocumentSnapshot document) =>
-          new Pasien.fromJson(document.data))
-              .toList()..retainWhere((pasien) => pasien.isVerified);
+                  new Pasien.fromJson(document.data))
+              .toList()
+                ..retainWhere((pasien) => pasien.isVerified);
           final int dataCount = data.length;
-          if (dataCount > 0) {
-            child = new ListView.builder(
-              itemCount: dataCount,
-              itemBuilder: (_, int index) {
-                final pasien = data[index];
-                return new ListTile(
-                    leading: new CircleAvatar(
-                      backgroundImage: pasien.photoUrl != null
-                          ? new NetworkImage(pasien.photoUrl)
-                          : null,
-                      child: _getCircleAvatarChild(pasien),
+          return new ListView.builder(
+            itemCount: dataCount + 1,
+            itemBuilder: (_, int index) {
+              if (index == 0) {
+                return new FullWidthWidget(new MaterialButton(
+                  child: new Container(
+                    child: new Column(
+                      children: <Widget>[
+                        new Icon(
+                          Icons.add,
+                          color: Theme.of(context).accentColor,
+                        ),
+                        new Text(
+                          "Tambahkan Pengigat",
+                          style: new TextStyle(
+                            color: Theme.of(context).accentColor,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ],
                     ),
-                    subtitle:
-                    new Text(pasien.email ?? '<No message retrieved>'),
-                    title: new Text(pasien.displayName),
-                    onTap: () {
-                      Scaffold.of(context).showSnackBar(new SnackBar(content: new Text(pasien.email)));
-                    });
-              },
-            );
-          } else {
-            child = new Center(
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Text("Tidak ada pasien yang sudah terverifikasi."),
-                ],
-              ),
-            );
-          }
-          return child;
+                    margin: new EdgeInsets.symmetric(vertical: 8.0),
+                    padding: new EdgeInsets.symmetric(vertical: 16.0),
+                  ),
+                  onPressed: () {},
+                ));
+              }
+              final pasien = data[index - 1];
+              return new ListTile(
+                  leading: new CircleAvatar(
+                    backgroundImage: pasien.photoUrl != null
+                        ? new NetworkImage(pasien.photoUrl)
+                        : null,
+                    child: _getCircleAvatarChild(pasien),
+                  ),
+                  subtitle: new Text(pasien.email ?? '<No message retrieved>'),
+                  title: new Text(pasien.displayName),
+                  onTap: () {
+                    Scaffold.of(context).showSnackBar(
+                        new SnackBar(content: new Text(pasien.email)));
+                  });
+            },
+          );
         },
       ),
     );
@@ -168,7 +177,7 @@ class _UnverifiedPasiensTab extends State<UnverifiedPasiensTab> {
 
   Widget _getCircleAvatarChild(Pasien pasien) {
     if (pasien.photoUrl == null) {
-      if (pasien.displayName!= null) {
+      if (pasien.displayName != null) {
         return new Text(pasien.displayName);
       } else {
         return new Text("...");
@@ -192,27 +201,32 @@ class _UnverifiedPasiensTab extends State<UnverifiedPasiensTab> {
           }
           final data = snapshot.data.documents
               .map((DocumentSnapshot document) =>
-          new Pasien.fromJson(document.data))
-              .toList()..removeWhere((pasien) => pasien.isVerified);
+                  new Pasien.fromJson(document.data))
+              .toList()
+                ..removeWhere((pasien) => pasien.isVerified);
           final int dataCount = data.length;
           if (dataCount > 0) {
             child = new ListView.builder(
               itemCount: dataCount,
               itemBuilder: (_, int index) {
                 final pasien = data[index];
-                return new ListTile(
-                    leading: new CircleAvatar(
-                      backgroundImage: pasien.photoUrl != null
-                          ? new NetworkImage(pasien.photoUrl)
-                          : null,
-                      child: _getCircleAvatarChild(pasien),
+                return new Container(
+                    child: new ListTile(
+                      leading: new CircleAvatar(
+                        backgroundImage: pasien.photoUrl != null
+                            ? new NetworkImage(pasien.photoUrl)
+                            : null,
+                        child: _getCircleAvatarChild(pasien),
+                      ),
+                      subtitle:
+                          new Text(pasien.email ?? '<No message retrieved>'),
+                      title: new Text(pasien.displayName),
+                      onTap: () {
+                        Scaffold.of(context).showSnackBar(
+                            new SnackBar(content: new Text(pasien.email)));
+                      },
                     ),
-                    subtitle:
-                    new Text(pasien.email ?? '<No message retrieved>'),
-                    title: new Text(pasien.displayName),
-                    onTap: () {
-                      Scaffold.of(context).showSnackBar(new SnackBar(content: new Text(pasien.email)));
-                    });
+                    margin: new EdgeInsets.all(4.0));
               },
             );
           } else {

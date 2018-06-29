@@ -7,7 +7,6 @@ import "package:tuberculos/routes.dart";
 import 'package:tuberculos/screens/apoteker_screens/apoteker_chat_list_screen.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_dashboard_screen.dart';
 import "package:tuberculos/screens/logout_screen.dart";
-import "package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart";
 
 class NavigationIconView {
   NavigationIconView({
@@ -130,14 +129,14 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
         vsync: this,
         child: new ApotekerDashboardScreen(apoteker: currentUser),
       ),
-      new NavigationIconView(
-        activeIcon: const Icon(Icons.library_books),
-        icon: const Icon(Icons.library_books),
-        title: 'Majalah',
-        color: Colors.teal,
-        vsync: this,
-        child: new PasienMajalahScreen(),
-      ),
+//      new NavigationIconView(
+//        activeIcon: const Icon(Icons.library_books),
+//        icon: const Icon(Icons.library_books),
+//        title: 'Majalah',
+//        color: Colors.teal,
+//        vsync: this,
+//        child: new PasienMajalahScreen(),
+//      ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.chat),
         icon: const Icon(Icons.chat_bubble),
@@ -231,7 +230,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
 
     Widget app = new Scaffold(
       appBar: new AppBar(
-        title: const Text('Apoteker - TuberculosApps'),
+        title: new Text("HOME"),
       ),
       body: new Center(child: _buildTransitionsStack()),
       bottomNavigationBar: botNavBar,

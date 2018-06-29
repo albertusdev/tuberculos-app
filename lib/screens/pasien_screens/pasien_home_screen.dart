@@ -1,20 +1,11 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
-
-import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_auth/firebase_auth.dart";
+import "package:flutter/material.dart";
 import "package:tuberculos/models/pasien.dart";
-
-import "package:tuberculos/models/user.dart";
-
 import "package:tuberculos/routes.dart";
-
-import "package:tuberculos/screens/logout_screen.dart";
-import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
 import "package:tuberculos/screens/chat_screen.dart";
-import "package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart";
-
+import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
 import "package:tuberculos/services/api.dart";
 
 class NavigationIconView {
@@ -139,14 +130,14 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
         vsync: this,
         child: new PasienAlarmScreen(),
       ),
-      new NavigationIconView(
-        activeIcon: const Icon(Icons.library_books),
-        icon: const Icon(Icons.library_books),
-        title: "Majalah",
-        color: Colors.teal,
-        vsync: this,
-        child: new PasienMajalahScreen(),
-      ),
+//      new NavigationIconView(
+//        activeIcon: const Icon(Icons.library_books),
+//        icon: const Icon(Icons.library_books),
+//        title: "Majalah",
+//        color: Colors.teal,
+//        vsync: this,
+//        child: new PasienMajalahScreen(),
+//      ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.chat),
         icon: const Icon(Icons.chat_bubble),

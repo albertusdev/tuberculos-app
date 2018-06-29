@@ -13,6 +13,10 @@ bool isNumeric(String c) {
   return c.codeUnitAt(0) >= "0".codeUnitAt(0) && c.codeUnitAt(0) <= "9".codeUnitAt(0);
 }
 
+String capitalize(String s) {
+  return s.substring(0, 1).toUpperCase() + s.substring(1);
+}
+
 class LowerCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

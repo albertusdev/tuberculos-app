@@ -1,21 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import "package:cloud_firestore/cloud_firestore.dart";
-
-import "package:firebase_auth/firebase_auth.dart";
-
+import 'package:flutter/material.dart';
 import "package:google_sign_in/google_sign_in.dart";
-
 import "package:redux/redux.dart";
-import 'package:tuberculos/models/apoteker.dart';
-import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
-import "package:tuberculos/routes.dart";
 import "package:tuberculos/services/api.dart";
-
-import "package:tuberculos/utils.dart";
 
 abstract class RegisterField<T> {
   T get data;
@@ -260,7 +250,7 @@ Future<Map<String, dynamic>> signUp(Store<RegisterState> store) async {
 
     String apotekerEmail = fields["apoteker"];
     CollectionReference apotekerPasiensCollectionRef = getPasiensCollectionReference(apotekerEmail);
-    await apotekerPasiensCollectionRef.add(fields);
+    for (int i = 0; i < 25; ++i) await apotekerPasiensCollectionRef.add(fields);
   }
 
   await ref.setData(fields);

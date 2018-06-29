@@ -16,7 +16,6 @@ import 'package:tuberculos/routes.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_home_screen.dart';
 import 'package:tuberculos/screens/pasien_screens/pasien_home_screen.dart';
 
-
 class SecondStepWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => new _SecondStepWidgetState();
@@ -25,36 +24,52 @@ class SecondStepWidget extends StatefulWidget {
 class _SecondStepWidgetState extends State<SecondStepWidget> {
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
-  Widget getPasienForm(BuildContext context, Store<RegisterState> store) {
-    var fields = store.state.fields;
-    SimpleField apotekerUsername = fields["apoteker"];
-    return new Form(
-      key: _formKey,
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Row(
-            children: <Widget>[
-              new Expanded(
-                child: new Container(
-                  margin: new EdgeInsets.symmetric(vertical: 16.0),
-                  child: new OutlineButton(
-                    onPressed: () {
-                      showChooseApotekerDialog(context: context, store: store);
-                    },
-                    child:
-                        new Text(apotekerUsername.data ?? "Pilih Apoteker-mu"),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+  void _showChooseApotekerDialog(
+      {BuildContext context, Store<RegisterState> store}) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => new ChooseApotekerDialog(),
+    ).then<void>((String value) {
+      // The value passed to Navigator.pop() or null.
+      if (value != null) {
+        store.dispatch(
+            new ActionSetPasienField("apoteker", new SimpleField(value)));
+      }
+    });
   }
 
-  Widget getApotekerForm(BuildContext context, Store<RegisterState> store) {
+  void _submit(BuildContext context, Store<RegisterState> store) async {
+    bool isFormValid = _formKey.currentState.validate();
+    if (!isFormValid) {
+      Scaffold.of(context).showSnackBar(
+          new SnackBar(content: new Text("Masukan tidak valid.")));
+      return;
+    }
+    try {
+      Map<String, dynamic> json = await signUp(store);
+      print(json);
+      Widget redirectedRouteWidget;
+      String role = store.state.role;
+      if (role == User.APOTEKER) {
+        redirectedRouteWidget = new ApotekerHomeScreen(
+          currentUser: new Apoteker.fromJson(json),
+        );
+      } else {
+        redirectedRouteWidget = new PasienHomeScreen(
+          currentUser: new Pasien.fromJson(json),
+        );
+      }
+      while (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(
+          new MaterialPageRoute(builder: (_) => redirectedRouteWidget));
+    } catch (e) {
+      Scaffold
+          .of(context)
+          .showSnackBar(new SnackBar(content: new Text(e.toString())));
+    }
+  }
+
+  Widget _buildApotekerForm(BuildContext context, Store<RegisterState> store) {
     Map<String, RegisterField> fields = store.state.apotekerFields;
     RegisterFormField alamatApotek = fields["alamatApotek"];
     RegisterFormField namaApotek = fields["namaApotek"];
@@ -92,6 +107,7 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
               if (value.isEmpty) return "SIPA tidak boleh kosong.";
               if (value.length < 12) return "SIPA kurang dari 12 digit.";
             },
+            keyboardType: TextInputType.number,
             inputFormatters: [new SipaTextFormatter()],
           )
         ],
@@ -99,84 +115,138 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     );
   }
 
-  void showChooseApotekerDialog(
-      {BuildContext context, Store<RegisterState> store}) {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => new ChooseApotekerDialog(),
-    ).then<void>((String value) {
-      // The value passed to Navigator.pop() or null.
-      if (value != null) {
-        store.dispatch(
-            new ActionSetPasienField("apoteker", new SimpleField(value)));
-      }
-    });
+  Widget _buildPasienForm(BuildContext context, Store<RegisterState> store) {
+    var fields = store.state.fields;
+    SimpleField apotekerUsername = fields["apoteker"];
+    return new Form(
+      key: _formKey,
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new Row(
+            children: <Widget>[
+              new Expanded(
+                child: new Container(
+                  margin: new EdgeInsets.symmetric(vertical: 16.0),
+                  child: new OutlineButton(
+                    onPressed: () {
+                      _showChooseApotekerDialog(context: context, store: store);
+                    },
+                    child: new Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        new Text(apotekerUsername.data ?? "Pilih Email Apoteker-mu"),
+                        new Icon(Icons.menu)
+                      ],
+                    )
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
-  void submit(BuildContext context, Store<RegisterState> store) async {
-    bool isFormValid = _formKey.currentState.validate();
-    if (!isFormValid) {
-      Scaffold.of(context).showSnackBar(
-          new SnackBar(content: new Text("Masukan tidak valid.")));
-      return;
-    }
-    try {
-      Map<String, dynamic> json = await signUp(store);
-      print(json);
-      Widget redirectedRouteWidget;
-      String role = store.state.role;
-      if (role == User.APOTEKER) {
-        redirectedRouteWidget = new ApotekerHomeScreen();
-      } else {
-        redirectedRouteWidget =
-            new PasienHomeScreen(currentUser: new Pasien.fromJson(json));
-      }
-      while (Navigator.of(context).canPop()) Navigator.of(context).pop();
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (_) => redirectedRouteWidget));
-    } catch (e) {
-      Scaffold
-          .of(context)
-          .showSnackBar(new SnackBar(content: new Text(e.toString())));
-    }
+  Widget _buildHeader(BuildContext context, Store<RegisterState> store) {
+    Widget header;
+    String role = store.state.role;
   }
 
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(builder: (context, Store<RegisterState> store) {
       Widget forms = store.state.role == UserRole.apoteker
-          ? getApotekerForm(context, store)
-          : getPasienForm(context, store);
-      return new Center(
-        child: new Container(
-          margin: const EdgeInsets.symmetric(horizontal: 50.0),
-          child: new Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              forms,
-              new Container(
-                margin: const EdgeInsets.only(top: 16.0),
-                child: new Row(
-                  children: [
-                    new Expanded(
-                      child: new OutlineButton(
-                        child: store.state.isLoading
-                            ? new SizedBox(
-                                width: 16.0,
-                                height: 16.0,
-                                child: new CircularProgressIndicator(),
-                              )
-                            : new Text("Sign Up"),
-                        onPressed: () {
-                          submit(context, store);
-                        },
+          ? _buildApotekerForm(context, store)
+          : _buildPasienForm(context, store);
+      return new Container(
+        margin: new EdgeInsets.fromLTRB(48.0, 32.0, 48.0, 0.0),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            new SizedBox(
+              height: 72.0,
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  new Container(
+                    decoration: new BoxDecoration(
+                        color: Theme.of(context).accentColor,
+                        borderRadius: new BorderRadius.vertical(
+                          top: new Radius.circular(8.0),
+                          bottom: new Radius.circular(8.0),
+                        )),
+                    padding: new EdgeInsets.only(left: 4.0),
+                    margin: new EdgeInsets.only(right: 16.0),
+                    child: new Text(""),
+                  ),
+                  new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      new Container(
+                        child: new Text(
+                          "Sebagai",
+                          textAlign: TextAlign.start,
+                          style: new TextStyle(
+                            color: Theme.of(context).accentColor,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                        margin: new EdgeInsets.only(top: 8.0),
                       ),
-                    )
-                  ],
-                ),
+                      new Text(
+                        capitalize(store.state.role),
+                        textAlign: TextAlign.start,
+                        style: new TextStyle(
+                          color: Theme.of(context).accentColor,
+                          fontSize: 32.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            new Expanded(
+                child: new Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                forms,
+                new Container(
+                  margin: const EdgeInsets.only(top: 16.0),
+                  child: new Row(
+                    children: [
+                      new Expanded(
+                        child: new MaterialButton(
+                          child: store.state.isLoading
+                              ? new SizedBox(
+                                  width: 16.0,
+                                  height: 16.0,
+                                  child: new CircularProgressIndicator(),
+                                )
+                              : new Text(
+                                  "DAFTAR",
+                                  style: new TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                          color: Theme.of(context).accentColor,
+                          onPressed: () {
+                            _submit(context, store);
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            )),
+          ],
         ),
       );
     });
@@ -251,7 +321,7 @@ class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
                       child: _getCircleAvatarChild(document),
                     ),
                     subtitle:
-                    new Text(document['email'] ?? '<No message retrieved>'),
+                        new Text(document['email'] ?? '<No message retrieved>'),
                     title: new Text('${document["displayName"]}'),
                     onTap: () {
                       Navigator.pop(context, document["email"]);
