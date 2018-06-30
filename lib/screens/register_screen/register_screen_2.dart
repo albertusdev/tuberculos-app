@@ -1,20 +1,15 @@
-import "package:flutter/material.dart";
-
-import "package:redux/redux.dart";
-import "package:flutter_redux/flutter_redux.dart";
-
 import "package:cloud_firestore/cloud_firestore.dart";
-
-import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
-import "package:tuberculos/services/api.dart";
-import "package:tuberculos/utils.dart";
-
+import "package:flutter/material.dart";
+import "package:flutter_redux/flutter_redux.dart";
+import "package:redux/redux.dart";
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
-import 'package:tuberculos/routes.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_home_screen.dart';
 import 'package:tuberculos/screens/pasien_screens/pasien_home_screen.dart';
+import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
+import "package:tuberculos/services/api.dart";
+import "package:tuberculos/utils.dart";
 
 class SecondStepWidget extends StatefulWidget {
   @override
@@ -45,11 +40,16 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
           new SnackBar(content: new Text("Masukan tidak valid.")));
       return;
     }
+    String role = store.state.role;
+    String apotekerEmail = store.state.pasienFields["apoteker"].data;
+    if (role == User.PASIEN && apotekerEmail == null) {
+      Scaffold.of(context).showSnackBar(
+          new SnackBar(content: new Text("Apoteker tidak boleh kosong.")));
+      return;
+    }
     try {
       Map<String, dynamic> json = await signUp(store);
-      print(json);
       Widget redirectedRouteWidget;
-      String role = store.state.role;
       if (role == User.APOTEKER) {
         redirectedRouteWidget = new ApotekerHomeScreen(
           currentUser: new Apoteker.fromJson(json),
@@ -129,17 +129,18 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
                 child: new Container(
                   margin: new EdgeInsets.symmetric(vertical: 16.0),
                   child: new OutlineButton(
-                    onPressed: () {
-                      _showChooseApotekerDialog(context: context, store: store);
-                    },
-                    child: new Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        new Text(apotekerUsername.data ?? "Pilih Email Apoteker-mu"),
-                        new Icon(Icons.menu)
-                      ],
-                    )
-                  ),
+                      onPressed: () {
+                        _showChooseApotekerDialog(
+                            context: context, store: store);
+                      },
+                      child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          new Text(apotekerUsername.data ??
+                              "Pilih Email Apoteker-mu"),
+                          new Icon(Icons.menu)
+                        ],
+                      )),
                 ),
               ),
             ],
@@ -235,10 +236,10 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
                                     color: Colors.white,
                                   ),
                                 ),
-                          color: Theme.of(context).accentColor,
-                          onPressed: () {
+                          color: Theme.of(context).primaryColorDark,
+                          onPressed: !store.state.isLoading ? () {
                             _submit(context, store);
-                          },
+                          } : null,
                         ),
                       )
                     ],

@@ -5,11 +5,11 @@ class User {
   static final String APOTEKER = "apoteker";
   static final String PASIEN = "pasien";
 
-  final String email;
-  final String displayName;
-  final String photoUrl;
-  final String role;
-  final DateTime dateTimeCreated;
+  String email;
+  String displayName;
+  String photoUrl;
+  String role;
+  DateTime dateTimeCreated;
 
   User({this.email, this.displayName, this.photoUrl, this.role});
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class FullWidthWidget extends StatelessWidget {
   Widget child;
 
-  FullWidthWidget(this.child);
+  FullWidthWidget({this.child});
 
   @override
   Widget build(BuildContext context) {

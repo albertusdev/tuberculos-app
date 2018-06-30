@@ -1,18 +1,20 @@
 import "user.dart";
 
 class Pasien extends User {
-  final String chatId;
-  final String apoteker;
-  final bool isVerified;
-  final String tuberculosStage;
+  String documentId;
+  String chatId;
+  String apoteker;
+  bool isVerified;
+  int tuberculosStage;
 
   Pasien();
 
-  Pasien.fromJson(Map<dynamic, dynamic> json)
+  Pasien.fromJson(Map<dynamic, dynamic> json, [String documentId])
       : chatId = json["chatId"],
         apoteker = json["apoteker"],
         isVerified = json["isVerified"],
         tuberculosStage = json["tuberculosStage"],
+        this.documentId = documentId,
         super.fromJson(json);
 
   @override

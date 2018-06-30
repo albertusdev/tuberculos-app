@@ -1,9 +1,9 @@
 import "user.dart";
 
 class Apoteker extends User {
-  final String alamatApotek;
-  final String namaApotek;
-  final String sipa;
+  String alamatApotek;
+  String namaApotek;
+  String sipa;
 
   Apoteker();
 
