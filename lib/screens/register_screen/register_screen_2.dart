@@ -150,11 +150,6 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, Store<RegisterState> store) {
-    Widget header;
-    String role = store.state.role;
-  }
-
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(builder: (context, Store<RegisterState> store) {
