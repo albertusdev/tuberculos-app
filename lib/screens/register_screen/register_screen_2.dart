@@ -2,12 +2,9 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/material.dart";
 import "package:flutter_redux/flutter_redux.dart";
 import "package:redux/redux.dart";
-import 'package:tuberculos/models/apoteker.dart';
-import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/redux/configure_store.dart';
-import 'package:tuberculos/screens/apoteker_screens/apoteker_home_screen.dart';
-import 'package:tuberculos/screens/pasien_screens/pasien_home_screen.dart';
+import 'package:tuberculos/screens/utils.dart';
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/utils.dart";
 
@@ -41,7 +38,8 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
       return;
     }
     String role = store.state.registerState.role;
-    String apotekerEmail = store.state.registerState.pasienFields["apoteker"].data;
+    String apotekerEmail =
+        store.state.registerState.pasienFields["apoteker"].data;
     if (role == User.PASIEN && apotekerEmail == null) {
       Scaffold.of(context).showSnackBar(
           new SnackBar(content: new Text("Apoteker tidak boleh kosong.")));
@@ -49,19 +47,9 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     }
     try {
       Map<String, dynamic> json = await signUp(store);
-      Widget redirectedRouteWidget;
-      if (role == User.APOTEKER) {
-        redirectedRouteWidget = new ApotekerHomeScreen(
-          currentUser: new Apoteker.fromJson(json),
-        );
-      } else {
-        redirectedRouteWidget = new PasienHomeScreen(
-          currentUser: new Pasien.fromJson(json),
-        );
-      }
       while (Navigator.of(context).canPop()) Navigator.of(context).pop();
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (_) => redirectedRouteWidget));
+      Navigator.of(context).pushReplacement(getRouteBasedOnUser(
+          currentUser: new User.createSpecificUserFromJson(json)));
     } catch (e) {
       Scaffold
           .of(context)
@@ -70,7 +58,8 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
   }
 
   Widget _buildApotekerForm(BuildContext context, Store<AppState> store) {
-    Map<String, RegisterField> fields = store.state.registerState.apotekerFields;
+    Map<String, RegisterField> fields =
+        store.state.registerState.apotekerFields;
     RegisterFormField alamatApotek = fields["alamatApotek"];
     RegisterFormField namaApotek = fields["namaApotek"];
     RegisterFormField sipa = fields["sipa"];
@@ -233,9 +222,11 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
                                   ),
                                 ),
                           color: Theme.of(context).primaryColorDark,
-                          onPressed: !state.isLoading ? () {
-                            _submit(context, store);
-                          } : null,
+                          onPressed: !state.isLoading
+                              ? () {
+                                  _submit(context, store);
+                                }
+                              : null,
                         ),
                       )
                     ],

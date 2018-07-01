@@ -4,6 +4,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import 'package:flutter/material.dart';
 import "package:google_sign_in/google_sign_in.dart";
 import "package:redux/redux.dart";
+import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/services/api.dart";
@@ -99,20 +100,20 @@ class RegisterState {
     String email,
     String role,
   })  : this.apotekerFields = apotekerFields ??
-      {
-        "alamatApotek": new RegisterFormField(hint: "Alamat Apotek"),
-        "namaApotek": new RegisterFormField(hint: "Nama Apotek"),
-        "pasiens": new SimpleField<List>(
-          new List(),
-              () {
-            return new List();
-          },
-        ),
-        "role": new SimpleField<String>(UserRole.apoteker, () {
-          return UserRole.apoteker;
-        }),
-        "sipa": new RegisterFormField(hint: "No. SIPA"),
-      },
+            {
+              "alamatApotek": new RegisterFormField(hint: "Alamat Apotek"),
+              "namaApotek": new RegisterFormField(hint: "Nama Apotek"),
+              "pasiens": new SimpleField<List>(
+                new List(),
+                () {
+                  return new List();
+                },
+              ),
+              "role": new SimpleField<String>(UserRole.apoteker, () {
+                return UserRole.apoteker;
+              }),
+              "sipa": new RegisterFormField(hint: "No. SIPA"),
+            },
         this.email = email ?? "",
         this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
         this.isLoading = isLoading ?? false,
@@ -211,34 +212,35 @@ Future<Map<String, dynamic>> signUp(Store<AppState> store) async {
   Map<String, dynamic> fields = state.fields
       .map((key, value) => new MapEntry<String, dynamic>(key, value.data));
 
-  fields["dateTimeCreated"] = new DateTime.now();
+  fields["email"] = state.email;
+  fields["role"] = state.role;
+
+  User user  = new User.createSpecificUserFromJson(fields);
+
+  user.dateTimeCreated = new DateTime.now();
   if (googleSignInAccount != null) {
-    fields["displayName"] = googleSignInAccount.displayName;
-    fields["photoUrl"] = googleSignInAccount.photoUrl;
-    fields["email"] = googleSignInAccount.email;
+    user.displayName = googleSignInAccount.displayName;
+    user.photoUrl = googleSignInAccount.photoUrl;
+    user.email = googleSignInAccount.email;
   }
 
-  String email = state.email;
-  String role = state.role;
+  DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
 
-  DocumentReference ref = getUserDocumentReference(role: role, email: email);
-
-  if (role == User.PASIEN) {
+  if (user is Pasien) {
     DocumentReference chatRef = await createNewMessageDocument({});
-    fields["chatId"] = chatRef.documentID;
-
-    String apotekerEmail = fields["apoteker"];
+    user.chatId = chatRef.documentID;
     DocumentReference duplicatedRef = getNestedPasienDocumentReference(
-        apotekerEmail: apotekerEmail, pasienEmail: email);
+        apotekerEmail: user.apoteker, pasienEmail: user.email);
     await duplicatedRef.setData(fields);
   }
 
-  await ref.setData(fields);
+  await ref.setData(user.toJson());
   await signInFirebaseWithGoogleSignIn(store.state.googleSignIn);
+  store.dispatch(new ActionChangeCurrentUser(currentUser: user));
 
   store.dispatch(new ActionClearApotekerFields());
   store.dispatch(new ActionClearPasienFields());
   store.dispatch(new ActionClearLoading());
 
-  return fields;
+  return user.toJson();
 }

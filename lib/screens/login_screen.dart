@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import "package:google_sign_in/google_sign_in.dart";
 import 'package:redux/redux.dart';
-import 'package:tuberculos/models/apoteker.dart';
-import 'package:tuberculos/models/pasien.dart';
 import "package:tuberculos/models/user.dart";
 import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
-import 'package:tuberculos/screens/apoteker_screens/apoteker_home_screen.dart';
-import 'package:tuberculos/screens/pasien_screens/pasien_home_screen.dart';
+import 'package:tuberculos/screens/utils.dart';
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/widgets/continue_with_google_button.dart";
 
@@ -49,25 +46,14 @@ class _LoginScreenState extends State<StatefulWidget> {
       Map<String, dynamic> userJson =
           (await getUserDocumentSnapshot(role: role, email: email))?.data;
 
-      User currentUser = role == UserRole.apoteker
-          ? new Apoteker.fromJson(userJson)
-          : new Pasien.fromJson(userJson);
+      User currentUser = new User.createSpecificUserFromJson(userJson);
 
       store.dispatch(new ActionChangeCurrentUser(currentUser: currentUser));
 
       setState(() => isLoading = false);
 
       while (Navigator.of(context).canPop()) Navigator.of(context).pop();
-      Widget newRoute;
-      if (role == User.PASIEN) {
-        newRoute =
-            new PasienHomeScreen(currentUser: new Pasien.fromJson(userJson));
-      } else {
-        newRoute = new ApotekerHomeScreen(
-            currentUser: new Apoteker.fromJson(userJson));
-      }
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (BuildContext context) => newRoute));
+      Navigator.of(context).pushReplacement(getRouteBasedOnUser(currentUser: currentUser));
     } catch (e) {
       Scaffold.of(context).showSnackBar(new SnackBar(
             content: new Text(e.toString()),
