@@ -1,16 +1,28 @@
 import "dart:async";
-import "package:flutter/material.dart";
+
 import "package:firebase_auth/firebase_auth.dart";
-import "package:cloud_firestore/cloud_firestore.dart";
-import "package:tuberculos/utils.dart";
+import "package:flutter/material.dart";
+import 'package:redux/redux.dart';
+import 'package:tuberculos/models/user.dart';
+import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
+import 'package:tuberculos/screens/utils.dart';
 
 class SplashScreen extends StatefulWidget {
+
+  final Store<AppState> store;
+
+  SplashScreen({Key key, this.store}) : super(key: key);
+
   @override
-  _SplashScreenState createState() => new _SplashScreenState();
+  _SplashScreenState createState() => new _SplashScreenState(store);
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final Store<AppState> store;
+
+  _SplashScreenState(this.store);
+
   @override
   void initState() {
     super.initState();
@@ -18,14 +30,20 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _initTimer() async {
-    new Timer(new Duration(seconds: 1), () {
-      Navigator.pushReplacementNamed(context, Routes.loginScreen.toString());
+    new Timer(new Duration(seconds: 1), () async {
+      FirebaseUser firebaseUser = await FirebaseAuth.instance.currentUser();
+      User currentUser = store.state.currentUser;
+      if (firebaseUser != null && currentUser != null) {
+        Navigator.pushReplacement(context, getRouteBasedOnUser(currentUser: currentUser));
+      } else {
+        Navigator.pushReplacementNamed(context, Routes.loginScreen.toString());
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    Widget child = new Scaffold(
       body: new Center(
         child: Text(
           "TuberculosApp",
@@ -36,5 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
+    return child;
   }
 }

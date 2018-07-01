@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
-import 'package:tuberculos/screens/apoteker_screens/apoteker_dashboard_pasien_card.dart';
 import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/full_width_widget.dart';
+import 'package:tuberculos/widgets/user_card.dart';
 
 class VerifiedPasiensTab extends StatefulWidget {
   final Apoteker apoteker;
@@ -70,8 +70,8 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
                     ));
               }
               final pasien = data[index - 1];
-              return new PasienCard(
-                pasien: pasien,
+              return new UserCard(
+                user: pasien,
                 onTap: () {
                   Scaffold.of(context).showSnackBar(
                       new SnackBar(content: new Text(pasien.email)));

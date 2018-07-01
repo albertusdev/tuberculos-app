@@ -1,26 +1,19 @@
-import "package:cloud_firestore/cloud_firestore.dart";
-import "package:firebase_auth/firebase_auth.dart";
-
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
-
 import "package:flutter_redux/flutter_redux.dart";
-
 import "package:google_sign_in/google_sign_in.dart";
-
 import "package:redux/redux.dart";
-
 import "package:tuberculos/models/user.dart";
-import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
+import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/widgets/continue_with_google_button.dart";
+
 import "register_screen.dart";
 
 class FirstStepWidget extends StatelessWidget {
 
   void _handleOnContinueWithGooglePressed(
-      {BuildContext context, Store<RegisterState> store}) async {
-    String role = store.state.role;
+      {BuildContext context, Store<AppState> store}) async {
+    String role = store.state.registerState.role;
     GoogleSignIn googleSignIn = store.state.googleSignIn;
     GoogleSignInAccount user = googleSignIn.currentUser;
     try {
@@ -55,8 +48,8 @@ class FirstStepWidget extends StatelessWidget {
     store.dispatch(new ActionClearLoading());
   }
 
-  Widget _buildWidget(BuildContext context, Store<RegisterState> store) {
-    String role = store.state.role;
+  Widget _buildWidget(BuildContext context, Store<AppState> store) {
+    String role = store.state.registerState.role;
     return new Center(
       child: new Container(
         margin: new EdgeInsets.symmetric(horizontal: 50.0),
@@ -137,7 +130,7 @@ class FirstStepWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(
-      builder: (context, Store<RegisterState> store) {
+      builder: (context, Store<AppState> store) {
         return _buildWidget(context, store);
       },
     );

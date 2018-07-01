@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import "package:google_sign_in/google_sign_in.dart";
 import "package:redux/redux.dart";
 import 'package:tuberculos/models/user.dart';
+import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/services/api.dart";
 
 abstract class RegisterField<T> {
@@ -24,11 +25,6 @@ class ActionSetApotekerField {
   ActionSetApotekerField(this.key, this.value);
 }
 
-class ActionSetApotekerFields {
-  List<ActionSetPasienField> fields;
-  ActionSetApotekerFields(this.fields);
-}
-
 class ActionSetEmail {
   String email;
   ActionSetEmail(this.email);
@@ -40,11 +36,6 @@ class ActionSetPasienField {
   String key;
   RegisterField value;
   ActionSetPasienField(this.key, this.value);
-}
-
-class ActionSetPasienFields {
-  List<ActionSetApotekerField> fields;
-  ActionSetPasienFields(this.fields);
 }
 
 class ActionSetRole {
@@ -107,37 +98,35 @@ class RegisterState {
     Map<String, RegisterField> pasienFields,
     String email,
     String role,
-  }) {
-    this.apotekerFields = apotekerFields ??
-        {
-          "alamatApotek": new RegisterFormField(hint: "Alamat Apotek"),
-          "namaApotek": new RegisterFormField(hint: "Nama Apotek"),
-          "pasiens": new SimpleField<List>(
-            new List(),
-            () {
-              return new List();
+  })  : this.apotekerFields = apotekerFields ??
+      {
+        "alamatApotek": new RegisterFormField(hint: "Alamat Apotek"),
+        "namaApotek": new RegisterFormField(hint: "Nama Apotek"),
+        "pasiens": new SimpleField<List>(
+          new List(),
+              () {
+            return new List();
+          },
+        ),
+        "role": new SimpleField<String>(UserRole.apoteker, () {
+          return UserRole.apoteker;
+        }),
+        "sipa": new RegisterFormField(hint: "No. SIPA"),
+      },
+        this.email = email ?? "",
+        this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
+        this.isLoading = isLoading ?? false,
+        this.pasienFields = pasienFields ??
+            {
+              "alamat": new RegisterFormField(hint: "Alamat"),
+              "apoteker": new SimpleField<String>(null, () => null),
+              "chatId": new SimpleField<String>("", () => ""),
+              "isVerified": new SimpleField<bool>(false, () => false),
+              "role": new SimpleField<String>(
+                  UserRole.pasien, () => UserRole.pasien),
+              "tuberculosStage": new SimpleField(null, () => null),
             },
-          ),
-          "role": new SimpleField<String>(UserRole.apoteker, () {
-            return UserRole.apoteker;
-          }),
-          "sipa": new RegisterFormField(hint: "No. SIPA"),
-        };
-    this.email = email ?? "";
-    this.googleSignIn = googleSignIn ?? new GoogleSignIn();
-    this.isLoading = isLoading ?? false;
-    this.pasienFields = pasienFields ??
-        {
-          "alamat": new RegisterFormField(hint: "Alamat"),
-          "apoteker": new SimpleField<String>(null, () => null),
-          "chatId": new SimpleField<String>("", () => ""),
-          "isVerified": new SimpleField<bool>(false, () => false),
-          "role":
-              new SimpleField<String>(UserRole.pasien, () => UserRole.pasien),
-          "tuberculosStage": new SimpleField(null, () => null),
-        };
-    this.role = role ?? UserRole.apoteker;
-  }
+        this.role = role ?? UserRole.apoteker;
 
   RegisterState clone({
     bool isLoading,
@@ -187,21 +176,9 @@ RegisterState registerReducer(RegisterState state, action) {
     Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
     fields[action.key] = action.value;
     newState = state.clone(apotekerFields: fields);
-  } else if (action is ActionSetApotekerFields) {
-    Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
-    action.fields.forEach((field) {
-      fields[field.key] = field.value;
-    });
-    newState = state.clone(apotekerFields: fields);
   } else if (action is ActionSetPasienField) {
     Map<String, RegisterField> fields = new Map.from(state.pasienFields);
     fields[action.key] = action.value;
-    newState = state.clone(pasienFields: fields);
-  } else if (action is ActionSetPasienFields) {
-    Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
-    action.fields.forEach((field) {
-      fields[field.key] = field.value;
-    });
     newState = state.clone(pasienFields: fields);
   } else if (action is ActionClearApotekerFields) {
     Map<String, RegisterField> fields = state.apotekerFields.map((key, val) {
@@ -225,11 +202,13 @@ RegisterState registerReducer(RegisterState state, action) {
   return newState;
 }
 
-Future<Map<String, dynamic>> signUp(Store<RegisterState> store) async {
+Future<Map<String, dynamic>> signUp(Store<AppState> store) async {
   store.dispatch(new ActionSetLoading());
   GoogleSignInAccount googleSignInAccount =
       store.state.googleSignIn.currentUser;
-  Map<String, dynamic> fields = store.state.fields
+  RegisterState state = store.state.registerState;
+
+  Map<String, dynamic> fields = state.fields
       .map((key, value) => new MapEntry<String, dynamic>(key, value.data));
 
   fields["dateTimeCreated"] = new DateTime.now();
@@ -239,8 +218,8 @@ Future<Map<String, dynamic>> signUp(Store<RegisterState> store) async {
     fields["email"] = googleSignInAccount.email;
   }
 
-  String email = store.state.email;
-  String role = store.state.role;
+  String email = state.email;
+  String role = state.role;
 
   DocumentReference ref = getUserDocumentReference(role: role, email: email);
 

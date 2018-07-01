@@ -1,23 +1,17 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import "package:google_sign_in/google_sign_in.dart";
-
 import 'package:image_picker/image_picker.dart';
-
-import "package:tuberculos/services/api.dart";
-import "package:tuberculos/utils.dart";
-
-import "package:tuberculos/models/user.dart";
 import "package:tuberculos/models/chat.dart";
+import "package:tuberculos/models/user.dart";
+import "package:tuberculos/utils.dart";
 
 @override
 class ChatMessageWidget extends StatelessWidget {
@@ -124,7 +118,6 @@ class ChatScreenState extends State<ChatScreen>
       sentTimestamp: new DateTime.now(),
       text: text,
     );
-    print(chatMessage.toJson());
     await documentRef.add(chatMessage.toJson());
   }
 
@@ -201,7 +194,6 @@ class ChatScreenState extends State<ChatScreen>
 
   @override
   Widget build(BuildContext context) {
-    print(documentRef?.document()?.documentID);
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Consultation Chat"),

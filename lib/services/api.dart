@@ -59,6 +59,10 @@ CollectionReference getPasiensCollectionReference(String apotekerEmail) {
   return Firestore.instance.collection("apotekers/$apotekerEmail/pasiens");
 }
 
+CollectionReference getPasienTriggerCollectionReference(String pasienEmail) {
+  return Firestore.instance.collection("pasiens/$pasienEmail/triggers");
+}
+
 DocumentReference getNestedPasienDocumentReference(
     {String apotekerEmail, String pasienEmail}) {
   return Firestore.instance
@@ -101,3 +105,4 @@ Future<void> verifyPasien(String email, int tuberculosStage) async {
       apotekerEmail: pasien.apoteker, pasienEmail: pasien.email);
   await duplicatedRef.updateData(pasien.toJson());
 }
+

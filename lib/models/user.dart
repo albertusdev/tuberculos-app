@@ -1,4 +1,6 @@
 import "package:google_sign_in/google_sign_in.dart" as GoogleSignIn;
+import 'package:tuberculos/models/apoteker.dart';
+import 'package:tuberculos/models/pasien.dart';
 
 class User {
   // Roles
@@ -25,6 +27,15 @@ class User {
         role = json["role"],
         dateTimeCreated = json["dateTimeCreated"]
       ;
+
+  factory User.createSpecificUserFromJson(Map<String, dynamic> json) {
+    if (json["role"] == User.APOTEKER) {
+      return new Apoteker.fromJson(json);
+    } else {
+      return new Pasien.fromJson(json);
+    }
+  }
+
 
   Map<String, dynamic> toJson() => {
         "email": email,

@@ -5,6 +5,7 @@ dependencies:
   cloud_firestore:
   firebase_auth:
   firebase_database:
+  firebase_messaging:
   firebase_storage:
   flutter:
     sdk: flutter
@@ -13,8 +14,8 @@ dependencies:
   json_annotation:
   image_picker:
   redux:
-  redux_epics:
   redux_thunk:
+  redux_persist_flutter:
   shared_preferences:
 
   # The following adds the Cupertino Icons font to your application.

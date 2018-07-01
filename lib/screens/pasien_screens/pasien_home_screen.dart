@@ -120,7 +120,6 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
   void initState() {
     super.initState();
     // To override back button behavior
-    print("init state with ${currentUser.chatId}");
     WidgetsBinding.instance.addObserver(this);
     _navigationViews = <NavigationIconView>[
       new NavigationIconView(

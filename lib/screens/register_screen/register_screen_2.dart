@@ -5,9 +5,9 @@ import "package:redux/redux.dart";
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
+import 'package:tuberculos/redux/configure_store.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_home_screen.dart';
 import 'package:tuberculos/screens/pasien_screens/pasien_home_screen.dart';
-import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/utils.dart";
 
@@ -20,7 +20,7 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   void _showChooseApotekerDialog(
-      {BuildContext context, Store<RegisterState> store}) {
+      {BuildContext context, Store<AppState> store}) {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => new ChooseApotekerDialog(),
@@ -33,15 +33,15 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     });
   }
 
-  void _submit(BuildContext context, Store<RegisterState> store) async {
+  void _submit(BuildContext context, Store<AppState> store) async {
     bool isFormValid = _formKey.currentState.validate();
     if (!isFormValid) {
       Scaffold.of(context).showSnackBar(
           new SnackBar(content: new Text("Masukan tidak valid.")));
       return;
     }
-    String role = store.state.role;
-    String apotekerEmail = store.state.pasienFields["apoteker"].data;
+    String role = store.state.registerState.role;
+    String apotekerEmail = store.state.registerState.pasienFields["apoteker"].data;
     if (role == User.PASIEN && apotekerEmail == null) {
       Scaffold.of(context).showSnackBar(
           new SnackBar(content: new Text("Apoteker tidak boleh kosong.")));
@@ -69,8 +69,8 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     }
   }
 
-  Widget _buildApotekerForm(BuildContext context, Store<RegisterState> store) {
-    Map<String, RegisterField> fields = store.state.apotekerFields;
+  Widget _buildApotekerForm(BuildContext context, Store<AppState> store) {
+    Map<String, RegisterField> fields = store.state.registerState.apotekerFields;
     RegisterFormField alamatApotek = fields["alamatApotek"];
     RegisterFormField namaApotek = fields["namaApotek"];
     RegisterFormField sipa = fields["sipa"];
@@ -115,8 +115,8 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
     );
   }
 
-  Widget _buildPasienForm(BuildContext context, Store<RegisterState> store) {
-    var fields = store.state.fields;
+  Widget _buildPasienForm(BuildContext context, Store<AppState> store) {
+    var fields = store.state.registerState.fields;
     SimpleField apotekerUsername = fields["apoteker"];
     return new Form(
       key: _formKey,
@@ -152,10 +152,11 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new StoreBuilder(builder: (context, Store<RegisterState> store) {
-      Widget forms = store.state.role == UserRole.apoteker
+    return new StoreBuilder(builder: (context, Store<AppState> store) {
+      Widget forms = store.state.registerState.role == UserRole.apoteker
           ? _buildApotekerForm(context, store)
           : _buildPasienForm(context, store);
+      RegisterState state = store.state.registerState;
       return new Container(
         margin: new EdgeInsets.fromLTRB(48.0, 32.0, 48.0, 0.0),
         child: new Column(
@@ -194,7 +195,7 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
                         margin: new EdgeInsets.only(top: 8.0),
                       ),
                       new Text(
-                        capitalize(store.state.role),
+                        capitalize(state.role),
                         textAlign: TextAlign.start,
                         style: new TextStyle(
                           color: Theme.of(context).accentColor,
@@ -219,7 +220,7 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
                     children: [
                       new Expanded(
                         child: new MaterialButton(
-                          child: store.state.isLoading
+                          child: state.isLoading
                               ? new SizedBox(
                                   width: 16.0,
                                   height: 16.0,
@@ -232,7 +233,7 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
                                   ),
                                 ),
                           color: Theme.of(context).primaryColorDark,
-                          onPressed: !store.state.isLoading ? () {
+                          onPressed: !state.isLoading ? () {
                             _submit(context, store);
                           } : null,
                         ),

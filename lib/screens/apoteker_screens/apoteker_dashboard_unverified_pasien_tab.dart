@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
-import 'package:tuberculos/screens/apoteker_screens/apoteker_dashboard_pasien_card.dart';
 import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/full_width_widget.dart';
+import 'package:tuberculos/widgets/user_card.dart';
 
 class UnverifiedPasiensTab extends StatefulWidget {
   final Apoteker apoteker;
@@ -63,8 +63,8 @@ class _UnverifiedPasiensTab extends State<UnverifiedPasiensTab> {
               itemCount: dataCount,
               itemBuilder: (_, int index) {
                 final pasien = data[index];
-                return new PasienCard(
-                  pasien: pasien,
+                return new UserCard(
+                  user: pasien,
                   onTap: () {
                     _showVerifyPasienDialog(context: context, pasien: pasien);
                   },

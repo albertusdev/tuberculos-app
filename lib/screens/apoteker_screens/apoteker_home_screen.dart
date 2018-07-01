@@ -230,7 +230,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
 
     Widget app = new Scaffold(
       appBar: new AppBar(
-        title: new Text("HOME"),
+        title: new Text(_currentIndex == 0 ? "HOME" : "CHAT"),
       ),
       body: new Center(child: _buildTransitionsStack()),
       bottomNavigationBar: botNavBar,

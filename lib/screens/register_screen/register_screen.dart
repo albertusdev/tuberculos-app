@@ -1,27 +1,13 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
-
-import "package:redux/redux.dart";
 import "package:flutter_redux/flutter_redux.dart";
-import "package:redux_thunk/redux_thunk.dart";
-
-import "package:firebase_auth/firebase_auth.dart";
-import "package:cloud_firestore/cloud_firestore.dart";
-
+import "package:redux/redux.dart";
+import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
 
 import "register_screen_1.dart";
 import "register_screen_2.dart";
 
-import "package:tuberculos/screens/register_screen/redux/register_screen_redux.dart";
-
 class RegisterScreen extends StatelessWidget {
-  static final Store<RegisterState> store = new Store<RegisterState>(
-    registerReducer,
-    initialState: new RegisterState(),
-    middleware: [thunkMiddleware],
-  );
-
   final int currentStep;
 
   RegisterScreen({this.currentStep = 1});
@@ -43,7 +29,7 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget child = new Scaffold(
       body: getCurrentStepWidget(),
-      bottomNavigationBar: new StoreConnector<RegisterState, bool>(
+      bottomNavigationBar: new StoreConnector<AppState, bool>(
         builder: (BuildContext context, bool isLoading) {
           List<Widget> children = <Widget>[
             new Divider(height: 8.0),
@@ -82,12 +68,9 @@ class RegisterScreen extends StatelessWidget {
             children: children,
           );
         },
-        converter: (Store<RegisterState> store) => store.state.isLoading,
+        converter: (Store<AppState> store) => store.state.registerState.isLoading,
       ),
     );
-    return new StoreProvider(
-      store: store,
-      child: child,
-    );
+    return child;
   }
 }
