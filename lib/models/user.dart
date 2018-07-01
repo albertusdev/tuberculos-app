@@ -11,9 +11,10 @@ class User {
   String displayName;
   String photoUrl;
   String role;
+  String fcmToken;
   DateTime dateTimeCreated;
 
-  User({this.email, this.displayName, this.photoUrl, this.role});
+  User({this.email, this.displayName, this.photoUrl, this.role, this.fcmToken});
 
   User.fromGoogleSignInAccount(GoogleSignIn.GoogleSignInAccount account)
       : email = account.email,
@@ -25,8 +26,8 @@ class User {
         displayName = json["displayName"],
         photoUrl = json["photoUrl"],
         role = json["role"],
-        dateTimeCreated = json["dateTimeCreated"]
-      ;
+        dateTimeCreated = json["dateTimeCreated"],
+        fcmToken = json["fcmToken"];
 
   factory User.createSpecificUserFromJson(Map<String, dynamic> json) {
     if (json["role"] == User.APOTEKER) {
@@ -36,12 +37,12 @@ class User {
     }
   }
 
-
   Map<String, dynamic> toJson() => {
         "email": email,
         "displayName": displayName,
         "photoUrl": photoUrl,
         "role": role,
         "dateTimeCreated": dateTimeCreated,
+        "fcmToken" : fcmToken,
       };
 }

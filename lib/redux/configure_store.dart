@@ -29,7 +29,18 @@ class AppState {
   })  : this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
         this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
-        this.firebaseMessaging = firebaseMessaging ?? new FirebaseMessaging();
+        this.firebaseMessaging = firebaseMessaging ?? new FirebaseMessaging()..configure(
+          onMessage: (Map<String, dynamic> json) {
+            // TODO: Launch Alarm
+            print(json);
+          },
+          onLaunch: (Map<String, dynamic> json) {
+            print(json);
+          },
+          onResume: (Map<String, dynamic> json) {
+            print(json);
+          }
+        );
 
   AppState cloneWithModified({User currentUser, RegisterState registerState}) {
     return new AppState(
