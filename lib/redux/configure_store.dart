@@ -19,7 +19,6 @@ class AppState {
 
   // Singleton in App
   final GoogleSignIn googleSignIn;
-  final FirebaseMessaging firebaseMessaging;
 
   AppState({
     User currentUser,
@@ -28,26 +27,13 @@ class AppState {
     RegisterState registerState,
   })  : this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
-        this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
-        this.firebaseMessaging = firebaseMessaging ?? new FirebaseMessaging()..configure(
-          onMessage: (Map<String, dynamic> json) {
-            // TODO: Launch Alarm
-            print(json);
-          },
-          onLaunch: (Map<String, dynamic> json) {
-            print(json);
-          },
-          onResume: (Map<String, dynamic> json) {
-            print(json);
-          }
-        );
+        this.googleSignIn = googleSignIn ?? new GoogleSignIn();
 
   AppState cloneWithModified({User currentUser, RegisterState registerState}) {
     return new AppState(
       currentUser: currentUser ?? this.currentUser,
       registerState: registerState ?? this.registerState,
       googleSignIn: this.googleSignIn,
-      firebaseMessaging: this.firebaseMessaging,
     );
   }
 

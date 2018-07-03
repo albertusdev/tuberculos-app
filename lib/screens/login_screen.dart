@@ -48,6 +48,8 @@ class _LoginScreenState extends State<StatefulWidget> {
 
       User currentUser = new User.createSpecificUserFromJson(userJson);
 
+      updateUser(currentUser);
+
       store.dispatch(new ActionChangeCurrentUser(currentUser: currentUser));
 
       setState(() => isLoading = false);

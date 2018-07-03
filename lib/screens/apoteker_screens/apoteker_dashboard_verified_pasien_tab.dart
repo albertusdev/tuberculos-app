@@ -1,10 +1,8 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/services/api.dart';
-import 'package:tuberculos/widgets/full_width_widget.dart';
 import 'package:tuberculos/widgets/user_card.dart';
 
 class VerifiedPasiensTab extends StatefulWidget {
@@ -36,38 +34,42 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
           }
           final data = snapshot.data.documents
               .map((DocumentSnapshot document) =>
-          new Pasien.fromJson(document.data, document.documentID))
+                  new Pasien.fromJson(document.data, document.documentID))
               .toList()
-            ..retainWhere((pasien) => pasien.isVerified);
+                ..retainWhere((pasien) => pasien.isVerified);
           final int dataCount = data.length;
           return new ListView.builder(
             itemCount: dataCount + 1,
             itemBuilder: (_, int index) {
               if (index == 0) {
-                return new FullWidthWidget(
-                    child: new MaterialButton(
-                      child: new Container(
-                        child: new Column(
-                          children: <Widget>[
-                            new Icon(
-                              Icons.add,
-                              size: 48.0,
-//                          color: Theme.of(context).primaryColor,
-                            ),
-                            new Text(
-                              "Tambahkan Pengingat",
-                              style: new TextStyle(
-//                            color: Theme.of(context).primaryColor,
-                                fontSize: 16.0,
-                              ),
-                            ),
-                          ],
+                return new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      new Flexible(
+                        child: new MaterialButton(
+                          child: new Column(
+                            children: <Widget>[
+                              new Icon(Icons.add),
+                              new Text("Tambahkan Pengingat Harian")
+                            ],
+                          ),
+                          onPressed: () {},
                         ),
-                        margin: new EdgeInsets.symmetric(vertical: 16.0),
-                        padding: new EdgeInsets.symmetric(vertical: 8.0),
                       ),
-                      onPressed: () {},
-                    ));
+                      new Flexible(
+                        fit: FlexFit.tight,
+                        child: new OutlineButton(
+                          child: new Column(
+                            children: <Widget>[
+                              new Icon(Icons.add),
+                              new Text("Tambahkan Pengingat untuk Satu Minggu"),
+                            ],
+                          ),
+                          onPressed: () {},
+                        ),
+                      )
+                    ],
+                  );
               }
               final pasien = data[index - 1];
               return new UserCard(

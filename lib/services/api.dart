@@ -93,6 +93,14 @@ Future<void> updateProfileInFirestore(
   });
 }
 
+Future<void> updateUser(User user) async {
+  DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
+  await ref.updateData(user.toJson());
+  if (user is Pasien) {
+    getUserDocumentReference(role: User.APOTEKER, email: user.apoteker).updateData(user.toJson());
+  }
+}
+
 Future<void> verifyPasien(String email, int tuberculosStage) async {
   DocumentReference ref =
       getUserDocumentReference(role: User.PASIEN, email: email);

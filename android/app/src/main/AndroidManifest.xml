@@ -40,5 +40,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlarmActivity" />
+        <meta-data android:name="com.onesignal.NotificationOpened.DEFAULT" android:value="DISABLE" />
     </application>
 </manifest>

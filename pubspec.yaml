@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_redux:
+  flutter_one_signal:
   google_sign_in:
   json_annotation:
   image_picker:

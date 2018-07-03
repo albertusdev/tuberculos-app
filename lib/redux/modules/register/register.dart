@@ -216,7 +216,7 @@ Future<Map<String, dynamic>> signUp(Store<AppState> store) async {
   fields["role"] = state.role;
 
   User user  = new User.createSpecificUserFromJson(fields);
-  user.fcmToken = await store.state.firebaseMessaging.getToken();
+//  user.fcmToken = await store.state.firebaseMessaging.getToken();
   user.dateTimeCreated = new DateTime.now();
   if (googleSignInAccount != null) {
     user.displayName = googleSignInAccount.displayName;

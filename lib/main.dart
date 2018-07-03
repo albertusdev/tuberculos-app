@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:flutter_one_signal/flutter_one_signal.dart";
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_persist/redux_persist.dart';
@@ -27,6 +28,32 @@ class MyApp extends StatelessWidget {
 
     // Load state and dispatch LoadAction
     persistor.load(store);
+
+    FlutterOneSignal.startInit(
+      appId: 'f501bd63-e51b-45ce-8343-534999ab7085',
+      inFocusDisplaying: OSInFocusDisplayOption.InAppAlert,
+      notificationReceivedHandler: (notification) {
+        print('received : $notification');
+      },
+      notificationOpenedHandler: (notification) {
+        print('opened : $notification');
+      },
+      unsubscribeWhenNotificationsAreDisabled: false,
+    ).then((_) {
+
+      FlutterOneSignal.sendTag('userId', 'demoUserId');
+
+      FlutterOneSignal.setEmail('albertusangga.r@gmail.com');
+
+      FlutterOneSignal.logoutEmail();
+
+      FlutterOneSignal.setSubscription(true);
+
+      FlutterOneSignal.getUserId().then((String userId) {
+        print("Received $userId");
+      });
+
+    });
   }
 
 
