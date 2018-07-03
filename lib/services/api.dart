@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:cloud_firestore/cloud_firestore.dart";
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_one_signal/flutter_one_signal.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
@@ -76,6 +77,8 @@ Future<FirebaseUser> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) a
     idToken: credentials.idToken,
     accessToken: credentials.accessToken,
   );
+  FlutterOneSignal.setEmail(user.email);
+  FlutterOneSignal.setSubscription(true);
   return FirebaseAuth.instance.currentUser();
 }
 
