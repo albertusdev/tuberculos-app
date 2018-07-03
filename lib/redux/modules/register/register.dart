@@ -255,7 +255,7 @@ Future<User> signUp(Store<AppState> store) async {
   user.displayName = googleSignInAccount.displayName;
   user.photoUrl = googleSignInAccount.photoUrl;
   user.email = googleSignInAccount.email;
-  user.oneSignalUserId = await FlutterOneSignal.getUserId();
+  user.oneSignalPlayerId = await FlutterOneSignal.getUserId();
 
   // Create new chat room if it's user
   if (user is Pasien) {

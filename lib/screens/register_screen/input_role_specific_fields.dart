@@ -4,7 +4,6 @@ import "package:flutter_redux/flutter_redux.dart";
 import "package:redux/redux.dart";
 import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/redux/configure_store.dart';
-import 'package:tuberculos/screens/utils.dart';
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/utils.dart";
 

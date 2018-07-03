@@ -23,7 +23,7 @@ class _ApotekerChatListScreenState extends State<ApotekerChatListScreen> {
 
   Widget _getCircleAvatarChild(Pasien pasien) {
     if (pasien.photoUrl == null) {
-      if (pasien.displayName!= null) {
+      if (pasien.displayName != null) {
         return new Text(pasien.displayName);
       } else {
         return new Text("...");
@@ -63,8 +63,12 @@ class _ApotekerChatListScreenState extends State<ApotekerChatListScreen> {
                     onTap: () {
                       Navigator.of(context).push(new MaterialPageRoute(
                             builder: (BuildContext context) => new ChatScreen(
-                                documentRef: getMessageCollectionReference(
-                                    pasien.chatId)),
+                                  documentRef: getMessageCollectionReference(
+                                    pasien.chatId,
+                                  ),
+                                  currentUser: apoteker,
+                                  otherUser: pasien,
+                                ),
                           ));
                     });
               },
@@ -79,10 +83,7 @@ class _ApotekerChatListScreenState extends State<ApotekerChatListScreen> {
               ),
             );
           }
-          return new Container(
-              margin: new EdgeInsets.all(16.0),
-              child: child
-          );
+          return new Container(margin: new EdgeInsets.all(16.0), child: child);
         });
   }
 }

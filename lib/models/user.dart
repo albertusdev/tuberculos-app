@@ -12,10 +12,10 @@ class User {
   String displayName;
   String photoUrl;
   String role;
-  String oneSignalUserId;
+  String oneSignalPlayerId;
   DateTime dateTimeCreated;
 
-  User({this.uid = "", this.email, this.displayName, this.photoUrl, this.role, this.oneSignalUserId});
+  User({this.uid = "", this.email, this.displayName, this.photoUrl, this.role, this.oneSignalPlayerId});
 
   User.fromGoogleSignInAccount(GoogleSignIn.GoogleSignInAccount account)
       : email = account.email,
@@ -29,7 +29,7 @@ class User {
         photoUrl = json["photoUrl"],
         role = json["role"],
         dateTimeCreated = json["dateTimeCreated"],
-        oneSignalUserId = json["oneSignalUserId"];
+        oneSignalPlayerId = json["oneSignalPlayerId"];
 
   factory User.createSpecificUserFromJson(Map<String, dynamic> json) {
     if (json["role"] == User.APOTEKER) {
@@ -46,6 +46,6 @@ class User {
         "photoUrl": photoUrl,
         "role": role,
         "dateTimeCreated": dateTimeCreated,
-        "oneSignalUserId" : oneSignalUserId,
+        "oneSignalPlayerId" : oneSignalPlayerId,
       };
 }

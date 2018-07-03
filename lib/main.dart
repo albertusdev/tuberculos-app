@@ -10,6 +10,7 @@ import "package:tuberculos/screens/login_screen.dart";
 import "package:tuberculos/screens/register_screen/register_screen.dart";
 import "package:tuberculos/screens/splash_screen.dart";
 
+import "env.dart" as env;
 import "routes.dart";
 
 final Color backgroundColor = new Color(0xFFEEEEEF);
@@ -38,7 +39,7 @@ class _MyAppState extends State<MyApp> {
     persistor.load(store);
 
     FlutterOneSignal.startInit(
-      appId: store.state.oneSignalAppId,
+      appId: env.ONE_SIGNAL_APP_ID,
       inFocusDisplaying: OSInFocusDisplayOption.InAppAlert,
       notificationReceivedHandler: (notification) {
         print('received : $notification');

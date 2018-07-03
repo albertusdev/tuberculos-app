@@ -7,7 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import "package:google_sign_in/google_sign_in.dart";
 import 'package:image_picker/image_picker.dart';
 import "package:tuberculos/models/chat.dart";
 import "package:tuberculos/models/user.dart";
@@ -63,12 +62,15 @@ class ChatMessageWidget extends StatelessWidget {
 
 class ChatScreen extends StatefulWidget {
   final CollectionReference documentRef;
-  final GoogleSignIn googleSignIn;
+  final User currentUser;
+  final User otherUser;
 
-  ChatScreen({Key key, this.documentRef, this.googleSignIn}) : super(key: key);
+  ChatScreen({Key key, this.documentRef, this.currentUser, this.otherUser})
+      : super(key: key);
 
   @override
-  State createState() => new ChatScreenState(documentRef, googleSignIn);
+  State createState() =>
+      new ChatScreenState(documentRef, currentUser, otherUser);
 }
 
 class ChatScreenState extends State<ChatScreen>
@@ -79,19 +81,13 @@ class ChatScreenState extends State<ChatScreen>
 
   bool _isComposing = false;
   bool _isUploading = false;
-  CollectionReference documentRef;
-  GoogleSignIn googleSignIn;
 
-  ChatScreenState(CollectionReference documentRef, GoogleSignIn googleSignIn) {
-    this.documentRef = documentRef;
-    this.googleSignIn = googleSignIn ?? new GoogleSignIn();
-    if (this.googleSignIn.currentUser == null) {
-      this.googleSignIn.signInSilently();
-      if (this.googleSignIn.currentUser == null) {
-        this.googleSignIn.signIn();
-      }
-    }
-  }
+  final User currentUser;
+  final CollectionReference documentRef;
+
+  final User otherUser;
+
+  ChatScreenState(this.documentRef, this.currentUser, this.otherUser);
 
   @override
   void initState() {
@@ -108,28 +104,41 @@ class ChatScreenState extends State<ChatScreen>
   }
 
   Future<Null> _sendMessage({String text, String imageUrl}) async {
-    assert(googleSignIn.currentUser != null);
-    User sender = new User.fromGoogleSignInAccount(googleSignIn.currentUser);
+    assert(currentUser != null);
     ChatMessage chatMessage = new ChatMessage(
       imageUrl: imageUrl,
       isRead: false,
-      sender: sender,
+      sender: currentUser,
       sentTimestamp: new DateTime.now(),
       text: text,
     );
     await documentRef.add(chatMessage.toJson());
+    try {
+      final body = {
+        "include_player_ids": [otherUser.oneSignalPlayerId],
+        "headings": {"en": currentUser.displayName},
+        "contents": {"en": imageUrl == null ? text : "${currentUser.displayName} mengirim gambar."},
+        "large_icon" : currentUser.photoUrl,
+      };
+      print(body);
+      final response = await OneSignalHttpClient.post(body: body);
+      print(response.toString());
+      print(response.body);
+      print(response.statusCode);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<Null> _uploadPicture() async {
     setState(() {
       _isUploading = true;
     });
-    File imageFile =
-    await ImagePicker.pickImage(source: ImageSource.gallery);
+    File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       int random = new Random().nextInt(100000);
       StorageReference ref =
-      FirebaseStorage.instance.ref().child("image_$random.jpg");
+          FirebaseStorage.instance.ref().child("image_$random.jpg");
       StorageUploadTask uploadTask = ref.putFile(imageFile);
       Uri downloadUrl = (await uploadTask.future).downloadUrl;
       await _sendMessage(imageUrl: downloadUrl.toString());
@@ -153,8 +162,8 @@ class ChatScreenState extends State<ChatScreen>
           new Container(
             margin: new EdgeInsets.symmetric(horizontal: 4.0),
             child: new IconButton(
-                icon: new Icon(Icons.image),
-                onPressed: _uploadPicture,
+              icon: new Icon(Icons.image),
+              onPressed: _uploadPicture,
             ),
           ),
           new Flexible(

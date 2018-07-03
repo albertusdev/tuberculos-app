@@ -5,8 +5,8 @@ import 'package:redux/redux.dart';
 import "package:tuberculos/models/user.dart";
 import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
-import 'package:tuberculos/screens/utils.dart';
 import "package:tuberculos/services/api.dart";
+import 'package:tuberculos/utils.dart';
 import "package:tuberculos/widgets/continue_with_google_button.dart";
 
 class LoginScreen extends StatefulWidget {
