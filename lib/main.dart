@@ -16,11 +16,19 @@ final Color backgroundColor = new Color(0xFFEEEEEF);
 final Color greenColor = new Color(0xFF008E49);
 final Color disabledColor = new Color(0xFFE9E9Ea);
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   Persistor<AppState> persistor;
   Store<AppState> store;
 
-  MyApp() {
+  @override
+  void initState() {
+    super.initState();
+
     // Create Persistor
     Map<String, dynamic> storeConfig = configureStore();
     persistor = storeConfig["persistor"];
@@ -30,7 +38,7 @@ class MyApp extends StatelessWidget {
     persistor.load(store);
 
     FlutterOneSignal.startInit(
-      appId: 'f501bd63-e51b-45ce-8343-534999ab7085',
+      appId: store.state.oneSignalAppId,
       inFocusDisplaying: OSInFocusDisplayOption.InAppAlert,
       notificationReceivedHandler: (notification) {
         print('received : $notification');
@@ -39,21 +47,8 @@ class MyApp extends StatelessWidget {
         print('opened : $notification');
       },
       unsubscribeWhenNotificationsAreDisabled: false,
-    ).then((_) {
+    );
 
-      FlutterOneSignal.sendTag('userId', 'demoUserId');
-
-      FlutterOneSignal.setEmail('albertusangga.r@gmail.com');
-
-      FlutterOneSignal.logoutEmail();
-
-      FlutterOneSignal.setSubscription(true);
-
-      FlutterOneSignal.getUserId().then((String userId) {
-        print("Received $userId");
-      });
-
-    });
   }
 
 

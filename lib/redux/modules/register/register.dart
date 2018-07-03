@@ -2,8 +2,10 @@ import 'dart:async';
 
 import "package:cloud_firestore/cloud_firestore.dart";
 import 'package:flutter/material.dart';
+import 'package:flutter_one_signal/flutter_one_signal.dart';
 import "package:google_sign_in/google_sign_in.dart";
 import "package:redux/redux.dart";
+import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/redux/configure_store.dart';
@@ -89,6 +91,11 @@ class RegisterState {
   GoogleSignIn googleSignIn;
   Map<String, RegisterField> apotekerFields;
   Map<String, RegisterField> pasienFields;
+
+  User choosenUser;
+  Apoteker apoteker;
+  Pasien pasien;
+
   String email;
   String role;
 
@@ -129,7 +136,7 @@ class RegisterState {
             },
         this.role = role ?? UserRole.apoteker;
 
-  RegisterState clone({
+  RegisterState cloneWithModified({
     bool isLoading,
     GoogleSignIn googleSignIn,
     int currentStep,
@@ -169,78 +176,103 @@ class SimpleField<T> implements RegisterField<T> {
 
 RegisterState registerReducer(RegisterState state, action) {
   RegisterState newState = state;
-  if (action is ActionSetLoading) {
-    newState = state.clone(isLoading: true);
-  } else if (action is ActionClearLoading) {
-    newState = state.clone(isLoading: false);
-  } else if (action is ActionSetApotekerField) {
-    Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
-    fields[action.key] = action.value;
-    newState = state.clone(apotekerFields: fields);
-  } else if (action is ActionSetPasienField) {
-    Map<String, RegisterField> fields = new Map.from(state.pasienFields);
-    fields[action.key] = action.value;
-    newState = state.clone(pasienFields: fields);
-  } else if (action is ActionClearApotekerFields) {
-    Map<String, RegisterField> fields = state.apotekerFields.map((key, val) {
-      val.clear();
-      return new MapEntry<String, RegisterField>(key, val);
-    });
-    newState = state.clone(apotekerFields: fields);
-  } else if (action is ActionClearPasienFields) {
-    Map<String, RegisterField> fields = state.pasienFields.map((key, val) {
-      val.clear();
-      return new MapEntry<String, RegisterField>(key, val);
-    });
-    newState = state.clone(pasienFields: fields);
-  } else if (action is ActionSetEmail) {
-    newState = state.clone(email: action.email);
-  } else if (action is ActionSetRole) {
-    newState = state.clone(role: action.role);
-  } else {
-    newState = state;
+  switch (action.runtimeType) {
+    case ActionSetLoading: {
+      newState = state.cloneWithModified(isLoading: true);
+      break;
+    }
+    case ActionClearLoading:{
+      newState = state.cloneWithModified(isLoading: false);
+      break;
+    }
+    case ActionSetApotekerField: {
+      Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
+      fields[action.key] = action.value;
+      newState = state.cloneWithModified(apotekerFields: fields);
+      break;
+    }
+    case ActionSetPasienField: {
+      Map<String, RegisterField> fields = new Map.from(state.pasienFields);
+      fields[action.key] = action.value;
+      newState = state.cloneWithModified(pasienFields: fields);
+      break;
+    }
+    case ActionClearApotekerFields: {
+      Map<String, RegisterField> fields = state.apotekerFields.map((key, val) {
+        val.clear();
+        return new MapEntry<String, RegisterField>(key, val);
+      });
+      newState = state.cloneWithModified(apotekerFields: fields);
+      break;
+    }
+    case ActionClearPasienFields: {
+      Map<String, RegisterField> fields = state.pasienFields.map((key, val) {
+        val.clear();
+        return new MapEntry<String, RegisterField>(key, val);
+      });
+      newState = state.cloneWithModified(pasienFields: fields);
+      break;
+    }
+    case ActionSetEmail: {
+      newState = state.cloneWithModified(email: action.email);
+      break;
+    }
+    case ActionSetRole: {
+      newState = state.cloneWithModified(role: action.role);
+      break;
+    }
+    default: {
+      newState = state;
+      break;
+    }
   }
+
   return newState;
 }
 
-Future<Map<String, dynamic>> signUp(Store<AppState> store) async {
-  store.dispatch(new ActionSetLoading());
+
+// Method to POST a User into Firestore Database
+// Assumption here is user have choosen their Google Account (Have signed in)
+Future<User> signUp(Store<AppState> store) async {
   GoogleSignInAccount googleSignInAccount =
       store.state.googleSignIn.currentUser;
+  assert(googleSignInAccount != null);
+
+  store.dispatch(new ActionSetLoading());
+
   RegisterState state = store.state.registerState;
 
+  // Deserialize from RegisterField
   Map<String, dynamic> fields = state.fields
       .map((key, value) => new MapEntry<String, dynamic>(key, value.data));
 
-  fields["email"] = state.email;
+  // Important to user User.createSpecificUserFromJson
   fields["role"] = state.role;
 
+  // Generate important user fields
   User user  = new User.createSpecificUserFromJson(fields);
-//  user.fcmToken = await store.state.firebaseMessaging.getToken();
   user.dateTimeCreated = new DateTime.now();
-  if (googleSignInAccount != null) {
-    user.displayName = googleSignInAccount.displayName;
-    user.photoUrl = googleSignInAccount.photoUrl;
-    user.email = googleSignInAccount.email;
-  }
+  user.displayName = googleSignInAccount.displayName;
+  user.photoUrl = googleSignInAccount.photoUrl;
+  user.email = googleSignInAccount.email;
+  user.oneSignalUserId = await FlutterOneSignal.getUserId();
 
-  DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
-
+  // Create new chat room if it's user
   if (user is Pasien) {
-    DocumentReference chatRef = await createNewMessageDocument({});
+    DocumentReference chatRef = await createNewMessageDocument({
+      "apoteker": user.apoteker,
+      "pasien": user.email,
+    });
     user.chatId = chatRef.documentID;
-    DocumentReference duplicatedRef = getNestedPasienDocumentReference(
-        apotekerEmail: user.apoteker, pasienEmail: user.email);
-    await duplicatedRef.setData(fields);
   }
 
-  await ref.setData(user.toJson());
+  setUser(user);
   await signInFirebaseWithGoogleSignIn(store.state.googleSignIn);
-  store.dispatch(new ActionChangeCurrentUser(currentUser: user));
 
+  store.dispatch(new ActionChangeCurrentUser(currentUser: user));
   store.dispatch(new ActionClearApotekerFields());
   store.dispatch(new ActionClearPasienFields());
   store.dispatch(new ActionClearLoading());
 
-  return user.toJson();
+  return user;
 }

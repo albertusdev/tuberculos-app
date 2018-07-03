@@ -25,12 +25,12 @@ class _LoginScreenState extends State<StatefulWidget> {
     GoogleSignIn googleSignIn = store.state.googleSignIn;
     try {
       if (await googleSignIn.isSignedIn()) googleSignIn.signOut();
-      GoogleSignInAccount user = await googleSignIn.signIn();
-      if (user == null) throw "Mohon masuk menggunakan Akun Google";
+      GoogleSignInAccount googleSignInUser = await googleSignIn.signIn();
+      if (googleSignInUser == null) throw "Mohon masuk menggunakan Akun Google";
 
       setState(() => isLoading = true);
 
-      String email = user.email;
+      String email = googleSignInUser.email;
 
       if (!await doesEmailExist(email))
         throw "$email belum pernah terdaftar. Mohon daftar terlebih dahulu";
@@ -46,7 +46,11 @@ class _LoginScreenState extends State<StatefulWidget> {
       Map<String, dynamic> userJson =
           (await getUserDocumentSnapshot(role: role, email: email))?.data;
 
-      User currentUser = new User.createSpecificUserFromJson(userJson);
+      User currentUser = new User.createSpecificUserFromJson(userJson)
+        ..displayName = googleSignInUser.displayName
+        ..photoUrl = googleSignInUser.photoUrl
+        ..email = googleSignInUser.email
+      ;
 
       updateUser(currentUser);
 

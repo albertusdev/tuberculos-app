@@ -38,16 +38,8 @@ class SipaTextFormatter extends TextInputFormatter {
         newText += newValue.text[i];
       }
     }
-    String temp = "";
-    if (newText.length <= 12) {
-      for (int i = 0; i < newText.length; ++i) {
-        if (i > 0 && i % 4 == 0) {
-          temp += "-${newText[i]}";
-        } else {
-          temp += newText[i];
-        }
-      }
-    } else {
+    String temp = newText;
+    if (newText.length > 12) {
       temp = oldValue.text;
     }
     return new TextEditingValue(

@@ -7,14 +7,15 @@ class User {
   static final String APOTEKER = "apoteker";
   static final String PASIEN = "pasien";
 
+  String uid;
   String email;
   String displayName;
   String photoUrl;
   String role;
-  String fcmToken;
+  String oneSignalUserId;
   DateTime dateTimeCreated;
 
-  User({this.email, this.displayName, this.photoUrl, this.role, this.fcmToken});
+  User({this.uid = "", this.email, this.displayName, this.photoUrl, this.role, this.oneSignalUserId});
 
   User.fromGoogleSignInAccount(GoogleSignIn.GoogleSignInAccount account)
       : email = account.email,
@@ -22,12 +23,13 @@ class User {
         photoUrl = account.photoUrl;
 
   User.fromJson(Map<dynamic, dynamic> json)
-      : email = json["email"],
+      : uid = json["uid"] ?? "",
+        email = json["email"],
         displayName = json["displayName"],
         photoUrl = json["photoUrl"],
         role = json["role"],
         dateTimeCreated = json["dateTimeCreated"],
-        fcmToken = json["fcmToken"];
+        oneSignalUserId = json["oneSignalUserId"];
 
   factory User.createSpecificUserFromJson(Map<String, dynamic> json) {
     if (json["role"] == User.APOTEKER) {
@@ -38,11 +40,12 @@ class User {
   }
 
   Map<String, dynamic> toJson() => {
+        "uid": uid,
         "email": email,
         "displayName": displayName,
         "photoUrl": photoUrl,
         "role": role,
         "dateTimeCreated": dateTimeCreated,
-        "fcmToken" : fcmToken,
+        "oneSignalUserId" : oneSignalUserId,
       };
 }

@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import "package:redux/redux.dart";
 import "package:redux_persist/redux_persist.dart";
 import "package:redux_persist_flutter/redux_persist_flutter.dart";
+import "package:tuberculos/env.dart" as env;
 import 'package:tuberculos/models/user.dart';
 import "package:tuberculos/redux/modules/register/register.dart";
 
@@ -19,6 +20,10 @@ class AppState {
 
   // Singleton in App
   final GoogleSignIn googleSignIn;
+
+  // Envs variables
+  final String oneSignalRestApiKey = env.ONE_SIGNAL_REST_API_KEY;
+  final String oneSignalAppId = env.ONE_SIGNAL_REST_APP_ID;
 
   AppState({
     User currentUser,

@@ -8,12 +8,12 @@ import 'package:tuberculos/screens/utils.dart';
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/utils.dart";
 
-class SecondStepWidget extends StatefulWidget {
+class InputRoleSpecificWidget extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new _SecondStepWidgetState();
+  State<StatefulWidget> createState() => new _InputRoleSpecificWidgetState();
 }
 
-class _SecondStepWidgetState extends State<SecondStepWidget> {
+class _InputRoleSpecificWidgetState extends State<InputRoleSpecificWidget> {
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   void _showChooseApotekerDialog(
@@ -46,10 +46,11 @@ class _SecondStepWidgetState extends State<SecondStepWidget> {
       return;
     }
     try {
-      Map<String, dynamic> json = await signUp(store);
+      User user = await signUp(store);
       while (Navigator.of(context).canPop()) Navigator.of(context).pop();
-      Navigator.of(context).pushReplacement(getRouteBasedOnUser(
-          currentUser: new User.createSpecificUserFromJson(json)));
+      Navigator
+          .of(context)
+          .pushReplacement(getRouteBasedOnUser(currentUser: user));
     } catch (e) {
       Scaffold
           .of(context)
@@ -249,27 +250,11 @@ class ChooseApotekerDialog extends StatefulWidget {
 class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
   String query = "";
   bool isLoading = false;
-  TextEditingController controller = new TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    controller.addListener(() {
-      query = controller.text;
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    controller.dispose();
-  }
-
-  Widget _getCircleAvatarChild(document) {
-    if (document["photoUrl"] == null) {
-      if (document["displayName"] != null) {
-        return new Text(document["displayName"]);
+  Widget _getCircleAvatarChild(User user) {
+    if (user.photoUrl == null) {
+      if (user.displayName != null) {
+        return new Text(getInitialsOfDisplayName(user.displayName));
       } else {
         return new Text("...");
       }
@@ -283,51 +268,40 @@ class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           Widget child;
           if (!snapshot.hasData) {
-            child = const Text('Loading...');
+            return new Center(child: new Text('Loading...'));
           }
-          final data = snapshot.data.documents.where((documentSnapshot) {
-            if (query.isEmpty)
-              return true;
-            else if (documentSnapshot.documentID.contains(query))
-              return true;
-            else if (documentSnapshot.data["displayName"].contains(query))
-              return true;
-            else
-              return false;
-          }).toList();
+          final data = snapshot.data.documents
+              .map((DocumentSnapshot documentSnapshot) =>
+                  new User.createSpecificUserFromJson(documentSnapshot.data))
+              .toList();
           final int dataCount = data.length;
           if (dataCount > 0) {
-            child = new ListView.builder(
+            return new ListView.builder(
               itemCount: dataCount,
               itemBuilder: (_, int index) {
-                final DocumentSnapshot document = data[index];
+                final User user = data[index];
                 return new ListTile(
                     leading: new CircleAvatar(
-                      backgroundImage: document['photoUrl'] != null
-                          ? new NetworkImage(document['photoUrl'])
+                      backgroundImage: user.photoUrl != null
+                          ? new NetworkImage(user.photoUrl)
                           : null,
-                      child: _getCircleAvatarChild(document),
+                      child: _getCircleAvatarChild(user),
                     ),
-                    subtitle:
-                        new Text(document['email'] ?? '<No message retrieved>'),
-                    title: new Text('${document["displayName"]}'),
+                    subtitle: new Text(user.email ?? '<No message retrieved>'),
+                    title: new Text(user.displayName),
                     onTap: () {
-                      Navigator.pop(context, document["email"]);
+                      Navigator.pop(context, user.email);
                     });
               },
             );
-          } else {
-            child = new Center(
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  new Text(
-                      "Maaf, belum ada Apoteker yang terdaftar dalam sistem."),
-                ],
-              ),
-            );
           }
-          return child;
+          return new Center(
+            child: new Text(
+              "Maaf, belum ada Apoteker yang terdaftar dalam sistem.",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.title,
+            ),
+          );
         });
   }
 

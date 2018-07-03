@@ -9,8 +9,7 @@ import "package:tuberculos/widgets/continue_with_google_button.dart";
 
 import "register_screen.dart";
 
-class FirstStepWidget extends StatelessWidget {
-
+class ChooseRoleWidget extends StatelessWidget {
   void _handleOnContinueWithGooglePressed(
       {BuildContext context, Store<AppState> store}) async {
     String role = store.state.registerState.role;
@@ -36,10 +35,9 @@ class FirstStepWidget extends StatelessWidget {
       store.dispatch(new ActionSetRole(role));
 
       Navigator.of(context).push(
-        new MaterialPageRoute(
-            builder: (context) =>
-            new RegisterScreen(currentStep: 2)),
-      );
+            new MaterialPageRoute(
+                builder: (context) => new RegisterScreen(currentStep: 2)),
+          );
     } catch (e) {
       Scaffold.of(context).showSnackBar(new SnackBar(
             content: new Text(e.toString()),
@@ -50,6 +48,7 @@ class FirstStepWidget extends StatelessWidget {
 
   Widget _buildWidget(BuildContext context, Store<AppState> store) {
     String role = store.state.registerState.role;
+    User user = store.state.registerState.choosenUser;
     return new Center(
       child: new Container(
         margin: new EdgeInsets.symmetric(horizontal: 50.0),
@@ -60,11 +59,12 @@ class FirstStepWidget extends StatelessWidget {
               margin: new EdgeInsets.all(16.0),
               child: new Text(
                 "TuberculosApp",
-                style: new TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 32.0),
+                style:
+                    new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
               ),
             ),
-            new Text("Daftar sebagai", style: Theme.of(context).textTheme.headline),
+            new Text("Daftar sebagai",
+                style: Theme.of(context).textTheme.headline),
             new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -86,7 +86,8 @@ class FirstStepWidget extends StatelessWidget {
                       ],
                     ),
                     padding: new EdgeInsets.symmetric(vertical: 16.0),
-                    onPressed: () => store.dispatch(new ActionSetRole(User.PASIEN)),
+                    onPressed: () =>
+                        store.dispatch(new ActionSetRole(User.PASIEN)),
                   ),
                 ),
                 new Flexible(
@@ -109,7 +110,8 @@ class FirstStepWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                    onPressed: () => store.dispatch(new ActionSetRole(User.APOTEKER)),
+                    onPressed: () =>
+                        store.dispatch(new ActionSetRole(User.APOTEKER)),
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
                 ),
@@ -118,7 +120,8 @@ class FirstStepWidget extends StatelessWidget {
             new Container(
               margin: new EdgeInsets.only(top: 16.0),
               child: new ContinueWithGoogleButton(onPressed: () {
-                _handleOnContinueWithGooglePressed(context: context, store: store);
+                _handleOnContinueWithGooglePressed(
+                    context: context, store: store);
               }),
             ),
           ],

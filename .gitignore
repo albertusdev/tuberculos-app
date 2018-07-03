@@ -8,5 +8,8 @@ android/key.properties
 **/key.jks
 
 android/app/google-services.json
+.env*
 
-*.env
+
+// Custom env variables as of now
+lib/env.dart

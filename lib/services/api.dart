@@ -59,9 +59,6 @@ CollectionReference getPasiensCollectionReference(String apotekerEmail) {
   return Firestore.instance.collection("apotekers/$apotekerEmail/pasiens");
 }
 
-CollectionReference getPasienTriggerCollectionReference(String pasienEmail) {
-  return Firestore.instance.collection("pasiens/$pasienEmail/triggers");
-}
 
 DocumentReference getNestedPasienDocumentReference(
     {String apotekerEmail, String pasienEmail}) {
@@ -69,7 +66,7 @@ DocumentReference getNestedPasienDocumentReference(
       .document("apotekers/$apotekerEmail/pasiens/$pasienEmail");
 }
 
-Future<void> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
+Future<FirebaseUser> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
   if (user == null) {
     user = await googleSignIn.signIn();
@@ -79,6 +76,7 @@ Future<void> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
     idToken: credentials.idToken,
     accessToken: credentials.accessToken,
   );
+  return FirebaseAuth.instance.currentUser();
 }
 
 Future<void> updateProfileInFirestore(
@@ -93,11 +91,19 @@ Future<void> updateProfileInFirestore(
   });
 }
 
+Future<void> setUser(User user) async {
+  DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
+  await ref.setData(user.toJson());
+  if (user is Pasien) {
+    await getNestedPasienDocumentReference(apotekerEmail: user.apoteker, pasienEmail: user.email).setData(user.toJson());
+  }
+}
+
 Future<void> updateUser(User user) async {
   DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
   await ref.updateData(user.toJson());
   if (user is Pasien) {
-    getUserDocumentReference(role: User.APOTEKER, email: user.apoteker).updateData(user.toJson());
+    getNestedPasienDocumentReference(apotekerEmail: user.apoteker, pasienEmail: user.email).updateData(user.toJson());
   }
 }
 

@@ -95,7 +95,6 @@ class ChatScreenState extends State<ChatScreen>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _animationController = new AnimationController(
         duration: const Duration(milliseconds: 200), vsync: this);

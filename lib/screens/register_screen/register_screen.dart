@@ -4,8 +4,8 @@ import "package:redux/redux.dart";
 import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
 
-import "register_screen_1.dart";
-import "register_screen_2.dart";
+import "choose_role_widget.dart";
+import "input_role_specific_fields.dart";
 
 class RegisterScreen extends StatelessWidget {
   final int currentStep;
@@ -16,10 +16,10 @@ class RegisterScreen extends StatelessWidget {
     Widget widget;
     switch (currentStep) {
       case 1:
-        widget = new FirstStepWidget();
+        widget = new ChooseRoleWidget();
         break;
       case 2:
-        widget = new SecondStepWidget();
+        widget = new InputRoleSpecificWidget();
         break;
     }
     return widget;
