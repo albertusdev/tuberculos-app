@@ -1,19 +1,21 @@
 class Obat {
   String id;
-  String nama;
-  String deskripsi;
+  String photoUrl;
+  String name;
+  String description;
 
-  Obat({this.id, this.nama, this.deskripsi});
+  Obat({this.id, this.photoUrl, this.name, this.description});
 
   Obat.fromJson(Map<String, dynamic> json)
       : id = json["id"],
-        nama = json["nama"],
-        deskripsi = json["deskripsi"];
+        name = json["name"],
+        description = json["description"],
+        photoUrl = json["photoUrl"];
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "nama": nama,
-        "deskripsi": deskripsi,
+        "name": name,
+        "description": description,
+        "photoUrl": photoUrl,
       };
 
   @override
@@ -21,8 +23,9 @@ class Obat {
     if (identical(this, other)) return true;
     if (other is Obat) {
       return (this.id == other.id &&
-          this.nama == other.nama &&
-          this.deskripsi == other.deskripsi);
+          this.name == other.name &&
+          this.description == other.description &&
+          this.photoUrl == other.photoUrl);
     }
     return false;
   }
@@ -30,5 +33,9 @@ class Obat {
   @override
   // TODO: implement hashCode
   int get hashCode =>
-      super.hashCode ^ id.hashCode ^ nama.hashCode ^ deskripsi.hashCode;
+      super.hashCode ^
+      id.hashCode ^
+      name.hashCode ^
+      description.hashCode ^
+      photoUrl.hashCode;
 }
