@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
+import 'package:tuberculos/screens/apoteker_screens/apoteker_input_daily_alarm_screen.dart';
 import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/user_card.dart';
 
@@ -43,33 +44,49 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
             itemBuilder: (_, int index) {
               if (index == 0) {
                 return new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      new Flexible(
-                        child: new MaterialButton(
-                          child: new Column(
-                            children: <Widget>[
-                              new Icon(Icons.add),
-                              new Text("Tambahkan Pengingat Harian")
-                            ],
-                          ),
-                          onPressed: () {},
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    new Flexible(
+                      child: new MaterialButton(
+                        child: new Column(
+                          children: <Widget>[
+                            new Icon(
+                              Icons.add,
+                              color: Theme.of(context).primaryColor,
+                              size: 32.0,
+                            ),
+                            new Text(
+                              "Tambahkan Pengingat Harian",
+                              textAlign: TextAlign.center,
+                              style: new TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontSize: 16.0,
+                              ),
+                            )
+                          ],
                         ),
+                        onPressed: () {
+                          Navigator.of(context).push(new MaterialPageRoute(
+                                builder: (_) =>
+                                    new ApotekerInputDailyAlarmScreen(),
+                              ));
+                        },
                       ),
-                      new Flexible(
-                        fit: FlexFit.tight,
-                        child: new OutlineButton(
-                          child: new Column(
-                            children: <Widget>[
-                              new Icon(Icons.add),
-                              new Text("Tambahkan Pengingat untuk Satu Minggu"),
-                            ],
-                          ),
-                          onPressed: () {},
+                    ),
+                    new Flexible(
+                      fit: FlexFit.tight,
+                      child: new OutlineButton(
+                        child: new Column(
+                          children: <Widget>[
+                            new Icon(Icons.add),
+                            new Text("Tambahkan Pengingat untuk Satu Minggu"),
+                          ],
                         ),
-                      )
-                    ],
-                  );
+                        onPressed: () {},
+                      ),
+                    )
+                  ],
+                );
               }
               final pasien = data[index - 1];
               return new UserCard(
