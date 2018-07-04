@@ -157,6 +157,31 @@ class RegisterState {
 
   Map<String, RegisterField> get fields =>
       role == UserRole.apoteker ? apotekerFields : pasienFields;
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is RegisterState) {
+      return (apotekerFields == other.apotekerFields &&
+          googleSignIn == other.googleSignIn &&
+          isLoading == other.isLoading &&
+          pasienFields == other.pasienFields &&
+          email == other.email &&
+          role == other.role);
+    }
+    return false;
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode =>
+      super.hashCode ^
+      apotekerFields.hashCode ^
+      googleSignIn.hashCode ^
+      isLoading.hashCode ^
+      pasienFields.hashCode ^
+      email.hashCode ^
+      role.hashCode;
 }
 
 class SimpleField<T> implements RegisterField<T> {
@@ -177,59 +202,68 @@ class SimpleField<T> implements RegisterField<T> {
 RegisterState registerReducer(RegisterState state, action) {
   RegisterState newState = state;
   switch (action.runtimeType) {
-    case ActionSetLoading: {
-      newState = state.cloneWithModified(isLoading: true);
-      break;
-    }
-    case ActionClearLoading:{
-      newState = state.cloneWithModified(isLoading: false);
-      break;
-    }
-    case ActionSetApotekerField: {
-      Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
-      fields[action.key] = action.value;
-      newState = state.cloneWithModified(apotekerFields: fields);
-      break;
-    }
-    case ActionSetPasienField: {
-      Map<String, RegisterField> fields = new Map.from(state.pasienFields);
-      fields[action.key] = action.value;
-      newState = state.cloneWithModified(pasienFields: fields);
-      break;
-    }
-    case ActionClearApotekerFields: {
-      Map<String, RegisterField> fields = state.apotekerFields.map((key, val) {
-        val.clear();
-        return new MapEntry<String, RegisterField>(key, val);
-      });
-      newState = state.cloneWithModified(apotekerFields: fields);
-      break;
-    }
-    case ActionClearPasienFields: {
-      Map<String, RegisterField> fields = state.pasienFields.map((key, val) {
-        val.clear();
-        return new MapEntry<String, RegisterField>(key, val);
-      });
-      newState = state.cloneWithModified(pasienFields: fields);
-      break;
-    }
-    case ActionSetEmail: {
-      newState = state.cloneWithModified(email: action.email);
-      break;
-    }
-    case ActionSetRole: {
-      newState = state.cloneWithModified(role: action.role);
-      break;
-    }
-    default: {
-      newState = state;
-      break;
-    }
+    case ActionSetLoading:
+      {
+        newState = state.cloneWithModified(isLoading: true);
+        break;
+      }
+    case ActionClearLoading:
+      {
+        newState = state.cloneWithModified(isLoading: false);
+        break;
+      }
+    case ActionSetApotekerField:
+      {
+        Map<String, RegisterField> fields = new Map.from(state.apotekerFields);
+        fields[action.key] = action.value;
+        newState = state.cloneWithModified(apotekerFields: fields);
+        break;
+      }
+    case ActionSetPasienField:
+      {
+        Map<String, RegisterField> fields = new Map.from(state.pasienFields);
+        fields[action.key] = action.value;
+        newState = state.cloneWithModified(pasienFields: fields);
+        break;
+      }
+    case ActionClearApotekerFields:
+      {
+        Map<String, RegisterField> fields =
+            state.apotekerFields.map((key, val) {
+          val.clear();
+          return new MapEntry<String, RegisterField>(key, val);
+        });
+        newState = state.cloneWithModified(apotekerFields: fields);
+        break;
+      }
+    case ActionClearPasienFields:
+      {
+        Map<String, RegisterField> fields = state.pasienFields.map((key, val) {
+          val.clear();
+          return new MapEntry<String, RegisterField>(key, val);
+        });
+        newState = state.cloneWithModified(pasienFields: fields);
+        break;
+      }
+    case ActionSetEmail:
+      {
+        newState = state.cloneWithModified(email: action.email);
+        break;
+      }
+    case ActionSetRole:
+      {
+        newState = state.cloneWithModified(role: action.role);
+        break;
+      }
+    default:
+      {
+        newState = state;
+        break;
+      }
   }
 
   return newState;
 }
-
 
 // Method to POST a User into Firestore Database
 // Assumption here is user have choosen their Google Account (Have signed in)
@@ -250,7 +284,7 @@ Future<User> signUp(Store<AppState> store) async {
   fields["role"] = state.role;
 
   // Generate important user fields
-  User user  = new User.createSpecificUserFromJson(fields);
+  User user = new User.createSpecificUserFromJson(fields);
   user.dateTimeCreated = new DateTime.now();
   user.displayName = googleSignInAccount.displayName;
   user.photoUrl = googleSignInAccount.photoUrl;

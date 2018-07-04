@@ -27,4 +27,21 @@ class Pasien extends User {
     return json;
   }
 
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is Pasien) {
+      return super == other &&
+          chatId == other.chatId &&
+          apoteker == other.apoteker &&
+          isVerified == other.isVerified &&
+          tuberculosStage == other.tuberculosStage;
+    }
+    return false;
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode ^ chatId.hashCode ^ apoteker.hashCode ^ isVerified.hashCode ^ tuberculosStage.hashCode;
+  
 }

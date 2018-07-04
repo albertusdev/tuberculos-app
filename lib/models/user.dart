@@ -15,7 +15,13 @@ class User {
   String oneSignalPlayerId;
   DateTime dateTimeCreated;
 
-  User({this.uid = "", this.email, this.displayName, this.photoUrl, this.role, this.oneSignalPlayerId});
+  User(
+      {this.uid = "",
+      this.email,
+      this.displayName,
+      this.photoUrl,
+      this.role,
+      this.oneSignalPlayerId});
 
   User.fromGoogleSignInAccount(GoogleSignIn.GoogleSignInAccount account)
       : email = account.email,
@@ -46,6 +52,33 @@ class User {
         "photoUrl": photoUrl,
         "role": role,
         "dateTimeCreated": dateTimeCreated,
-        "oneSignalPlayerId" : oneSignalPlayerId,
+        "oneSignalPlayerId": oneSignalPlayerId,
       };
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is User) {
+      return uid == other.uid &&
+          email == other.email &&
+          displayName == other.displayName &&
+          photoUrl == other.photoUrl &&
+          role == other.role &&
+          dateTimeCreated == other.dateTimeCreated &&
+          oneSignalPlayerId == other.oneSignalPlayerId;
+    }
+    return false;
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode =>
+      super.hashCode ^
+      uid.hashCode ^
+      email.hashCode ^
+      displayName.hashCode ^
+      photoUrl.hashCode ^
+      role.hashCode ^
+      dateTimeCreated.hashCode ^
+      oneSignalPlayerId.hashCode;
 }

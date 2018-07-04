@@ -4,6 +4,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_one_signal/flutter_one_signal.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tuberculos/models/obat.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
 
@@ -60,14 +61,14 @@ CollectionReference getPasiensCollectionReference(String apotekerEmail) {
   return Firestore.instance.collection("apotekers/$apotekerEmail/pasiens");
 }
 
-
 DocumentReference getNestedPasienDocumentReference(
     {String apotekerEmail, String pasienEmail}) {
   return Firestore.instance
       .document("apotekers/$apotekerEmail/pasiens/$pasienEmail");
 }
 
-Future<FirebaseUser> signInFirebaseWithGoogleSignIn(GoogleSignIn googleSignIn) async {
+Future<FirebaseUser> signInFirebaseWithGoogleSignIn(
+    GoogleSignIn googleSignIn) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
   if (user == null) {
     user = await googleSignIn.signIn();
@@ -95,18 +96,24 @@ Future<void> updateProfileInFirestore(
 }
 
 Future<void> setUser(User user) async {
-  DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
+  DocumentReference ref =
+      getUserDocumentReference(role: user.role, email: user.email);
   await ref.setData(user.toJson());
   if (user is Pasien) {
-    await getNestedPasienDocumentReference(apotekerEmail: user.apoteker, pasienEmail: user.email).setData(user.toJson());
+    await getNestedPasienDocumentReference(
+            apotekerEmail: user.apoteker, pasienEmail: user.email)
+        .setData(user.toJson());
   }
 }
 
 Future<void> updateUser(User user) async {
-  DocumentReference ref = getUserDocumentReference(role: user.role, email: user.email);
+  DocumentReference ref =
+      getUserDocumentReference(role: user.role, email: user.email);
   await ref.updateData(user.toJson());
   if (user is Pasien) {
-    getNestedPasienDocumentReference(apotekerEmail: user.apoteker, pasienEmail: user.email).updateData(user.toJson());
+    getNestedPasienDocumentReference(
+            apotekerEmail: user.apoteker, pasienEmail: user.email)
+        .updateData(user.toJson());
   }
 }
 
@@ -123,3 +130,10 @@ Future<void> verifyPasien(String email, int tuberculosStage) async {
   await duplicatedRef.updateData(pasien.toJson());
 }
 
+CollectionReference getObatCollectionReference() {
+  return Firestore.instance.collection("obat");
+}
+
+Future<void> createNewObat(Obat obat) async {
+  await getObatCollectionReference().add(obat.toJson());
+}

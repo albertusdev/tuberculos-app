@@ -1,12 +1,12 @@
 import "dart:convert";
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
 import "package:redux/redux.dart";
 import "package:redux_persist/redux_persist.dart";
 import "package:redux_persist_flutter/redux_persist_flutter.dart";
 import 'package:tuberculos/models/user.dart';
+import 'package:tuberculos/redux/modules/daily_alarm/daily_alarm.dart';
 import "package:tuberculos/redux/modules/register/register.dart";
 
 export "modules/register/register.dart";
@@ -17,21 +17,29 @@ class AppState {
 
   final RegisterState registerState;
 
+  final DailyAlarmState dailyAlarmState;
+
   // Singleton in App
   final GoogleSignIn googleSignIn;
 
-  AppState({
-    User currentUser,
-    GoogleSignIn googleSignIn,
-    FirebaseMessaging firebaseMessaging,
-    RegisterState registerState,
-  })  : this.currentUser = currentUser,
+  AppState(
+      {User currentUser,
+      GoogleSignIn googleSignIn,
+      RegisterState registerState,
+      DailyAlarmState dailyAlarmState})
+      : this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
-        this.googleSignIn = googleSignIn ?? new GoogleSignIn();
+        this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
+        this.dailyAlarmState = dailyAlarmState ?? new DailyAlarmState();
 
-  AppState cloneWithModified({User currentUser, RegisterState registerState}) {
+  AppState cloneWithModified({
+    DailyAlarmState dailyAlarmState,
+    User currentUser,
+    RegisterState registerState,
+  }) {
     return new AppState(
       currentUser: currentUser ?? this.currentUser,
+      dailyAlarmState: dailyAlarmState ?? this.dailyAlarmState,
       registerState: registerState ?? this.registerState,
       googleSignIn: this.googleSignIn,
     );
@@ -47,6 +55,25 @@ class AppState {
         "currentUser":
             json.encode(currentUser.toJson()..remove("dateTimeCreated"))
       };
+
+  @override
+  bool operator ==(other) {
+    if (identical(this, other)) return true;
+    if (other is AppState) {
+      return currentUser == other.currentUser &&
+          registerState == other.registerState &&
+          dailyAlarmState == other.dailyAlarmState;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode =>
+      super.hashCode ^
+      currentUser.hashCode ^
+      registerState.hashCode ^
+      dailyAlarmState.hashCode ^
+      googleSignIn.hashCode;
 }
 
 AppState reducer(AppState state, action) {
@@ -57,7 +84,12 @@ AppState reducer(AppState state, action) {
     return state.cloneWithModified(currentUser: action.currentUser);
   }
   return state.cloneWithModified(
-      registerState: registerReducer(state.registerState, action));
+    dailyAlarmState: dailyAlarmReducer(state.dailyAlarmState, action),
+    registerState: registerReducer(
+      state.registerState,
+      action,
+    ),
+  );
 }
 
 class ActionChangeCurrentUser {
