@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/utils.dart';
 
@@ -27,16 +28,16 @@ class ChoosePasienDialog extends StatelessWidget {
           if (!snapshot.hasData) {
             return new Center(child: new Text('Loading...'));
           }
-          final data = snapshot.data.documents
+          final List<Pasien> data = snapshot.data.documents
               .map((DocumentSnapshot documentSnapshot) =>
-                  new User.createSpecificUserFromJson(documentSnapshot.data))
+                  new Pasien.fromJson(documentSnapshot.data))
               .toList();
           final int dataCount = data.length;
           if (dataCount > 0) {
             return new ListView.builder(
               itemCount: dataCount,
               itemBuilder: (_, int index) {
-                final User user = data[index];
+                final Pasien user = data[index];
                 return new ListTile(
                     trailing: new CircleAvatar(
                       backgroundImage: user.photoUrl != null
@@ -47,7 +48,7 @@ class ChoosePasienDialog extends StatelessWidget {
                     subtitle: new Text(user.email ?? '<No message retrieved>'),
                     title: new Text(user.displayName),
                     onTap: () {
-                      Navigator.pop(context, user.email);
+                      Navigator.pop(context, user);
                     });
               },
             );

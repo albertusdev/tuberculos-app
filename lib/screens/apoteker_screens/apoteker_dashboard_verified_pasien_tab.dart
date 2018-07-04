@@ -43,50 +43,82 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
             itemCount: dataCount + 1,
             itemBuilder: (_, int index) {
               if (index == 0) {
-                return new Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    new Flexible(
-                      child: new MaterialButton(
-                        child: new Column(
-                          children: <Widget>[
-                            new Icon(
-                              Icons.add,
-                              color: Theme.of(context).primaryColor,
-                              size: 32.0,
+                return new Container(
+                  margin: new EdgeInsets.only(bottom: 16.0),
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      new Flexible(
+                        child: new Container(
+                          child: new RaisedButton(
+                            color: Colors.white,
+                            child: new Column(
+                              children: <Widget>[
+                                new Icon(
+                                  Icons.add,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 48.0,
+                                ),
+                                new Text(
+                                  "Tambahkan Pengingat Harian",
+                                  textAlign: TextAlign.center,
+                                  style: new TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 14.0,
+                                  ),
+                                )
+                              ],
                             ),
-                            new Text(
-                              "Tambahkan Pengingat Harian",
-                              textAlign: TextAlign.center,
-                              style: new TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 16.0,
-                              ),
-                            )
-                          ],
+                            onPressed: () {
+                              Navigator.of(context).push(new MaterialPageRoute(
+                                    builder: (_) =>
+                                        new ApotekerInputDailyAlarmScreen(),
+                                  ));
+                            },
+                            padding: new EdgeInsets.symmetric(vertical: 8.0),
+                          ),
+                          margin: new EdgeInsets.only(right: 8.0),
                         ),
-                        onPressed: () {
-                          Navigator.of(context).push(new MaterialPageRoute(
-                                builder: (_) =>
-                                    new ApotekerInputDailyAlarmScreen(),
-                              ));
-                        },
                       ),
-                    ),
-                    new Flexible(
-                      fit: FlexFit.tight,
-                      child: new OutlineButton(
-                        child: new Column(
-                          children: <Widget>[
-                            new Icon(Icons.add),
-                            new Text("Tambahkan Pengingat untuk Satu Minggu"),
-                          ],
+                      new Flexible(
+                        child: new Container(
+                          child: new RaisedButton(
+                            color: Colors.white,
+                            child: new Column(
+                              children: <Widget>[
+                                new Icon(
+                                  Icons.add,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 48.0,
+                                ),
+                                new Text(
+                                  "Tambahkan Pengingat Mingguan",
+                                  textAlign: TextAlign.center,
+                                  style: new TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 14.0,
+                                  ),
+                                )
+                              ],
+                            ),
+                            onPressed: () {
+//                              Navigator.of(context).push(new MaterialPageRoute(
+//                                builder: (_) =>
+//                                new ApotekerInputDailyAlarmScreen(),
+//                              ));
+                            },
+                            padding: new EdgeInsets.symmetric(vertical: 8.0),
+                          ),
+                          margin: new EdgeInsets.only(right: 8.0),
                         ),
-                        onPressed: () {},
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 );
+              }
+              if (dataCount == 0) {
+                return new Center(
+                    child: new Text("Belum ada Pasien yang terverifikasi."));
               }
               final pasien = data[index - 1];
               return new UserCard(
