@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:image_picker/image_picker.dart';
 import 'package:tuberculos/models/obat.dart';
 import "package:tuberculos/services/api.dart";
 import 'package:tuberculos/widgets/full_width_widget.dart';
@@ -87,6 +90,10 @@ class ApotekerCreateObatScreen extends StatefulWidget {
 class _ApotekerCreateObatScreenState extends State<ApotekerCreateObatScreen> {
   GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
+  bool isLoading = false;
+  Obat obat = new Obat();
+  File imageFile = null;
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -95,49 +102,114 @@ class _ApotekerCreateObatScreenState extends State<ApotekerCreateObatScreen> {
         "Tambah Obat Baru",
         style: new TextStyle(letterSpacing: 1.0),
       )),
-      body: new Container(
-        margin: new EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-        child: new Form(
-          child: new Column(
-            children: <Widget>[
-              new Container(
-                  child: new Column(
-                children: <Widget>[
-                  new Text("Nama Obat",
-                      style: new TextStyle(
-                        color: Theme.of(context).primaryColorDark,
-                      )),
-                  new TextFormField(
-                    decoration: new InputDecoration(hintText: "Nama Obat"),
-                    validator: (String s) {
-                      if (s.isEmpty) return "Nama Obat tidak boleh kosong.";
-                    },
-                  ),
-                ],
-              )),
-              new Container(
-                  child: new Column(children: <Widget>[
-                new Text("Deskripsi Obat",
-                    style: new TextStyle(
-                        color: Theme.of(context).primaryColorDark)),
-                new TextFormField(
-                  decoration: new InputDecoration(
-                    hintText: "Deskripsi Obat",
-                  ),
-                  validator: (String s) {
-                    if (s.isEmpty) return "Deskripsi Obat tidak boleh kosong.";
-                  },
-                ),
-              ])),
-              new Container(
+      body: new Builder(
+        builder: (context) => new Container(
+              margin: new EdgeInsets.only(left: 32.0, right: 32.0),
+              child: new Form(
+                key: _formKey,
                 child: new Column(
-                  children: <Widget>[],
+                  children: <Widget>[
+                    new Container(
+                      alignment: Alignment.topLeft,
+                      child: new IconButton(
+                        icon: imageFile == null
+                            ? new Icon(Icons.add_a_photo,
+                                size: 64.0,
+                                color: Theme.of(context).primaryColor)
+                            : new Container(
+                                decoration: new BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: new DecorationImage(
+                                    fit: BoxFit.fitWidth,
+                                    image: new FileImage(imageFile),
+                                  ),
+                                ),
+                              ),
+                        onPressed: () async {
+                          setState(() async {
+                            imageFile = await ImagePicker.pickImage(
+                                source: ImageSource.gallery);
+                            print(imageFile.path);
+                          });
+                        },
+                        iconSize: 64.0,
+                      ),
+                    ),
+                    new Container(
+                      child: new Column(
+                        children: <Widget>[
+                          new Container(
+                            alignment: Alignment.topLeft,
+                            child: new Text(
+                              "Nama Obat",
+                              style: new TextStyle(
+                                color: Theme.of(context).primaryColorDark,
+                              ),
+                            ),
+                          ),
+                          new TextFormField(
+                            decoration:
+                                new InputDecoration(hintText: "Nama Obat"),
+                            validator: (String s) {
+                              if (s.isEmpty)
+                                return "Nama Obat tidak boleh kosong.";
+                            },
+                            onSaved: (String name) => obat.name = name,
+                          ),
+                        ],
+                      ),
+                    ),
+                    new Container(
+                      child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          new Container(
+                            alignment: Alignment.topLeft,
+                            child: new Text(
+                              "Deskripsi Obat",
+                              style: new TextStyle(
+                                  color: Theme.of(context).primaryColorDark),
+                            ),
+                          ),
+                          new TextFormField(
+                            decoration: new InputDecoration(
+                              hintText: "Deskripsi Obat",
+                            ),
+                            validator: (String s) {
+                              if (s.isEmpty)
+                                return "Deskripsi Obat tidak boleh kosong.";
+                            },
+                            onSaved: (String description) =>
+                                obat.description = description,
+                          ),
+                        ],
+                      ),
+                      margin: new EdgeInsets.symmetric(vertical: 8.0),
+                    ),
+                    new FullWidthWidget(
+                      child: new RaisedButton(
+                        color: Theme.of(context).primaryColor,
+                        child: new Text(
+                          "Tambah Obat",
+                          style: new TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) {
+                            _formKey.currentState.save();
+                            setState(() => isLoading = true);
+                          } else {
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                                content: new Text("Form tidak boleh kosong.")));
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
       ),
+      bottomNavigationBar: isLoading ? new LinearProgressIndicator() : null,
     );
   }
 }
