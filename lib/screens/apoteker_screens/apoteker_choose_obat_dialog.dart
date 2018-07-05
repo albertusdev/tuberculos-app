@@ -59,9 +59,7 @@ class ApotekerChooseObatDialog extends StatelessWidget {
     return new Dialog(
       child: new Column(
         children: <Widget>[
-          new Expanded(
-            child: _buildStreams()
-          ),
+          new Expanded(child: _buildStreams()),
           new Container(
             alignment: Alignment.bottomCenter,
             child: new FullWidthWidget(
@@ -87,16 +85,59 @@ class ApotekerCreateObatScreen extends StatefulWidget {
 }
 
 class _ApotekerCreateObatScreenState extends State<ApotekerCreateObatScreen> {
+  GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        appBar: new AppBar(
-            title: new Text(
-          "Tambah Obat Baru",
-          style: new TextStyle(letterSpacing: 1.0),
-        )),
-        body: new Column(
-          children: <Widget>[],
-        ));
+      appBar: new AppBar(
+          title: new Text(
+        "Tambah Obat Baru",
+        style: new TextStyle(letterSpacing: 1.0),
+      )),
+      body: new Container(
+        margin: new EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+        child: new Form(
+          child: new Column(
+            children: <Widget>[
+              new Container(
+                  child: new Column(
+                children: <Widget>[
+                  new Text("Nama Obat",
+                      style: new TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                      )),
+                  new TextFormField(
+                    decoration: new InputDecoration(hintText: "Nama Obat"),
+                    validator: (String s) {
+                      if (s.isEmpty) return "Nama Obat tidak boleh kosong.";
+                    },
+                  ),
+                ],
+              )),
+              new Container(
+                  child: new Column(children: <Widget>[
+                new Text("Deskripsi Obat",
+                    style: new TextStyle(
+                        color: Theme.of(context).primaryColorDark)),
+                new TextFormField(
+                  decoration: new InputDecoration(
+                    hintText: "Deskripsi Obat",
+                  ),
+                  validator: (String s) {
+                    if (s.isEmpty) return "Deskripsi Obat tidak boleh kosong.";
+                  },
+                ),
+              ])),
+              new Container(
+                child: new Column(
+                  children: <Widget>[],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
