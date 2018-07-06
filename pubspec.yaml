@@ -14,6 +14,7 @@ dependencies:
   google_sign_in:
   json_annotation:
   image_picker:
+  intl:
   redux:
   redux_thunk:
   redux_persist_flutter:

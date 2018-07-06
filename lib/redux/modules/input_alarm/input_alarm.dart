@@ -13,7 +13,6 @@ class Timestamp {
   Timestamp(this.date, this.timeOfDay);
 }
 
-
 @immutable
 class InputAlarmState {
   final bool isLoading;
@@ -41,7 +40,7 @@ class InputAlarmState {
     TimeOfDay timeOfDay,
     int occurence,
     String message,
-    List<Timestamp> dateTimes,
+    List<Timestamp> timestamps,
   }) {
     return new InputAlarmState(
       isLoading: isLoading ?? this.isLoading,
@@ -50,7 +49,7 @@ class InputAlarmState {
       timeOfDay: timeOfDay ?? this.timeOfDay,
       occurrence: occurence ?? this.occurrence,
       message: message ?? this.message,
-      timestamps: dateTimes ?? this.timestamps,
+      timestamps: timestamps ?? this.timestamps,
     );
   }
 
@@ -105,6 +104,21 @@ class ActionInputAlarmSetMessage {
   ActionInputAlarmSetMessage(this.message);
 }
 
+class ActionInputAlarmAddTimestamp {}
+
+class ActionInputAlarmSetTimestamp {
+  int index;
+  Timestamp timestamp;
+  ActionInputAlarmSetTimestamp(this.index, this.timestamp);
+}
+
+class ActionInputAlarmRemoveTimestamp {
+  int index;
+  ActionInputAlarmRemoveTimestamp(this.index);
+}
+
+class ActionInputAlarmReset {}
+
 InputAlarmState dailyAlarmReducer(InputAlarmState state, action) {
   InputAlarmState newState;
   if (action is ActionInputAlarmClearLoading) {
@@ -121,22 +135,45 @@ InputAlarmState dailyAlarmReducer(InputAlarmState state, action) {
     newState = state.cloneWithModified(occurence: action.occurrence);
   } else if (action is ActionInputAlarmSetMessage) {
     newState = state.cloneWithModified(message: action.message);
+  } else if (action is ActionInputAlarmReset) {
+    newState = new InputAlarmState(timestamps: []);
+  } else if (action is ActionInputAlarmAddTimestamp) {
+    List<Timestamp> timestamps = new List()..addAll(state.timestamps);
+    DateTime last = new DateTime.now();
+    last = last.add(new Duration(minutes: 5 * (state.timestamps.length + 1)));
+    timestamps.add(new Timestamp(
+        last, new TimeOfDay(hour: last.hour, minute: last.minute)));
+    newState = state.cloneWithModified(timestamps: timestamps);
+  } else if (action is ActionInputAlarmSetTimestamp) {
+    List<Timestamp> timestamps = new List()..addAll(state.timestamps);
+    timestamps[action.index] = action.timestamp;
+    newState = state.cloneWithModified(timestamps: timestamps);
+  } else if (action is ActionInputAlarmRemoveTimestamp) {
+    List<Timestamp> timestamps = new List();
+    for (int i = 0; i < state.timestamps.length; ++i) {
+      if (i != action.index) timestamps.add(state.timestamps[i]);
+    }
+    newState = state.cloneWithModified(timestamps: timestamps);
   } else {
     newState = state;
   }
   return newState;
 }
 
-
-List<DateTime> generateDateTimesFromDailyOccurrence(TimeOfDay timeOfDay, int occurrence, [DateTime startDate]) {
+List<DateTime> generateDateTimesFromDailyOccurrence(
+    TimeOfDay timeOfDay, int occurrence,
+    [DateTime startDate]) {
   if (startDate == null) startDate = new DateTime.now();
   List<DateTime> dateTimes = [];
-  int minutesDifferenceFromNow = (timeOfDay.hour * 60 + timeOfDay.minute) - (startDate.hour * 60 + startDate.minute);
+  int minutesDifferenceFromNow = (timeOfDay.hour * 60 + timeOfDay.minute) -
+      (startDate.hour * 60 + startDate.minute);
   if (minutesDifferenceFromNow > 0) {
     startDate = startDate.add(new Duration(minutes: minutesDifferenceFromNow));
   } else {
-    startDate = startDate.add(new Duration(minutes: 24 * 60 - (startDate.hour * 60 + startDate.minute)));
-    startDate = startDate.add(new Duration(hours: timeOfDay.hour, minutes: timeOfDay.minute));
+    startDate = startDate.add(new Duration(
+        minutes: 24 * 60 - (startDate.hour * 60 + startDate.minute)));
+    startDate = startDate
+        .add(new Duration(hours: timeOfDay.hour, minutes: timeOfDay.minute));
   }
   for (int i = 0; i < occurrence; ++i) {
     print(startDate.toString());
@@ -147,17 +184,27 @@ List<DateTime> generateDateTimesFromDailyOccurrence(TimeOfDay timeOfDay, int occ
 }
 
 Future<void> createDailyAlarm(InputAlarmState state) async {
-  List<DateTime> dateTimes = generateDateTimesFromDailyOccurrence(state.timeOfDay, state.occurrence);
-  await createAlarms(pasien: state.selectedPasien, obat: state.selectedObat, message: state.message, dateTimes: dateTimes);
+  List<DateTime> dateTimes =
+      generateDateTimesFromDailyOccurrence(state.timeOfDay, state.occurrence);
+  await createAlarms(
+      pasien: state.selectedPasien,
+      obat: state.selectedObat,
+      message: state.message,
+      dateTimes: dateTimes);
 }
 
-void createCustomAlarm(InputAlarmState state) async {
-  List<DateTime> dateTimes = state.timestamps.map((Timestamp timestamp) => new DateTime(
-    timestamp.date.year,
-    timestamp.date.month,
-    timestamp.date.day,
-    timestamp.timeOfDay.hour,
-    timestamp.timeOfDay.minute
-  )).toList();
-  await createAlarms(pasien: state.selectedPasien, obat: state.selectedObat, message: state.message, dateTimes: dateTimes);
+Future<void> createCustomAlarm(InputAlarmState state) async {
+  List<DateTime> dateTimes = state.timestamps
+      .map((Timestamp timestamp) => new DateTime(
+          timestamp.date.year,
+          timestamp.date.month,
+          timestamp.date.day,
+          timestamp.timeOfDay.hour,
+          timestamp.timeOfDay.minute))
+      .toList();
+  await createAlarms(
+      pasien: state.selectedPasien,
+      obat: state.selectedObat,
+      message: state.message,
+      dateTimes: dateTimes);
 }

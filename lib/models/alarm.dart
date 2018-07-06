@@ -14,7 +14,7 @@ class Alarm {
     @required this.obat,
     @required this.dateTime,
     @required this.message,
-    this.taken,
+    this.taken = false,
   });
 
   Alarm.fromJson(Map<String, dynamic> json)

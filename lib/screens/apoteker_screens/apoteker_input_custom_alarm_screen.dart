@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:flutter_redux/flutter_redux.dart';
+import "package:intl/intl.dart";
 import 'package:redux/redux.dart';
 import 'package:tuberculos/models/obat.dart';
 import 'package:tuberculos/models/pasien.dart';
@@ -21,17 +22,14 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
       if (state.selectedObat == null) {
         throw "Obat tidak boleh kosong.";
       }
-      if (state.timeOfDay == null) {
-        throw "Waktu tidak boleh kosong.";
-      }
-      if (state.occurrence == null) {
-        throw "Frekuensi tidak boleh kosong.";
-      }
       if (state.message == null) {
         throw "Pesan tidak boleh kosong.";
       }
+      if (state.timestamps.length == 0) {
+        throw "Jadwal tidak boleh kosong.";
+      }
       store.dispatch(new ActionInputAlarmSetLoading());
-      await createDailyAlarm(store.state.inputAlarmState);
+      await createCustomAlarm(store.state.inputAlarmState);
       store.dispatch(new ActionInputAlarmClearLoading());
       Navigator.pop(context, store.state.inputAlarmState.selectedPasien);
     } catch (e) {
@@ -50,7 +48,7 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
       bottomNavigationBarChildren.add(new LinearProgressIndicator());
     bottomNavigationBarChildren.add(new FullWidthWidget(
         child: new RaisedButton(
-      child: new Text("Tambahkan",
+      child: new Text("Tambahkan Pengingat",
           style: new TextStyle(
             color: Colors.white,
           )),
@@ -60,34 +58,6 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: bottomNavigationBarChildren,
     );
-  }
-
-  void _handleInputTimeOfDay(
-      BuildContext context, Store<AppState> store) async {
-    TimeOfDay timeOfDay = await showTimePicker(
-        context: context, initialTime: new TimeOfDay(hour: 09, minute: 00));
-    if (timeOfDay != null) {
-      store.dispatch(new ActionInputAlarmSetTimeOfDay(timeOfDay));
-    }
-  }
-
-  void _handleInputOccurrence(
-      BuildContext context, Store<AppState> store) async {
-    String occurrenceString =
-        await Navigator.of(context).push<String>(new MaterialPageRoute(
-              builder: (_) => new NumberInputScreen(
-                  title: "Frekuensi",
-                  hintText: "Masukkan frekuensi harian obat"),
-            ));
-    if (occurrenceString != null && occurrenceString.isNotEmpty) {
-      try {
-        int occurrence = int.parse(occurrenceString);
-        store.dispatch(new ActionInputAlarmSetOccurrence(occurrence));
-      } catch (e) {
-        Scaffold.of(context).showSnackBar(new SnackBar(
-            content: new Text("Seluruh digit harus merupakan angka.")));
-      }
-    }
   }
 
   void _handleInputMessage(BuildContext context, Store<AppState> store) async {
@@ -260,34 +230,101 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
         margin: new EdgeInsets.only(bottom: 8.0),
       ),
     ];
-    store.state.inputAlarmState.timestamps.forEach((Timestamp timeStamp) {
-      return new FullWidthWidget(
-        child: new Row(
-
-        ),
-      );
-    });
-    widgets.add(
-      new FullWidthWidget(
-        child: new RaisedButton(
-          child: new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              new Container(
-                child: new Icon(Icons.add),
-                margin: new EdgeInsets.only(right: 4.0),
-              ),
-              new Text("Tambahkan Jadwal"),
-            ]
+    widgets.add(new Container(
+        child: new Text(
+          "Jadwal",
+          style: new TextStyle(
+            color: Theme.of(context).primaryColorDark,
+            fontWeight: FontWeight.bold,
           ),
-          color: Colors.white,
-          onPressed: () {
-
-          },
+          textAlign: TextAlign.start,
         ),
+        margin: new EdgeInsets.only(top: 16.0, bottom: 4.0)));
+    for (int i = 0; i < store.state.inputAlarmState.timestamps.length; ++i) {
+      Timestamp timestamp = store.state.inputAlarmState.timestamps[i];
+      widgets.add(new FullWidthWidget(
+        child: new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            new Flexible(
+              child: new OutlineButton(
+                child: new Row(children: [
+                  new Container(
+                      child: new Icon(Icons.calendar_today),
+                      margin: new EdgeInsets.all(4.0)),
+                  new Text(
+                    new DateFormat("yMMMd").format(timestamp.date),
+                  ),
+                ]),
+                onPressed: () async {
+                  DateTime now = new DateTime.now();
+                  DateTime selectedDate = await showDatePicker(
+                      context: context,
+                      initialDate: now,
+                      firstDate: now,
+                      lastDate: now.add(new Duration(days: 30)));
+                  store.dispatch(new ActionInputAlarmSetTimestamp(
+                      i, new Timestamp(selectedDate, timestamp.timeOfDay)));
+                },
+                padding: new EdgeInsets.symmetric(vertical: 4.0),
+              ),
+            ),
+            new Flexible(
+              child: new OutlineButton(
+                child: new Row(children: [
+                  new Container(
+                      child: new Icon(Icons.access_alarm),
+                      margin: new EdgeInsets.all(4.0)),
+                  new Text(
+                    timestamp.timeOfDay.format(context),
+                  ),
+                ]),
+                onPressed: () async {
+                  DateTime now = new DateTime.now();
+                  TimeOfDay timeOfDay = await showTimePicker(
+                      context: context,
+                      initialTime:
+                          new TimeOfDay(hour: now.hour, minute: now.minute));
+                  store.dispatch(new ActionInputAlarmSetTimestamp(
+                      i, new Timestamp(timestamp.date, timeOfDay)));
+                },
+                padding: new EdgeInsets.symmetric(vertical: 4.0),
+              ),
+            ),
+            new IconButton(
+              icon: new Icon(Icons.close),
+              onPressed: () =>
+                  store.dispatch(new ActionInputAlarmRemoveTimestamp(i)),
+            ),
+          ],
+        ),
+      ));
+    }
+
+    widgets.add(
+      new Container(
+        child: new FullWidthWidget(
+          child: new RaisedButton(
+            child: new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  new Container(
+                    child: new Icon(Icons.add),
+                    margin: new EdgeInsets.only(right: 4.0),
+                  ),
+                  new Text("Tambahkan Jadwal Baru"),
+                ]),
+            color: Theme.of(context).primaryColorLight,
+            onPressed: () {
+              store.dispatch(new ActionInputAlarmAddTimestamp());
+            },
+          ),
+        ),
+        margin: new EdgeInsets.symmetric(vertical: 8.0),
       ),
     );
+
     return widgets;
   }
 
@@ -313,7 +350,8 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
         body: new Builder(
           builder: (context) => new Container(
                 child: _buildListView(context, store),
-                margin: new EdgeInsets.symmetric(horizontal: 16.0),
+                margin:
+                    new EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 8.0),
               ),
         ),
         bottomNavigationBar: new Builder(
