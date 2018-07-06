@@ -77,6 +77,7 @@ class _MyAppState extends State<MyApp> {
                   800: new Color(0xFF007D3E),
                   900: new Color(0xFF005E2A),
                 }),
+                fontFamily: "Gotham Rounded",
               ),
               routes: <String, WidgetBuilder>{
                 (Routes.loginScreen.toString()): (BuildContext context) =>

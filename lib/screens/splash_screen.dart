@@ -9,7 +9,6 @@ import "package:tuberculos/routes.dart";
 import 'package:tuberculos/utils.dart';
 
 class SplashScreen extends StatefulWidget {
-
   final Store<AppState> store;
 
   SplashScreen({Key key, this.store}) : super(key: key);
@@ -44,13 +43,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     Widget child = new Scaffold(
-      body: new Center(
-        child: Text(
-          "TuberculosApp",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 32.0,
-          ),
+      backgroundColor: Theme.of(context).primaryColor,
+      body: new Container(
+        alignment: Alignment.center,
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Image.asset("assets/pictures/logo.png", width: 144.0),
+            new Text(
+              "TuberculosApp",
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: "Libel Suit",
+                fontSize: 40.0,
+              ),
+            ),
+          ],
         ),
       ),
     );
