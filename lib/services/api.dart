@@ -1,7 +1,9 @@
 import "dart:async";
+import 'dart:io';
 
 import "package:cloud_firestore/cloud_firestore.dart";
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_one_signal/flutter_one_signal.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tuberculos/models/obat.dart';
@@ -136,4 +138,13 @@ CollectionReference getObatCollectionReference() {
 
 Future<void> createNewObat(Obat obat) async {
   await getObatCollectionReference().add(obat.toJson());
+}
+
+// Return download url of the file
+Future<String> uploadFile(File file) async {
+  StorageReference ref =
+  FirebaseStorage.instance.ref().child(file.path);
+  StorageUploadTask uploadTask = ref.putFile(file);
+  final completedTask = await uploadTask.future;
+  return completedTask.downloadUrl.toString();
 }

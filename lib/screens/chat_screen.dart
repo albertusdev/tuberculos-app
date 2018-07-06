@@ -135,7 +135,7 @@ class ChatScreenState extends State<ChatScreen>
     if (imageFile != null) {
       int random = new Random().nextInt(100000);
       StorageReference ref =
-          FirebaseStorage.instance.ref().child("image_$random.jpg");
+          FirebaseStorage.instance.ref().child(imageFile.path);
       StorageUploadTask uploadTask = ref.putFile(imageFile);
       Uri downloadUrl = (await uploadTask.future).downloadUrl;
       await _sendMessage(imageUrl: downloadUrl.toString());
