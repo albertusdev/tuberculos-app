@@ -9,6 +9,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tuberculos/models/obat.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
+import "package:uuid/uuid.dart";
 
 class UserRole {
   static final String apoteker = "apoteker";
@@ -133,7 +134,7 @@ Future<void> verifyPasien(String email, int tuberculosStage) async {
 }
 
 CollectionReference getObatCollectionReference() {
-  return Firestore.instance.collection("obat");
+  return Firestore.instance.collection("obats");
 }
 
 Future<void> createNewObat(Obat obat) async {
@@ -142,8 +143,9 @@ Future<void> createNewObat(Obat obat) async {
 
 // Return download url of the file
 Future<String> uploadFile(File file) async {
+  String fileName = new Uuid().v1();
   StorageReference ref =
-  FirebaseStorage.instance.ref().child(file.path);
+  FirebaseStorage.instance.ref().child('$fileName-${file.path.split("/").last}');
   StorageUploadTask uploadTask = ref.putFile(file);
   final completedTask = await uploadTask.future;
   return completedTask.downloadUrl.toString();

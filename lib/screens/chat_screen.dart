@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import "package:tuberculos/models/chat.dart";
 import "package:tuberculos/models/user.dart";
+import 'package:tuberculos/services/api.dart';
 import "package:tuberculos/utils.dart";
 
 @override
@@ -133,12 +132,7 @@ class ChatScreenState extends State<ChatScreen>
     });
     File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
-      int random = new Random().nextInt(100000);
-      StorageReference ref =
-          FirebaseStorage.instance.ref().child(imageFile.path);
-      StorageUploadTask uploadTask = ref.putFile(imageFile);
-      Uri downloadUrl = (await uploadTask.future).downloadUrl;
-      await _sendMessage(imageUrl: downloadUrl.toString());
+      await _sendMessage(imageUrl: await uploadFile(imageFile));
     }
     setState(() {
       _isUploading = false;
