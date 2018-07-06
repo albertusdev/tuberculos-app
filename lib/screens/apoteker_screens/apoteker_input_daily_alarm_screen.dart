@@ -4,13 +4,67 @@ import 'package:redux/redux.dart';
 import 'package:tuberculos/models/obat.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/redux/configure_store.dart';
-import 'package:tuberculos/redux/modules/daily_alarm/daily_alarm.dart';
+import 'package:tuberculos/redux/modules/input_alarm/input_alarm.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_choose_obat_dialog.dart';
+import 'package:tuberculos/screens/input_screen.dart';
 import "package:tuberculos/services/api.dart";
 import 'package:tuberculos/widgets/choose_pasien_dialog.dart';
 import 'package:tuberculos/widgets/full_width_widget.dart';
 
 class ApotekerInputDailyAlarmScreen extends StatelessWidget {
+  _handleSubmit(BuildContext context, Store<AppState> store) async {
+    store.dispatch(store.state.inputAlarmState.isLoading
+        ? new ActionInputAlarmClearLoading()
+        : new ActionInputAlarmSetLoading());
+  }
+
+  Widget _buildBottomNavigationBar(
+      BuildContext context, Store<AppState> store) {
+    List<Widget> bottomNavigationBarChildren = [];
+    if (store.state.inputAlarmState.isLoading)
+      bottomNavigationBarChildren.add(new LinearProgressIndicator());
+    bottomNavigationBarChildren.add(new FullWidthWidget(
+        child: new RaisedButton(
+      child: new Text("Tambahkan",
+          style: new TextStyle(
+            color: Colors.white,
+          )),
+      onPressed: () => _handleSubmit(context, store),
+    )));
+    return new Column(
+      mainAxisSize: MainAxisSize.min,
+      children: bottomNavigationBarChildren,
+    );
+  }
+
+  void _handleInputTimeOfDay(
+      BuildContext context, Store<AppState> store) async {
+    TimeOfDay timeOfDay = await showTimePicker(
+        context: context, initialTime: new TimeOfDay(hour: 09, minute: 00));
+    if (timeOfDay != null) {
+      store.dispatch(new ActionInputAlarmSetTimeOfDay(timeOfDay));
+    }
+  }
+
+  void _handleInputOccurence(BuildContext context, Store<AppState> store) async {
+    String occurenceString = await Navigator.of(context).push<String>(new MaterialPageRoute(
+      builder: (_) => new NumberInputScreen(title: "Frekuensi", hintText: "Masukkan frekuensi harian obat"),
+    ));
+    if (occurenceString != null && occurenceString.isNotEmpty) {
+      int occurence = int.parse(occurenceString);
+      store.dispatch(new ActionInputAlarmSetOccurence(occurence));
+    }
+  }
+
+  void _handleInputMessage(BuildContext context, Store<AppState> store) async {
+    String message = await Navigator.of(context).push<String>(new MaterialPageRoute(
+      builder: (_) => new MultiLineInputScreen(title: "Pesan kepada Pasien", hintText: "Masukkan pesan yang ingin disampaikan"),
+    ));
+    if (message != null && message.isNotEmpty) {
+      store.dispatch(new ActionInputAlarmSetMessage(message));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new StoreBuilder(
@@ -47,7 +101,7 @@ class ApotekerInputDailyAlarmScreen extends StatelessWidget {
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              store.state.dailyAlarmState.selectedPasien == null
+                              store.state.inputAlarmState.selectedPasien == null
                                   ? new Text(
                                       "Pilih Email",
                                       style: new TextStyle(
@@ -56,7 +110,7 @@ class ApotekerInputDailyAlarmScreen extends StatelessWidget {
                                       ),
                                     )
                                   : new Text(
-                                      store.state.dailyAlarmState.selectedPasien
+                                      store.state.inputAlarmState.selectedPasien
                                           .displayName,
                                       style: new TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -75,7 +129,7 @@ class ApotekerInputDailyAlarmScreen extends StatelessWidget {
                               }).then(
                             (Pasien pasien) {
                               store.dispatch(
-                                  new ActionDailyAlarmSetSelectedPasien(
+                                  new ActionInputAlarmSetSelectedPasien(
                                       pasien));
                             },
                           );
@@ -107,7 +161,7 @@ class ApotekerInputDailyAlarmScreen extends StatelessWidget {
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              store.state.dailyAlarmState.selectedObat == null
+                              store.state.inputAlarmState.selectedObat == null
                                   ? new Text(
                                       "Pilih Obat",
                                       style: new TextStyle(
@@ -115,7 +169,7 @@ class ApotekerInputDailyAlarmScreen extends StatelessWidget {
                                       ),
                                     )
                                   : new Text(
-                                      store.state.dailyAlarmState.selectedObat
+                                      store.state.inputAlarmState.selectedObat
                                           .name,
                                       style: new TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -132,21 +186,167 @@ class ApotekerInputDailyAlarmScreen extends StatelessWidget {
                               }).then(
                             (Obat selectedObat) {
                               store.dispatch(
-                                  new ActionDailyAlarmSetSelectedObat(
-                                      selectedObat));
+                                new ActionInputAlarmSetSelectedObat(
+                                    selectedObat),
+                              );
                             },
                           );
                         },
                       ),
                     ),
+                    new Container(
+                      child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          new Flexible(
+                              child: new Container(
+                            child: new Column(
+                              children: <Widget>[
+                                new Container(
+                                  child: new Text(
+                                    "Jam",
+                                    style: new TextStyle(
+                                      color: Theme.of(context).primaryColorDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  margin: new EdgeInsets.only(bottom: 8.0),
+                                ),
+                                new OutlineButton(
+                                  child: new Text(
+                                    store.state.inputAlarmState.timeOfDay?.format(context) ??
+                                        "09.00 AM",
+                                    style: new TextStyle(
+                                      color: store.state.inputAlarmState
+                                                  .timeOfDay ==
+                                              null
+                                          ? Theme.of(context).disabledColor
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  onPressed: () =>
+                                      _handleInputTimeOfDay(context, store),
+                                )
+                              ],
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                            ),
+                          )),
+                          new Flexible(
+                            child: new Container(
+                              child: new Column(
+                                children: <Widget>[
+                                  new Container(
+                                    child: new Text(
+                                      "Frekuensi",
+                                      style: new TextStyle(
+                                        color:
+                                            Theme.of(context).primaryColorDark,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    margin: new EdgeInsets.only(bottom: 8.0),
+                                  ),
+                                  new Row(
+                                    children: <Widget>[
+                                      new Container(
+                                        child: new Text(
+                                          "1 X ",
+                                          style: new TextStyle(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            letterSpacing: 2.0,
+                                          ),
+                                        ),
+                                        margin: new EdgeInsets.only(right: 4.0),
+                                      ),
+                                      new OutlineButton(
+                                        child: new Text(
+                                          store.state.inputAlarmState
+                                                  .occurence?.toString() ??
+                                              "2",
+                                          style: new TextStyle(
+                                            color: store.state.inputAlarmState
+                                                        .timeOfDay ==
+                                                    null
+                                                ? Theme
+                                                    .of(context)
+                                                    .disabledColor
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                        onPressed: () => _handleInputOccurence(
+                                            context, store),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                              ),
+                              margin: new EdgeInsets.only(right: 8.0),
+                            ),
+                          ),
+                        ],
+                      ),
+                      margin: new EdgeInsets.symmetric(vertical: 16.0),
+                    ),
+                    new Container(
+                      alignment: Alignment.topLeft,
+                      child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          new Container(
+                              child: new Text(
+                                "Pesan yang ingin disampaikan",
+                                style: new TextStyle(
+                                  color: Theme.of(context).primaryColorDark,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                              margin: new EdgeInsets.only(bottom: 8.0)),
+                          new FullWidthWidget(
+                            child: new OutlineButton(
+                              child: new Container(
+                                alignment: Alignment.topLeft,
+                                child: new Text(
+                                  store.state.inputAlarmState.message ??
+                                      "Masukkan pesan yang ingin disampaikan",
+                                  style: new TextStyle(
+                                    color:
+                                        store.state.inputAlarmState.message ==
+                                                null
+                                            ? Theme.of(context).disabledColor
+                                            : Colors.black,
+                                  ),
+                                ),
+                                height: 128.0,
+                              ),
+                              padding: new EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 8.0),
+                              onPressed: () =>
+                                  _handleInputMessage(context, store),
+                            ),
+                          )
+                        ],
+                      ),
+                      margin: new EdgeInsets.only(top: 16.0),
+                    ),
                   ],
                 ),
-                margin: new EdgeInsets.symmetric(vertical: 8.0),
+                margin: new EdgeInsets.only(bottom: 8.0),
               ),
               new Container(),
             ],
           ),
           margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        ),
+        bottomNavigationBar: new Builder(
+          builder: (BuildContext context) =>
+              _buildBottomNavigationBar(context, store),
         ),
       );
     });

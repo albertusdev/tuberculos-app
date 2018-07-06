@@ -65,6 +65,7 @@ flutter:
    - family: Gotham Rounded
      fonts:
         - asset: assets/fonts/GothamRoundedLight.otf
+          weight: 400
         - asset: assets/fonts/GothamRoundedBold.otf
           weight: 700
         - asset: assets/fonts/GothamRoundedMediumItalic.otf

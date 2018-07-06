@@ -66,7 +66,7 @@ class ApotekerChooseObatDialog extends StatelessWidget {
             child: new FullWidthWidget(
                 child: new RaisedButton(
               color: Theme.of(context).primaryColorDark,
-              child: new Text("Tambah Obat Baru"),
+              child: new Text("Tambah Obat Baru", style: new TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.of(context).push(new MaterialPageRoute(
                       builder: (_) => new ApotekerCreateObatScreen(),

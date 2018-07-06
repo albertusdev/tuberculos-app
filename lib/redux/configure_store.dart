@@ -6,7 +6,7 @@ import "package:redux/redux.dart";
 import "package:redux_persist/redux_persist.dart";
 import "package:redux_persist_flutter/redux_persist_flutter.dart";
 import 'package:tuberculos/models/user.dart';
-import 'package:tuberculos/redux/modules/daily_alarm/daily_alarm.dart';
+import 'package:tuberculos/redux/modules/input_alarm/input_alarm.dart';
 import "package:tuberculos/redux/modules/register/register.dart";
 
 export "modules/register/register.dart";
@@ -17,7 +17,7 @@ class AppState {
 
   final RegisterState registerState;
 
-  final DailyAlarmState dailyAlarmState;
+  final InputAlarmState inputAlarmState;
 
   // Singleton in App
   final GoogleSignIn googleSignIn;
@@ -26,20 +26,20 @@ class AppState {
       {User currentUser,
       GoogleSignIn googleSignIn,
       RegisterState registerState,
-      DailyAlarmState dailyAlarmState})
+      InputAlarmState dailyAlarmState})
       : this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
         this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
-        this.dailyAlarmState = dailyAlarmState ?? new DailyAlarmState();
+        this.inputAlarmState = dailyAlarmState ?? new InputAlarmState(dateTimes: []);
 
   AppState cloneWithModified({
-    DailyAlarmState dailyAlarmState,
+    InputAlarmState dailyAlarmState,
     User currentUser,
     RegisterState registerState,
   }) {
     return new AppState(
       currentUser: currentUser ?? this.currentUser,
-      dailyAlarmState: dailyAlarmState ?? this.dailyAlarmState,
+      dailyAlarmState: dailyAlarmState ?? this.inputAlarmState,
       registerState: registerState ?? this.registerState,
       googleSignIn: this.googleSignIn,
     );
@@ -62,7 +62,7 @@ class AppState {
     if (other is AppState) {
       return currentUser == other.currentUser &&
           registerState == other.registerState &&
-          dailyAlarmState == other.dailyAlarmState;
+          inputAlarmState == other.inputAlarmState;
     }
     return false;
   }
@@ -72,7 +72,7 @@ class AppState {
       super.hashCode ^
       currentUser.hashCode ^
       registerState.hashCode ^
-      dailyAlarmState.hashCode ^
+      inputAlarmState.hashCode ^
       googleSignIn.hashCode;
 }
 
@@ -84,7 +84,7 @@ AppState reducer(AppState state, action) {
     return state.cloneWithModified(currentUser: action.currentUser);
   }
   return state.cloneWithModified(
-    dailyAlarmState: dailyAlarmReducer(state.dailyAlarmState, action),
+    dailyAlarmState: dailyAlarmReducer(state.inputAlarmState, action),
     registerState: registerReducer(
       state.registerState,
       action,

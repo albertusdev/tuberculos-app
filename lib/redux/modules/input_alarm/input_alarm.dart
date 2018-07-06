@@ -6,38 +6,42 @@ import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/redux/configure_store.dart';
 
 @immutable
-class DailyAlarmState {
+class InputAlarmState {
   final bool isLoading;
   final Pasien selectedPasien;
   final Obat selectedObat;
   final TimeOfDay timeOfDay;
   final int occurence;
   final String message;
+  final List<DateTime> dateTimes;
 
-  DailyAlarmState({
+  InputAlarmState({
     this.isLoading = false,
     this.selectedPasien,
     this.selectedObat,
     this.timeOfDay,
     this.occurence,
     this.message,
+    this.dateTimes,
   });
 
-  DailyAlarmState cloneWithModified({
+  InputAlarmState cloneWithModified({
     bool isLoading,
     Pasien selectedPasien,
     Obat selectedObat,
     TimeOfDay timeOfDay,
     int occurence,
     String message,
+    List<DateTime> dateTimes,
   }) {
-    return new DailyAlarmState(
+    return new InputAlarmState(
       isLoading: isLoading ?? this.isLoading,
       selectedPasien: selectedPasien ?? this.selectedPasien,
       selectedObat: selectedObat ?? this.selectedObat,
       timeOfDay: timeOfDay ?? this.timeOfDay,
       occurence: occurence ?? this.occurence,
       message: message ?? this.message,
+      dateTimes: dateTimes ?? this.dateTimes,
     );
   }
 
@@ -63,50 +67,50 @@ class DailyAlarmState {
   }
 }
 
-class ActionDailyAlarmSetLoading {}
+class ActionInputAlarmSetLoading {}
 
-class ActionDailyAlarmClearLoading {}
+class ActionInputAlarmClearLoading {}
 
-class ActionDailyAlarmSetSelectedPasien {
+class ActionInputAlarmSetSelectedPasien {
   final Pasien selectedPasien;
-  ActionDailyAlarmSetSelectedPasien(this.selectedPasien);
+  ActionInputAlarmSetSelectedPasien(this.selectedPasien);
 }
 
-class ActionDailyAlarmSetSelectedObat {
+class ActionInputAlarmSetSelectedObat {
   final Obat selectedObat;
-  ActionDailyAlarmSetSelectedObat(this.selectedObat);
+  ActionInputAlarmSetSelectedObat(this.selectedObat);
 }
 
-class ActionDailyAlarmSetTimeOfDay {
+class ActionInputAlarmSetTimeOfDay {
   final TimeOfDay timeOfDay;
-  ActionDailyAlarmSetTimeOfDay(this.timeOfDay);
+  ActionInputAlarmSetTimeOfDay(this.timeOfDay);
 }
 
-class ActionDailyAlarmSetOccurence {
+class ActionInputAlarmSetOccurence {
   final int occurence;
-  ActionDailyAlarmSetOccurence(this.occurence);
+  ActionInputAlarmSetOccurence(this.occurence);
 }
 
-class ActionDailyAlarmSetMessage {
+class ActionInputAlarmSetMessage {
   final String message;
-  ActionDailyAlarmSetMessage(this.message);
+  ActionInputAlarmSetMessage(this.message);
 }
 
-DailyAlarmState dailyAlarmReducer(DailyAlarmState state, action) {
-  DailyAlarmState newState;
-  if (action is ActionDailyAlarmClearLoading) {
+InputAlarmState dailyAlarmReducer(InputAlarmState state, action) {
+  InputAlarmState newState;
+  if (action is ActionInputAlarmClearLoading) {
     newState = state.cloneWithModified(isLoading: false);
-  } else if (action is ActionDailyAlarmSetLoading) {
+  } else if (action is ActionInputAlarmSetLoading) {
     newState = state.cloneWithModified(isLoading: true);
-  } else if (action is ActionDailyAlarmSetSelectedPasien) {
+  } else if (action is ActionInputAlarmSetSelectedPasien) {
     newState = state.cloneWithModified(selectedPasien: action.selectedPasien);
-  } else if (action is ActionDailyAlarmSetSelectedObat) {
+  } else if (action is ActionInputAlarmSetSelectedObat) {
     newState = state.cloneWithModified(selectedObat: action.selectedObat);
-  } else if (action is ActionDailyAlarmSetTimeOfDay) {
+  } else if (action is ActionInputAlarmSetTimeOfDay) {
     newState = state.cloneWithModified(timeOfDay: action.timeOfDay);
-  } else if (action is ActionDailyAlarmSetOccurence) {
+  } else if (action is ActionInputAlarmSetOccurence) {
     newState = state.cloneWithModified(occurence: action.occurence);
-  } else if (action is ActionDailyAlarmSetMessage) {
+  } else if (action is ActionInputAlarmSetMessage) {
     newState = state.cloneWithModified(message: action.message);
   } else {
     newState = state;
@@ -115,7 +119,7 @@ DailyAlarmState dailyAlarmReducer(DailyAlarmState state, action) {
 }
 
 void createDailyAlarm(Store<AppState> store) async {
-  store.dispatch(new ActionDailyAlarmSetLoading());
+  store.dispatch(new ActionInputAlarmSetLoading());
 
-  store.dispatch(new ActionDailyAlarmClearLoading());
+  store.dispatch(new ActionInputAlarmClearLoading());
 }

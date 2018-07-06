@@ -48,7 +48,6 @@ class ChoosePasienDialog extends StatelessWidget {
                     subtitle: new Text(user.email ?? '<No message retrieved>'),
                     title: new Text(user.displayName),
                     onTap: () {
-                      print("TAP!!!");
                       Navigator.pop(context, user);
                     });
               },

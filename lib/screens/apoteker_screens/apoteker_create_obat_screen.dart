@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tuberculos/models/obat.dart';
-import 'package:tuberculos/screens/string_input_screen.dart';
+import 'package:tuberculos/screens/input_screen.dart';
 import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/full_width_widget.dart';
 

@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
               home: new SplashScreen(store: store),
               theme: new ThemeData(
                 backgroundColor: backgroundColor,
-                buttonColor: new Color(0xFF6dc78f),
+                buttonColor: new Color(0xFF008e49),
                 primarySwatch: new MaterialColor(0xFF008E49, {
                   50: new Color(0xFFe5f5eb),
                   100: new Color(0xFFc1e6ce),
@@ -77,6 +77,7 @@ class _MyAppState extends State<MyApp> {
                   800: new Color(0xFF007D3E),
                   900: new Color(0xFF005E2A),
                 }),
+                primaryColorDark: new Color(0xFF005E2A),
                 fontFamily: "Gotham Rounded",
               ),
               routes: <String, WidgetBuilder>{

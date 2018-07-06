@@ -168,6 +168,7 @@ class ChatScreenState extends State<ChatScreen>
               onSubmitted: _handleSubmitted,
               decoration:
                   new InputDecoration.collapsed(hintText: "Send a message"),
+              maxLines: 2,
             ),
           ),
           new Container(
