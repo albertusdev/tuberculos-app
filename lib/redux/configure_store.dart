@@ -30,7 +30,7 @@ class AppState {
       : this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
         this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
-        this.inputAlarmState = dailyAlarmState ?? new InputAlarmState(dateTimes: []);
+        this.inputAlarmState = dailyAlarmState ?? new InputAlarmState(timestamps: []);
 
   AppState cloneWithModified({
     InputAlarmState dailyAlarmState,

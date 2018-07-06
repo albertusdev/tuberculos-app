@@ -118,6 +118,9 @@ class ChatScreenState extends State<ChatScreen>
         "headings": {"en": currentUser.displayName},
         "contents": {"en": imageUrl == null ? text : "${currentUser.displayName} mengirim gambar."},
         "large_icon" : currentUser.photoUrl,
+        "data": {
+          "type": "chat",
+        }
       };
       final response = await OneSignalHttpClient.post(body: body);
       // TODO: Cancel notification with response (save notificationId)

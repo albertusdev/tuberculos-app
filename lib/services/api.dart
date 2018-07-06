@@ -1,4 +1,5 @@
 import "dart:async";
+import 'dart:convert';
 import 'dart:io';
 
 import "package:cloud_firestore/cloud_firestore.dart";
@@ -6,9 +7,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_one_signal/flutter_one_signal.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tuberculos/models/alarm.dart';
 import 'package:tuberculos/models/obat.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/models/user.dart';
+import 'package:tuberculos/utils.dart';
 import "package:uuid/uuid.dart";
 
 class UserRole {
@@ -141,6 +144,19 @@ Future<void> createNewObat(Obat obat) async {
   await getObatCollectionReference().add(obat.toJson());
 }
 
+
+CollectionReference getPasienAlarmsCollectionReference(Pasien pasien) {
+  return Firestore.instance.collection("pasiens/${pasien.email}/alarms");
+}
+
+CollectionReference getPasienObatsCollectionReference(Pasien pasien) {
+  return Firestore.instance.collection("pasiens/${pasien.email}/obats");
+}
+
+DocumentReference getPasienObatDocumentReference(Pasien pasien, Obat obat) {
+ return Firestore.instance.document("pasiens/${pasien.email}/obats/${obat.id}");
+}
+
 // Return download url of the file
 Future<String> uploadFile(File file) async {
   String fileName = new Uuid().v1();
@@ -150,3 +166,43 @@ Future<String> uploadFile(File file) async {
   final completedTask = await uploadTask.future;
   return completedTask.downloadUrl.toString();
 }
+
+
+Future<void> insertAlarm(Alarm alarm) async {
+  DocumentReference documentSnapshot = await getPasienAlarmsCollectionReference(alarm.user).add(alarm.toJson());
+  final body = {
+    "include_player_ids": [alarm.user.oneSignalPlayerId],
+    "headings": {"en": "${alarm.obat.name}"},
+    "contents": {"en": "${alarm.user.displayName}, sudah saatnya minum obat ${alarm.obat.name}"},
+    "large_icon" : alarm.obat.photoUrl,
+    "send_after": OneSignalHttpClient.formatDate(alarm.dateTime),
+    "data": {
+      "type": "alarm",
+      "id": documentSnapshot.documentID,
+      "obat": alarm.obat.toJson(),
+    },
+  };
+  dynamic response = await OneSignalHttpClient.post(body: body);
+  response = json.decode(response.body);
+  documentSnapshot.updateData({"notificationId": response["id"]});
+}
+
+Future<void> createAlarms({Pasien pasien, Obat obat, String message, List<DateTime> dateTimes}) async {
+  List<Alarm> alarms = dateTimes.map((DateTime dateTime) => new Alarm(
+    user: pasien,
+    obat: obat,
+    message: message,
+    dateTime: dateTime
+  )).toList();
+  alarms.forEach((Alarm alarm) async {
+    await insertAlarm(alarm);
+  });
+  DocumentReference obatDocumentReference = getPasienObatDocumentReference(pasien, obat);
+  DocumentSnapshot obatDocumentSnapshot = await obatDocumentReference.get();
+  if (obatDocumentSnapshot.exists) {
+    await obatDocumentReference.updateData({"quantity": obatDocumentSnapshot.data["quantity"] + dateTimes.length});
+  } else {
+    await obatDocumentReference.setData(obat.toJson()..addAll({"quantity": dateTimes.length}));
+  }
+}
+

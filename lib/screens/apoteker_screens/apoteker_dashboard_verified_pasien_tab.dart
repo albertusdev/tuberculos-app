@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
+import 'package:tuberculos/screens/apoteker_screens/apoteker_input_custom_alarm_screen.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_input_daily_alarm_screen.dart';
 import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/user_card.dart';
@@ -70,10 +71,19 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
                               ],
                             ),
                             onPressed: () {
-                              Navigator.of(context).push(new MaterialPageRoute(
+                              Navigator
+                                  .of(context)
+                                  .push<Pasien>(new MaterialPageRoute(
                                     builder: (_) =>
                                         new ApotekerInputDailyAlarmScreen(),
-                                  ));
+                                  ))
+                                  .then((Pasien selectedPasien) {
+                                if (selectedPasien != null) {
+                                  Scaffold.of(context).showSnackBar(new SnackBar(
+                                      content: new Text(
+                                          "Alarm untuk pasien ${selectedPasien.displayName} berhasil ditambahkan")));
+                                }
+                              });
                             },
                             padding: new EdgeInsets.symmetric(vertical: 8.0),
                           ),
@@ -92,7 +102,7 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
                                   size: 48.0,
                                 ),
                                 new Text(
-                                  "Tambahkan Pengingat Mingguan",
+                                  "Tambahkan Pengingat Kustom",
                                   textAlign: TextAlign.center,
                                   style: new TextStyle(
                                     color: Theme.of(context).primaryColor,
@@ -102,10 +112,19 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
                               ],
                             ),
                             onPressed: () {
-//                              Navigator.of(context).push(new MaterialPageRoute(
-//                                builder: (_) =>
-//                                new ApotekerInputDailyAlarmScreen(),
-//                              ));
+                              Navigator
+                                  .of(context)
+                                  .push<Pasien>(new MaterialPageRoute(
+                                builder: (_) =>
+                                new ApotekerInputCustomAlarmScreen(),
+                              ))
+                                  .then((Pasien selectedPasien) {
+                                if (selectedPasien != null) {
+                                  Scaffold.of(context).showSnackBar(new SnackBar(
+                                      content: new Text(
+                                          "Alarm untuk pasien ${selectedPasien.displayName} berhasil ditambahkan")));
+                                }
+                              });
                             },
                             padding: new EdgeInsets.symmetric(vertical: 8.0),
                           ),

@@ -99,4 +99,16 @@ class OneSignalHttpClient {
     body["app_id"] = oneSignalAppId;
     return http.post(oneSignalUrl, headers: headers, body: json.encode(body));
   }
+
+  // Ex:
+  // 2015-09-24 14:00:00 GMT-0700
+  static String formatDate(DateTime dateTime) {
+    int year = dateTime.year;
+    int month = dateTime.month;
+    int day = dateTime.day;
+    int hour = dateTime.hour;
+    int minute = dateTime.minute;
+    return "$year-$month-$day $hour:$minute:00 GMT+0700";
+  }
+
 }

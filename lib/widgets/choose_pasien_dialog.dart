@@ -28,10 +28,11 @@ class ChoosePasienDialog extends StatelessWidget {
           if (!snapshot.hasData) {
             return new Center(child: new Text('Loading...'));
           }
-          final List<Pasien> data = snapshot.data.documents
+          List<Pasien> data = snapshot.data.documents
               .map((DocumentSnapshot documentSnapshot) =>
                   new Pasien.fromJson(documentSnapshot.data))
               .toList();
+          data.retainWhere((Pasien pasien) => pasien.isVerified);
           final int dataCount = data.length;
           if (dataCount > 0) {
             return new ListView.builder(

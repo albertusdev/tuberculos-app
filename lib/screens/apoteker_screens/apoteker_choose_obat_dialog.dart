@@ -20,7 +20,7 @@ class ApotekerChooseObatDialog extends StatelessWidget {
           }
           final List<Obat> data = snapshot.data.documents
               .map((DocumentSnapshot documentSnapshot) =>
-                  new Obat.fromJson(documentSnapshot.data))
+                  new Obat.fromJson(documentSnapshot.data)..id = documentSnapshot.documentID)
               .toList();
           final int dataCount = data.length;
           if (dataCount > 0) {
