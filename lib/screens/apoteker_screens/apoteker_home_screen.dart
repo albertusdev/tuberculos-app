@@ -119,6 +119,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
   @override
   void initState() {
     super.initState();
+
     // To override back button behavior
     WidgetsBinding.instance.addObserver(this);
     _navigationViews = <NavigationIconView>[

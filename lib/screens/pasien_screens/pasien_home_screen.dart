@@ -3,7 +3,6 @@ import "dart:async";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:tuberculos/models/pasien.dart";
-import 'package:tuberculos/models/user.dart';
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/screens/chat_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
@@ -183,16 +182,11 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
 
   void _changeTab(int index) async {
     if (index == _navigationViews.length - 2) {
-      Map<String, dynamic> apotekerJson = (await getUserDocumentReference(
-              role: User.APOTEKER, email: currentUser.apoteker)
-          .get()).data;
-      User apoteker = new User.createSpecificUserFromJson(apotekerJson);
       Navigator.of(context).push(new MaterialPageRoute(
             builder: (BuildContext context) => new ChatScreen(
                   documentRef:
                       getMessageCollectionReference(currentUser.chatId),
                   currentUser: currentUser,
-                  otherUser: apoteker,
                 ),
           ));
     } else if (index == _navigationViews.length - 1) {

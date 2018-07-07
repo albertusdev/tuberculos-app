@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import "package:tuberculos/models/chat.dart";
+import 'package:tuberculos/models/pasien.dart';
 import "package:tuberculos/models/user.dart";
 import 'package:tuberculos/services/api.dart';
 import "package:tuberculos/utils.dart";
@@ -83,8 +84,7 @@ class ChatScreenState extends State<ChatScreen>
 
   final User currentUser;
   final CollectionReference documentRef;
-
-  final User otherUser;
+  User otherUser;
 
   ChatScreenState(this.documentRef, this.currentUser, this.otherUser);
 
@@ -100,6 +100,14 @@ class ChatScreenState extends State<ChatScreen>
         });
       });
     _animationController.forward();
+    if (otherUser == null && currentUser is Pasien) {
+      Pasien pasien = currentUser;
+      getUserDocumentReference(role: User.APOTEKER, email: pasien.apoteker)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        otherUser = new User.createSpecificUserFromJson(documentSnapshot.data);
+      });
+    }
   }
 
   Future<Null> _sendMessage({String text, String imageUrl}) async {
@@ -116,8 +124,12 @@ class ChatScreenState extends State<ChatScreen>
       final body = {
         "include_player_ids": [otherUser.oneSignalPlayerId],
         "headings": {"en": currentUser.displayName},
-        "contents": {"en": imageUrl == null ? text : "${currentUser.displayName} mengirim gambar."},
-        "large_icon" : currentUser.photoUrl,
+        "contents": {
+          "en": imageUrl == null
+              ? text
+              : "${currentUser.displayName} mengirim gambar."
+        },
+        "large_icon": currentUser.photoUrl,
         "data": {
           "type": "chat",
         }

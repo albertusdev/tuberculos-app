@@ -1,5 +1,6 @@
 import "dart:convert";
 
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
 import "package:redux/redux.dart";
@@ -22,22 +23,30 @@ class AppState {
   // Singleton in App
   final GoogleSignIn googleSignIn;
 
-  AppState(
-      {User currentUser,
-      GoogleSignIn googleSignIn,
-      RegisterState registerState,
-      InputAlarmState dailyAlarmState})
-      : this.currentUser = currentUser,
+  // Current context
+  final NavigatorState navigatorState;
+
+  AppState({
+    NavigatorState navigatorState,
+    User currentUser,
+    GoogleSignIn googleSignIn,
+    RegisterState registerState,
+    InputAlarmState dailyAlarmState,
+  })  : this.navigatorState = navigatorState,
+        this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
         this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
-        this.inputAlarmState = dailyAlarmState ?? new InputAlarmState(timestamps: []);
+        this.inputAlarmState =
+            dailyAlarmState ?? new InputAlarmState(timestamps: []);
 
   AppState cloneWithModified({
+    NavigatorState navigatorState,
     InputAlarmState dailyAlarmState,
     User currentUser,
     RegisterState registerState,
   }) {
     return new AppState(
+      navigatorState: navigatorState ?? this.navigatorState,
       currentUser: currentUser ?? this.currentUser,
       dailyAlarmState: dailyAlarmState ?? this.inputAlarmState,
       registerState: registerState ?? this.registerState,
@@ -83,6 +92,9 @@ AppState reducer(AppState state, action) {
   if (action is ActionChangeCurrentUser) {
     return state.cloneWithModified(currentUser: action.currentUser);
   }
+  if (action is ActionNavigate) {
+    return state.cloneWithModified(navigatorState: action.navigatorState);
+  }
   return state.cloneWithModified(
     dailyAlarmState: dailyAlarmReducer(state.inputAlarmState, action),
     registerState: registerReducer(
@@ -95,6 +107,11 @@ AppState reducer(AppState state, action) {
 class ActionChangeCurrentUser {
   final User currentUser;
   ActionChangeCurrentUser({this.currentUser});
+}
+
+class ActionNavigate {
+  final NavigatorState navigatorState;
+  ActionNavigate(this.navigatorState);
 }
 
 Map<String, dynamic> configureStore() {
