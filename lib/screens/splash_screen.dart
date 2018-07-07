@@ -30,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _initTimer() async {
     Store<AppState> store = this.store ?? StoreProvider.of<AppState>(context);
-    new Timer(new Duration(seconds: 1), () async {
+    new Timer(new Duration(seconds: 2), () async {
       User currentUser = store.state.currentUser;
       if (currentUser != null) {
         Navigator.pushReplacement(context, getRouteBasedOnUser(currentUser: currentUser));

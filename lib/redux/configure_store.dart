@@ -55,15 +55,20 @@ class AppState {
   }
 
   static AppState fromJson(dynamic prevJson) {
-    Map<String, dynamic> userJson = json.decode(prevJson["currentUser"]);
-    return new AppState(
-        currentUser: new User.createSpecificUserFromJson(userJson));
+    if (prevJson.containsKey("currentUser")) {
+      Map<String, dynamic> userJson = json.decode(prevJson["currentUser"]);
+      return new AppState(
+          currentUser: new User.createSpecificUserFromJson(userJson));
+    }
+    return new AppState();
   }
 
-  dynamic toJson() => {
-        "currentUser":
-            json.encode(currentUser.toJson()..remove("dateTimeCreated"))
-      };
+  dynamic toJson() {
+    if (currentUser == null) return {};
+    return {
+      "currentUser": json.encode(currentUser.toJson()..remove("dateTimeCreated"))
+    };
+  }
 
   @override
   bool operator ==(other) {
@@ -116,13 +121,8 @@ class ActionNavigate {
 
 Map<String, dynamic> configureStore() {
   final persistor = new Persistor<AppState>(
-    storage: new FlutterStorage("tbcls"),
+    storage: new FlutterStorage("tbcls2"),
     decoder: AppState.fromJson,
-    rawTransforms: new RawTransforms(onSave: [
-      (json) {
-        return json;
-      },
-    ]),
   );
   final store = new Store<AppState>(
     reducer,

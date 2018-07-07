@@ -14,47 +14,75 @@ import "package:tuberculos/utils.dart";
 
 @override
 class ChatMessageWidget extends StatelessWidget {
-  ChatMessageWidget({this.chatMessage, this.animation});
+  ChatMessageWidget({this.currentUser, this.chatMessage, this.animation});
   final ChatMessage chatMessage;
   final Animation animation;
+  final User currentUser;
 
   Widget build(BuildContext context) {
     User owner = chatMessage.sender;
+    List<Widget> rowChildren = <Widget>[
+    ];
+    if (owner.email != currentUser.email) {
+      rowChildren.add(
+        new Container(
+          margin: const EdgeInsets.only(right: 8.0),
+          child: new CircleAvatar(
+            backgroundImage: owner.photoUrl != null
+                ? new NetworkImage(owner.photoUrl)
+                : null,
+            child: owner.photoUrl == null
+                ? new Text(getInitialsOfDisplayName(owner.displayName))
+                : null,
+            maxRadius: 16.0,
+          ),
+        ),
+      );
+    }
+    rowChildren.add(new Expanded(
+      child: new Column(
+        crossAxisAlignment: owner.email == currentUser.email ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: owner.email != currentUser.email ? <Widget>[
+          new Text(owner.email == currentUser.email ? "" : owner.displayName,
+              style: Theme.of(context).textTheme.caption),
+          new Container(
+            decoration: chatMessage.imageUrl == null ? new BoxDecoration(
+              color: Colors.white,
+              boxShadow: [new BoxShadow()],
+              borderRadius: new BorderRadius.circular(8.0),
+            ) : null,
+            margin: const EdgeInsets.only(top: 5.0),
+            child: chatMessage.imageUrl != null
+                ? new Image.network(
+              chatMessage.imageUrl,
+              width: 250.0,
+            )
+                : new Text(chatMessage.text, style: Theme.of(context).textTheme.body1),
+            padding: new EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+          ),
+        ] : <Widget>[
+          new Container(
+            decoration: chatMessage.imageUrl == null ? new BoxDecoration(
+              color: Colors.white,
+              boxShadow: [new BoxShadow()],
+              borderRadius: new BorderRadius.circular(8.0),
+            ) : null,
+            child: chatMessage.imageUrl != null
+                ? new Image.network(
+              chatMessage.imageUrl,
+              width: 250.0,
+            )
+                : new Text(chatMessage.text, style: Theme.of(context).textTheme.body1),
+            padding: new EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+          ),
+        ] ,
+      ),
+    ));
     return new Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
       child: new Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(
-            margin: const EdgeInsets.only(right: 16.0),
-            child: new CircleAvatar(
-              backgroundImage: owner.photoUrl != null
-                  ? new NetworkImage(owner.photoUrl)
-                  : null,
-              child: owner.photoUrl == null
-                  ? new Text(getInitialsOfDisplayName(owner.displayName))
-                  : null,
-            ),
-          ),
-          new Expanded(
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                new Text(owner.displayName,
-                    style: Theme.of(context).textTheme.subhead),
-                new Container(
-                  margin: const EdgeInsets.only(top: 5.0),
-                  child: chatMessage.imageUrl != null
-                      ? new Image.network(
-                          chatMessage.imageUrl,
-                          width: 250.0,
-                        )
-                      : new Text(chatMessage.text),
-                ),
-              ],
-            ),
-          ),
-        ],
+        children: rowChildren,
       ),
     );
   }
@@ -132,6 +160,9 @@ class ChatScreenState extends State<ChatScreen>
         "large_icon": currentUser.photoUrl,
         "data": {
           "type": "chat",
+          "currentUser": currentUser.toJson()..remove("dateTimeCreated"),
+          "otherUser": otherUser.toJson()..remove("dateTimeCreated"),
+          "chatId": currentUser is Pasien ? (currentUser as Pasien).chatId : (otherUser as Pasien).chatId,
         }
       };
       final response = await OneSignalHttpClient.post(body: body);
@@ -182,8 +213,7 @@ class ChatScreenState extends State<ChatScreen>
               },
               onSubmitted: _handleSubmitted,
               decoration:
-                  new InputDecoration.collapsed(hintText: "Send a message"),
-              maxLines: 2,
+                  new InputDecoration.collapsed(hintText: "Masukkan pesan"),
             ),
           ),
           new Container(
@@ -239,6 +269,7 @@ class ChatScreenState extends State<ChatScreen>
                       itemCount: dataCount,
                       itemBuilder: (_, int index) {
                         return new ChatMessageWidget(
+                            currentUser: currentUser,
                             chatMessage: data[index], animation: _animation);
                       },
                     );
