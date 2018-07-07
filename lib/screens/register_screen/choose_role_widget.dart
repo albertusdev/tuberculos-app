@@ -56,66 +56,60 @@ class ChooseRoleWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Container(
-              margin: new EdgeInsets.all(16.0),
-              child: new Text(
-                "TuberculosApp",
-                style:
-                    new TextStyle(fontWeight: FontWeight.bold, fontSize: 32.0),
+              margin: new EdgeInsets.only(bottom: 64.0),
+              child: new Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  new Container(
+                    child: new Image.asset(
+                        "assets/pictures/logo_black.png",
+                        width: 144.0),
+                    margin: new EdgeInsets.only(left: 8.0),
+                  ),
+                  new Text(
+                    "TuberculosApp",
+                    style: new TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 32.0,
+                      fontFamily: "Libel Suit",
+                    ),
+                  ),
+                ],
               ),
             ),
             new Text("Daftar sebagai",
-                style: Theme.of(context).textTheme.headline),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                new Flexible(
-                  child: new FlatButton(
-                    child: new Column(
-                      children: <Widget>[
-                        new Icon(
-                          Icons.accessibility,
-                          color: role == User.PASIEN
-                              ? Theme.of(context).accentColor
-                              : null,
-                        ),
-                        new Text("Pasien",
-                            style: new TextStyle(
-                                color: role == User.PASIEN
-                                    ? Theme.of(context).accentColor
-                                    : null)),
-                      ],
+                style: new TextStyle(
+                  color: Theme.of(context).primaryColorDark,
+                  fontSize: 20.0,
+                )),
+            new Container(
+              margin: new EdgeInsets.symmetric(horizontal: 32.0),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  new Flexible(
+                    child: new IconButton(
+                      icon: new Image.asset(
+                        "assets/icons/pasien_button_${role == User.PASIEN ? "active" : "inactive"}.png",
+                      ),
+                      padding: new EdgeInsets.symmetric(vertical: 16.0),
+                      onPressed: () => store.dispatch(new ActionSetRole(User.PASIEN)),
+                      iconSize: role == User.PASIEN ? 72.0 : 64.0,
                     ),
-                    padding: new EdgeInsets.symmetric(vertical: 16.0),
-                    onPressed: () =>
-                        store.dispatch(new ActionSetRole(User.PASIEN)),
                   ),
-                ),
-                new Flexible(
-                  child: new FlatButton(
-                    child: new Column(
-                      children: <Widget>[
-                        new Icon(
-                          Icons.local_hospital,
-                          color: role == User.APOTEKER
-                              ? Theme.of(context).accentColor
-                              : null,
-                        ),
-                        new Text(
-                          "Apoteker",
-                          style: new TextStyle(
-                            color: role == User.APOTEKER
-                                ? Theme.of(context).accentColor
-                                : null,
-                          ),
-                        ),
-                      ],
+                  new Flexible(
+                    child: new IconButton(
+                      icon: new Image.asset(
+                          "assets/icons/apoteker_button_${role == User.APOTEKER ? "active" : "inactive"}.png"),
+                      iconSize: role == User.APOTEKER ? 72.0 : 64.0,
+                      padding: new EdgeInsets.symmetric(vertical: 16.0),
+                      onPressed: () => store.dispatch(new ActionSetRole(User.APOTEKER)),
                     ),
-                    onPressed: () =>
-                        store.dispatch(new ActionSetRole(User.APOTEKER)),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             new Container(
               margin: new EdgeInsets.only(top: 16.0),

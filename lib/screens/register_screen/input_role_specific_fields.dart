@@ -221,7 +221,7 @@ class _InputRoleSpecificWidgetState extends State<InputRoleSpecificWidget> {
                                     color: Colors.white,
                                   ),
                                 ),
-                          color: Theme.of(context).primaryColorDark,
+                          color: Theme.of(context).primaryColor,
                           onPressed: !state.isLoading
                               ? () {
                                   _submit(context, store);

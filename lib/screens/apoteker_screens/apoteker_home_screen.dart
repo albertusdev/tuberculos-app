@@ -6,6 +6,7 @@ import 'package:tuberculos/models/apoteker.dart';
 import "package:tuberculos/routes.dart";
 import 'package:tuberculos/screens/apoteker_screens/apoteker_chat_list_screen.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_dashboard_screen.dart';
+import 'package:tuberculos/screens/apoteker_screens/input_majalah_screen.dart';
 import "package:tuberculos/screens/logout_screen.dart";
 
 class NavigationIconView {
@@ -130,14 +131,14 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
         vsync: this,
         child: new ApotekerDashboardScreen(apoteker: currentUser),
       ),
-//      new NavigationIconView(
-//        activeIcon: const Icon(Icons.library_books),
-//        icon: const Icon(Icons.library_books),
-//        title: 'Majalah',
-//        color: Colors.teal,
-//        vsync: this,
-//        child: new PasienMajalahScreen(),
-//      ),
+      new NavigationIconView(
+        activeIcon: const Icon(Icons.library_books),
+        icon: const Icon(Icons.library_books),
+        title: 'Majalah',
+        color: Colors.teal,
+        vsync: this,
+        child: new InputMajalahScreen(),
+      ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.chat),
         icon: const Icon(Icons.chat_bubble),

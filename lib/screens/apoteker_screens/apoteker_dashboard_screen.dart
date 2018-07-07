@@ -38,8 +38,10 @@ class _ApotekerDashboardScreenState extends State<ApotekerDashboardScreen>
                         ),
                       ),
                       new Container(
+                        alignment: Alignment.center,
                         child: new Text(
                           "Belum Terverifikasi",
+                          textAlign: TextAlign.center,
                         ),
                         padding: new EdgeInsets.all(16.0),
                       ),

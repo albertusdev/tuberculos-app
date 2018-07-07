@@ -2,6 +2,7 @@ name: tuberculos
 description: An application for pharmacist to help monitor and remind their patient to take their medicine regularly.
 
 dependencies:
+  android_intent:
   cloud_firestore:
   firebase_auth:
   firebase_database:
@@ -47,6 +48,11 @@ flutter:
   assets:
     - assets/pictures/google-logo.png
     - assets/pictures/logo.png
+    - assets/pictures/logo_black.png
+    - assets/icons/apoteker_button_active.png
+    - assets/icons/apoteker_button_inactive.png
+    - assets/icons/pasien_button_active.png
+    - assets/icons/pasien_button_inactive.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
