@@ -17,7 +17,7 @@ class Alarm {
     this.taken = false,
   });
 
-  Alarm.fromJson(Map<String, dynamic> json)
+  Alarm.fromJson(Map<dynamic, dynamic> json)
       : user = new User.createSpecificUserFromJson(json["user"]),
         obat = new Obat.fromJson(json["obat"]),
         dateTime = json["dateTime"],

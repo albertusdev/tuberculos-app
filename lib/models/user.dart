@@ -37,7 +37,7 @@ class User {
         dateTimeCreated = json["dateTimeCreated"],
         oneSignalPlayerId = json["oneSignalPlayerId"];
 
-  factory User.createSpecificUserFromJson(Map<String, dynamic> json) {
+  factory User.createSpecificUserFromJson(Map<dynamic, dynamic> json) {
     if (json["role"] == User.APOTEKER) {
       return new Apoteker.fromJson(json);
     } else {

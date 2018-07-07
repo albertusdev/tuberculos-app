@@ -9,6 +9,7 @@ dependencies:
   firebase_storage:
   flutter:
     sdk: flutter
+  flutter_circular_chart:
   flutter_redux:
   flutter_one_signal:
   google_sign_in:

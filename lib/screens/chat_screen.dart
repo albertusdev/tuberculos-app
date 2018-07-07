@@ -57,7 +57,10 @@ class ChatMessageWidget extends StatelessWidget {
               chatMessage.imageUrl,
               width: 250.0,
             )
-                : new Text(chatMessage.text, style: Theme.of(context).textTheme.body1),
+                : new Text(chatMessage.text, style: new TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w200,
+            )),
             padding: new EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
           ),
         ] : <Widget>[
@@ -72,7 +75,10 @@ class ChatMessageWidget extends StatelessWidget {
               chatMessage.imageUrl,
               width: 250.0,
             )
-                : new Text(chatMessage.text, style: Theme.of(context).textTheme.body1),
+                : new Text(chatMessage.text, style: new TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w200,
+            )),
             padding: new EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
           ),
         ] ,

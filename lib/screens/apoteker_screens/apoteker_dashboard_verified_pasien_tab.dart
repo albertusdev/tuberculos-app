@@ -4,6 +4,7 @@ import 'package:tuberculos/models/apoteker.dart';
 import 'package:tuberculos/models/pasien.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_input_custom_alarm_screen.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_input_daily_alarm_screen.dart';
+import 'package:tuberculos/screens/pasien_statistic_screen.dart';
 import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/user_card.dart';
 
@@ -143,8 +144,9 @@ class _VerifiedPasienTabState extends State<VerifiedPasiensTab> {
               return new UserCard(
                 user: pasien,
                 onTap: () {
-                  Scaffold.of(context).showSnackBar(
-                      new SnackBar(content: new Text(pasien.email)));
+                  Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (_) => new PasienStatisticScreen(pasien: pasien,),
+                  ));
                 },
               );
             },
