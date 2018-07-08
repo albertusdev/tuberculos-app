@@ -263,8 +263,9 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
                       initialDate: now,
                       firstDate: now,
                       lastDate: now.add(new Duration(days: 30)));
-                  store.dispatch(new ActionInputAlarmSetTimestamp(
-                      i, new Timestamp(selectedDate, timestamp.timeOfDay)));
+                  if (selectedDate != null)
+                    store.dispatch(new ActionInputAlarmSetTimestamp(
+                        i, new Timestamp(selectedDate, timestamp.timeOfDay)));
                 },
                 padding: new EdgeInsets.symmetric(vertical: 4.0),
               ),
@@ -285,8 +286,9 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
                       context: context,
                       initialTime:
                           new TimeOfDay(hour: now.hour, minute: now.minute));
-                  store.dispatch(new ActionInputAlarmSetTimestamp(
-                      i, new Timestamp(timestamp.date, timeOfDay)));
+                  if (timeOfDay != null)
+                    store.dispatch(new ActionInputAlarmSetTimestamp(
+                        i, new Timestamp(timestamp.date, timeOfDay)));
                 },
                 padding: new EdgeInsets.symmetric(vertical: 4.0),
               ),
@@ -350,8 +352,8 @@ class ApotekerInputCustomAlarmScreen extends StatelessWidget {
         body: new Builder(
           builder: (context) => new Container(
                 child: _buildListView(context, store),
-                margin:
-                    new EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 8.0),
+                margin: new EdgeInsets.only(
+                    left: 16.0, right: 16.0, bottom: 16.0, top: 8.0),
               ),
         ),
         bottomNavigationBar: new Builder(

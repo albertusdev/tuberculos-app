@@ -190,12 +190,12 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                                     new CircularStackEntry(
                                       <CircularSegmentEntry>[
                                         new CircularSegmentEntry(
-                                          takenAlarm / (lateAlarms.length.toDouble()),
+                                          takenAlarm / (lateAlarms.length.toDouble()) * 100,
                                           Theme.of(context).primaryColor,
                                           rankKey: 'completed',
                                         ),
                                         new CircularSegmentEntry(
-                                          (lateAlarms.length - takenAlarm) / (lateAlarms.length.toDouble()),
+                                          (lateAlarms.length - takenAlarm) / (lateAlarms.length.toDouble()) * 100,
                                           Colors.blueGrey[600],
                                           rankKey: 'remaining',
                                         ),
@@ -205,9 +205,9 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                                   ],
                                   chartType: CircularChartType.Radial,
                                   percentageValues: true,
-                                  holeLabel: "$takenAlarm%",
+                                  holeLabel: "${takenAlarm/lateAlarms.length.toDouble() * 100}%",
                                   labelStyle: new TextStyle(
-                                    color: Colors.blueGrey[600],
+                                    color: Theme.of(context).primaryColorDark,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24.0,
                                   ),
