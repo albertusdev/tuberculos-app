@@ -107,7 +107,7 @@ class _NearestUpcomingAlarmWidgetState
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (!snapshot.hasData) {
           return new Container(
-            child: new CircularProgressIndicator(),
+            child: new Center(child: new SizedBox(child: CircularProgressIndicator(), width: 24.0, height: 24.0)),
             padding: new EdgeInsets.all(8.0),
           );
         }

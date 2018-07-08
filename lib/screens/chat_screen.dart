@@ -5,10 +5,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:image_picker/image_picker.dart';
 import "package:tuberculos/models/chat.dart";
 import 'package:tuberculos/models/pasien.dart';
 import "package:tuberculos/models/user.dart";
+import 'package:tuberculos/redux/configure_store.dart';
 import 'package:tuberculos/services/api.dart';
 import "package:tuberculos/utils.dart";
 
@@ -142,6 +144,7 @@ class ChatScreenState extends State<ChatScreen>
         otherUser = new User.createSpecificUserFromJson(documentSnapshot.data);
       });
     }
+    new Timer(new Duration(seconds: 1), () => StoreProvider.of<AppState>(context).dispatch(new ActionSetActivePageName("chat")));
   }
 
   Future<Null> _sendMessage({String text, String imageUrl}) async {

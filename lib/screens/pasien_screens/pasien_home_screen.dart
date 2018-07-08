@@ -170,13 +170,11 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
       DateTime now = new DateTime.now();
       final List<Alarm> lateAlarms =
           alarms.where((Alarm alarm) => alarm.dateTime.compareTo(now) < 0 && !alarm.taken).toList();
-      print("Late alarm size: ${lateAlarms.length}");
       lateAlarms.sort((Alarm a, Alarm b) => a.dateTime.compareTo(b.dateTime));
 
+      if (lateAlarms.length == 0) return;
       final Alarm mostRecentAlarm = lateAlarms.last;
-      print("Latest alarm: ${mostRecentAlarm.dateTime.toIso8601String()}");
       Duration difference = mostRecentAlarm.dateTime.difference(now);
-      print("Difference : ${difference.inMinutes} minutes, ${difference.inSeconds}");
       if ((difference.inMinutes * 60 + difference.inSeconds).abs() < 1800) {
         Navigator.of(context).push(new MaterialPageRoute(
               builder: (_) => new AlarmScreen(mostRecentAlarm),

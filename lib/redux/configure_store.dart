@@ -26,24 +26,30 @@ class AppState {
   // Current context
   final NavigatorState navigatorState;
 
+  // Current active page name
+  final String activePageName;
+
   AppState({
     NavigatorState navigatorState,
     User currentUser,
     GoogleSignIn googleSignIn,
     RegisterState registerState,
     InputAlarmState dailyAlarmState,
+    String activePageName,
   })  : this.navigatorState = navigatorState,
         this.currentUser = currentUser,
         this.registerState = registerState ?? new RegisterState(),
         this.googleSignIn = googleSignIn ?? new GoogleSignIn(),
         this.inputAlarmState =
-            dailyAlarmState ?? new InputAlarmState(timestamps: []);
+            dailyAlarmState ?? new InputAlarmState(timestamps: []),
+        this.activePageName = activePageName ?? "root";
 
   AppState cloneWithModified({
     NavigatorState navigatorState,
     InputAlarmState dailyAlarmState,
     User currentUser,
     RegisterState registerState,
+    String activePageName,
   }) {
     return new AppState(
       navigatorState: navigatorState ?? this.navigatorState,
@@ -51,6 +57,7 @@ class AppState {
       dailyAlarmState: dailyAlarmState ?? this.inputAlarmState,
       registerState: registerState ?? this.registerState,
       googleSignIn: this.googleSignIn,
+      activePageName: activePageName ?? this.activePageName
     );
   }
 
@@ -100,6 +107,10 @@ AppState reducer(AppState state, action) {
   if (action is ActionNavigate) {
     return state.cloneWithModified(navigatorState: action.navigatorState);
   }
+  if (action is ActionSetActivePageName) {
+    print(action.activePageName);
+    return state.cloneWithModified(activePageName: action.activePageName);
+  }
   return state.cloneWithModified(
     dailyAlarmState: dailyAlarmReducer(state.inputAlarmState, action),
     registerState: registerReducer(
@@ -114,6 +125,11 @@ class ActionChangeCurrentUser {
   ActionChangeCurrentUser({this.currentUser});
 }
 
+class ActionSetActivePageName {
+  final String activePageName;
+  ActionSetActivePageName(this.activePageName);
+}
+
 class ActionNavigate {
   final NavigatorState navigatorState;
   ActionNavigate(this.navigatorState);
@@ -121,7 +137,7 @@ class ActionNavigate {
 
 Map<String, dynamic> configureStore() {
   final persistor = new Persistor<AppState>(
-    storage: new FlutterStorage("tbcls2"),
+    storage: new FlutterStorage("tbcls3"),
     decoder: AppState.fromJson,
   );
   final store = new Store<AppState>(

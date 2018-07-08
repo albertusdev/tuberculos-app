@@ -56,44 +56,26 @@ class _MyAppState extends State<MyApp> {
         if (additionalData["type"] == "chat") {
           String chatId = additionalData["chatId"];
           User currentUser = new User.createSpecificUserFromJson(
-              additionalData["currentUser"]);
+              additionalData["otherUser"]);
           User otherUser =
-          new User.createSpecificUserFromJson(additionalData["otherUser"]);
-          store.state.navigatorState.push(new MaterialPageRoute(
-              builder: (_) => new ChatScreen(
-                documentRef: getMessageCollectionReference(chatId),
-                currentUser: currentUser,
-                otherUser: otherUser,
-              )));
+          new User.createSpecificUserFromJson(additionalData["currentUser"]);
+          if (store.state.activePageName != "chat") {
+            store.state.navigatorState.push(new MaterialPageRoute(
+                builder: (_) =>
+                new ChatScreen(
+                  documentRef: getMessageCollectionReference(chatId),
+                  currentUser: currentUser,
+                  otherUser: otherUser,
+                )));
+          }
         } else  if (additionalData["type"] == "alarm") {
           getAlarm(pasienId: additionalData["pasienId"], alarmId: additionalData["alarmId"]).then((Alarm alarm) {
             store.state.navigatorState.push(new MaterialPageRoute(
                 builder: (_) => new AlarmScreen(alarm),
             ));
           });
-
         }
       },
-//      notificationOpenedHandler: (notification) {
-//        Map<String, dynamic> parsedJson = json.decode(notification);
-//        Map<String, dynamic> additionalData =
-//            parsedJson["payload"]["additionalData"];
-//        if (additionalData["type"] == "chat") {
-//          String chatId = additionalData["chatId"];
-//          User currentUser = new User.createSpecificUserFromJson(
-//              additionalData["currentUser"]);
-//          User otherUser =
-//              new User.createSpecificUserFromJson(additionalData["otherUser"]);
-//          store.state.navigatorState.push(new MaterialPageRoute(
-//              builder: (_) => new ChatScreen(
-//                    documentRef: getMessageCollectionReference(chatId),
-//                    currentUser: currentUser,
-//                    otherUser: otherUser,
-//                  )));
-//        } else  if (additionalData["type"] == "alarm") {
-//          store.state.navigatorState.pushNamed(Routes.loginScreen.toString());
-//        }
-//      },
       unsubscribeWhenNotificationsAreDisabled: false,
     );
   }
@@ -151,17 +133,14 @@ class CustomNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
     super.didPush(route, previousRoute);
     store.dispatch(new ActionNavigate(route.navigator));
-    print("Did push...");
-    print(route.toString());
-    print(previousRoute.toString());
+    store.dispatch(new ActionSetActivePageName("bukan_chat"));
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
     super.didPop(route, previousRoute);
     store.dispatch(new ActionNavigate(route.navigator));
-    print(route.navigator);
-    print("did pop...");
+    store.dispatch(new ActionSetActivePageName("bukan_chat"));
   }
 }
 
