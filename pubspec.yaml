@@ -4,6 +4,7 @@ description: An application for pharmacist to help monitor and remind their pati
 dependencies:
   android_intent:
   cloud_firestore:
+  documents_picker:
   firebase_auth:
   firebase_database:
   firebase_messaging:

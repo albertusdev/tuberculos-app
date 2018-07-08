@@ -25,13 +25,17 @@ class ObatCard extends StatelessWidget {
           child: new Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                new Text(obat.name, style: new TextStyle(color: Theme.of(context).primaryColor)),
-                new Text("$frequency butir", style: new TextStyle(color: Theme.of(context).primaryColor)),
+                new Text(obat.name,
+                    style:
+                        new TextStyle(color: Theme.of(context).primaryColor)),
+                new Text("$frequency butir",
+                    style:
+                        new TextStyle(color: Theme.of(context).primaryColor)),
               ]),
           onPressed: () {
             Navigator.of(context).push(new MaterialPageRoute(
-              builder: (_) => new ShowObatScreen(obat),
-            ));
+                  builder: (_) => new ShowObatScreen(obat),
+                ));
           },
         )));
   }
@@ -40,8 +44,7 @@ class ObatCard extends StatelessWidget {
 class PasienStatisticScreen extends StatefulWidget {
   final Pasien pasien;
 
-  PasienStatisticScreen({Key key, this.pasien})
-      : super(key: key);
+  PasienStatisticScreen({Key key, this.pasien}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() =>
@@ -53,7 +56,8 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
 
   _PasienStatisticScreenState(this.pasien);
 
-  final GlobalKey<AnimatedCircularChartState> _chartKey = new GlobalKey<AnimatedCircularChartState>();
+  final GlobalKey<AnimatedCircularChartState> _chartKey =
+      new GlobalKey<AnimatedCircularChartState>();
 
   Widget _getHeader() {
     return new Container(
@@ -63,36 +67,38 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           new Container(
-            child: new Text("Tahapan Tuberculos",
-                style: new TextStyle(
-                  color: Theme.of(context).primaryColorDark,
-                  fontSize: 16.0,
-                ),
+            child: new Text(
+              "Tahapan Tuberculos",
+              style: new TextStyle(
+                color: Theme.of(context).primaryColorDark,
+                fontSize: 16.0,
+              ),
             ),
             margin: new EdgeInsets.only(bottom: 8.0),
           ),
-
           new Container(
             child: new FullWidthWidget(
               child: new OutlineButton(
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    new Text(pasien.tuberculosStage == 0 ? "Tahap Awal" : "Tahap Lanjutan"),
-                    new Icon(Icons.menu, color: Theme.of(context).disabledColor),
-                  ],
-                ),
-                onPressed: () {
-                  showDialog<int>(
-                    context: context,
-                    builder: (BuildContext context) =>
-                    new VerifyPasienDialog(pasien: pasien),
-                  ).then((int tuberculosStage) {
-                    pasien.tuberculosStage = tuberculosStage;
-                    setState(() {});
-                  });
-                }
-              ),
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      new Text(pasien.tuberculosStage == 0
+                          ? "Tahap Awal"
+                          : "Tahap Lanjutan"),
+                      new Icon(Icons.menu,
+                          color: Theme.of(context).disabledColor),
+                    ],
+                  ),
+                  onPressed: () {
+                    showDialog<int>(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          new VerifyPasienDialog(pasien: pasien),
+                    ).then((int tuberculosStage) {
+                      pasien.tuberculosStage = tuberculosStage;
+                      setState(() {});
+                    });
+                  }),
             ),
             margin: new EdgeInsets.only(bottom: 16.0),
           )
@@ -123,10 +129,9 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                           (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         if (!snapshot.hasData) {
                           return new Flexible(
-                              flex: 1,
-                              child: new Center(
-                                  child: new CircularProgressIndicator()
-                              ),
+                            flex: 1,
+                            child: new Center(
+                                child: new CircularProgressIndicator()),
                           );
                         }
 
@@ -138,7 +143,6 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                         DateTime now = new DateTime.now();
                         final lateAlarms = alarms.where(
                             (Alarm alarm) => alarm.dateTime.compareTo(now) < 0);
-
 
                         if (lateAlarms.length == 0) {
                           return new Flexible(
@@ -181,38 +185,42 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                                 ),
                               ),
                               new Container(
-                                alignment: Alignment.center,
-                                margin: new EdgeInsets.only(top: 8.0),
-                                child: new AnimatedCircularChart(
-                                  key: _chartKey,
-                                  size: new Size(128.0, 128.0),
-                                  initialChartData: <CircularStackEntry>[
-                                    new CircularStackEntry(
-                                      <CircularSegmentEntry>[
-                                        new CircularSegmentEntry(
-                                          takenAlarm / (lateAlarms.length.toDouble()) * 100,
-                                          Theme.of(context).primaryColor,
-                                          rankKey: 'completed',
-                                        ),
-                                        new CircularSegmentEntry(
-                                          (lateAlarms.length - takenAlarm) / (lateAlarms.length.toDouble()) * 100,
-                                          Colors.blueGrey[600],
-                                          rankKey: 'remaining',
-                                        ),
-                                      ],
-                                      rankKey: 'progress',
+                                  alignment: Alignment.center,
+                                  margin: new EdgeInsets.only(top: 8.0),
+                                  child: new AnimatedCircularChart(
+                                    key: _chartKey,
+                                    size: new Size(128.0, 128.0),
+                                    initialChartData: <CircularStackEntry>[
+                                      new CircularStackEntry(
+                                        <CircularSegmentEntry>[
+                                          new CircularSegmentEntry(
+                                            takenAlarm /
+                                                (lateAlarms.length.toDouble()) *
+                                                100,
+                                            Theme.of(context).primaryColor,
+                                            rankKey: 'completed',
+                                          ),
+                                          new CircularSegmentEntry(
+                                            (lateAlarms.length - takenAlarm) /
+                                                (lateAlarms.length.toDouble()) *
+                                                100,
+                                            Colors.blueGrey[600],
+                                            rankKey: 'remaining',
+                                          ),
+                                        ],
+                                        rankKey: 'progress',
+                                      ),
+                                    ],
+                                    chartType: CircularChartType.Radial,
+                                    percentageValues: true,
+                                    holeLabel:
+                                        "${takenAlarm/lateAlarms.length.toDouble() * 100}%",
+                                    labelStyle: new TextStyle(
+                                      color: Theme.of(context).primaryColorDark,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24.0,
                                     ),
-                                  ],
-                                  chartType: CircularChartType.Radial,
-                                  percentageValues: true,
-                                  holeLabel: "${takenAlarm/lateAlarms.length.toDouble() * 100}%",
-                                  labelStyle: new TextStyle(
-                                    color: Theme.of(context).primaryColorDark,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 24.0,
-                                  ),
-                                )
-                              ),
+                                  )),
                             ],
                           ),
                         );
