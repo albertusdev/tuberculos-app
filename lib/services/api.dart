@@ -234,7 +234,7 @@ Future<DocumentReference> createMajalah({
     title: title,
     description: description,
     creator: creator,
-    dateTimeCreated: dateTimeCreated,
+    dateTimeCreated: new DateTime.now(),
     downloadUrl: downloadUrl,
   );
   return getMajalahCollectionReference().add(majalah.toJson());

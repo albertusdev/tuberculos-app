@@ -6,6 +6,7 @@ import "package:tuberculos/models/pasien.dart";
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/screens/chat_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
+import 'package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart';
 import "package:tuberculos/services/api.dart";
 
 class NavigationIconView {
@@ -129,14 +130,14 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
         vsync: this,
         child: new PasienAlarmScreen(),
       ),
-//      new NavigationIconView(
-//        activeIcon: const Icon(Icons.library_books),
-//        icon: const Icon(Icons.library_books),
-//        title: "Majalah",
-//        color: Colors.teal,
-//        vsync: this,
-//        child: new PasienMajalahScreen(),
-//      ),
+      new NavigationIconView(
+        activeIcon: const Icon(Icons.library_books),
+        icon: const Icon(Icons.library_books),
+        title: "Majalah",
+        color: Colors.teal,
+        vsync: this,
+        child: new PasienMajalahScreen(),
+      ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.chat),
         icon: const Icon(Icons.chat_bubble),
@@ -220,6 +221,16 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
     return new Stack(children: transitions);
   }
 
+  Widget _getTitle() {
+    if (_currentIndex == 0) {
+      return new Text("HOME");
+    }
+    if (_currentIndex == 1) {
+      return new Text("Download Majalah");
+    }
+    return new Text("");
+  }
+
   @override
   Widget build(BuildContext context) {
     final BottomNavigationBar botNavBar = new BottomNavigationBar(
@@ -236,7 +247,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
 
     Widget app = new Scaffold(
       appBar: new AppBar(
-        title: const Text("Pasien - TuberculosApps"),
+        title: _getTitle(),
       ),
       body: new Center(child: _buildTransitionsStack()),
       bottomNavigationBar: botNavBar,
