@@ -216,6 +216,13 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
     return new Stack(children: transitions);
   }
 
+  String _getAppBarTitle() {
+    if (_currentIndex == 0) return "HOME";
+    if (_currentIndex == 1) return "INPUT MAJALAH";
+    if (_currentIndex == 2) return "CHAT";
+    return "";
+  }
+
   @override
   Widget build(BuildContext context) {
     final BottomNavigationBar botNavBar = new BottomNavigationBar(
@@ -232,7 +239,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
 
     Widget app = new Scaffold(
       appBar: new AppBar(
-        title: new Text(_currentIndex == 0 ? "HOME" : "CHAT"),
+        title: new Text(_getAppBarTitle()),
       ),
       body: new Center(child: _buildTransitionsStack()),
       bottomNavigationBar: botNavBar,

@@ -1,8 +1,12 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:documents_picker/documents_picker.dart";
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:tuberculos/redux/configure_store.dart';
 import 'package:tuberculos/screens/input_screen.dart';
+import 'package:tuberculos/services/api.dart';
 import 'package:tuberculos/widgets/full_width_widget.dart';
 
 class InputMajalahScreen extends StatefulWidget {
@@ -169,11 +173,45 @@ class _InputMajalahScreenState extends State<InputMajalahScreen> {
                           color: Colors.white,
                         ))
                     : new SizedBox(
-                        width: 32.0,
-                        height: 32.0,
+                        width: 16.0,
+                        height: 16.0,
                         child: new CircularProgressIndicator()),
                 color: Theme.of(context).primaryColor,
-                onPressed: () {},
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        try {
+                          if (_title == null || _title.isEmpty)
+                            throw "Judul Majalah tidak boleh kosong.";
+                          if (_description == null || _description.isEmpty)
+                            throw "Deskripsi Majalah tidak boleh kosong.";
+                          if (_file == null)
+                            throw "File Majalah tidak boleh kosong.";
+                          setState(() => _isLoading = true);
+                          DocumentReference majalahDocumentReference =
+                              await createMajalah(
+                            title: _title,
+                            description: _description,
+                            creator: StoreProvider
+                                .of<AppState>(context)
+                                .state
+                                .currentUser,
+                            file: _file,
+                          );
+                          setState(() => _isLoading = false);
+                          Scaffold.of(context).showSnackBar(
+                                new SnackBar(
+                                  content: new Text(
+                                      "Majalah \"$_title\" berhasil ter-upload."),
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                ),
+                              );
+                        } catch (e) {
+                          Scaffold.of(context).showSnackBar(
+                              new SnackBar(content: new Text(e.toString())));
+                        }
+                      },
               ),
             )
           ]),
