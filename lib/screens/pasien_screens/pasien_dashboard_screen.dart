@@ -238,10 +238,10 @@ class _NearestUpcomingAlarmWidgetState
   }
 }
 
-class PasienAlarmScreen extends StatelessWidget {
+class PasienDashboardScreen extends StatelessWidget {
   final Pasien pasien;
 
-  PasienAlarmScreen(this.pasien);
+  PasienDashboardScreen(this.pasien);
 
   @override
   Widget build(BuildContext context) {

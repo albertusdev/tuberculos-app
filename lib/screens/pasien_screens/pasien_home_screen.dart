@@ -5,7 +5,7 @@ import "package:flutter/material.dart";
 import "package:tuberculos/models/pasien.dart";
 import "package:tuberculos/routes.dart";
 import "package:tuberculos/screens/chat_screen.dart";
-import "package:tuberculos/screens/pasien_screens/pasien_alarm_screen.dart";
+import "package:tuberculos/screens/pasien_screens/pasien_dashboard_screen.dart";
 import 'package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart';
 import "package:tuberculos/services/api.dart";
 
@@ -128,7 +128,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
         title: "Alarm",
         color: Colors.deepPurple,
         vsync: this,
-        child: new PasienAlarmScreen(currentUser),
+        child: new PasienDashboardScreen(currentUser),
       ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.library_books),
