@@ -189,7 +189,7 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                                   margin: new EdgeInsets.only(top: 8.0),
                                   child: new AnimatedCircularChart(
                                     key: _chartKey,
-                                    size: new Size(128.0, 128.0),
+                                    size: new Size(160.0, 160.0),
                                     initialChartData: <CircularStackEntry>[
                                       new CircularStackEntry(
                                         <CircularSegmentEntry>[
@@ -214,7 +214,7 @@ class _PasienStatisticScreenState extends State<PasienStatisticScreen> {
                                     chartType: CircularChartType.Radial,
                                     percentageValues: true,
                                     holeLabel:
-                                        "${takenAlarm/lateAlarms.length.toDouble() * 100}%",
+                                        "${(takenAlarm/lateAlarms.length.toDouble() * 100).toStringAsFixed(2)}%",
                                     labelStyle: new TextStyle(
                                       color: Theme.of(context).primaryColorDark,
                                       fontWeight: FontWeight.bold,
