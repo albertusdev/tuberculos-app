@@ -6,6 +6,7 @@ import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/services/api.dart";
 import "package:tuberculos/utils.dart";
+import 'package:tuberculos/widgets/user_card.dart';
 
 class InputRoleSpecificWidget extends StatefulWidget {
   @override
@@ -279,15 +280,8 @@ class _ChooseApotekerDialogState extends State<ChooseApotekerDialog> {
               itemCount: dataCount,
               itemBuilder: (_, int index) {
                 final User user = data[index];
-                return new ListTile(
-                    leading: new CircleAvatar(
-                      backgroundImage: user.photoUrl != null
-                          ? new NetworkImage(user.photoUrl)
-                          : null,
-                      child: _getCircleAvatarChild(user),
-                    ),
-                    subtitle: new Text(user.email ?? '<No message retrieved>'),
-                    title: new Text(user.displayName),
+                return new UserCard(
+                    user: user,
                     onTap: () {
                       Navigator.pop(context, user.email);
                     });
