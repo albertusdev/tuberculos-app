@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,7 +25,7 @@ class AlarmScreen extends StatefulWidget {
   }
 }
 
-class AlarmScreenState extends State<AlarmScreen> {
+class AlarmScreenState extends State<AlarmScreen> with WidgetsBindingObserver {
   Alarm alarm;
   Apoteker apoteker;
 
@@ -53,10 +54,10 @@ class AlarmScreenState extends State<AlarmScreen> {
     }
   }
 
-//  Future<Null> _sendMessage({String text, String imageUrl}) async {
-//    assert(currentUser != null);
-
-//  }
+  @override
+  Future<bool> didPopRoute() {
+    return new Future<bool>.value(true);
+  }
 
   void _handleYes(BuildContext context) {
     showDialog<File>(

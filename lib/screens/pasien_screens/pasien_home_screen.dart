@@ -1,9 +1,12 @@
 import "dart:async";
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
+import 'package:tuberculos/models/alarm.dart';
 import "package:tuberculos/models/pasien.dart";
 import "package:tuberculos/routes.dart";
+import 'package:tuberculos/screens/alarm_screen.dart';
 import "package:tuberculos/screens/chat_screen.dart";
 import "package:tuberculos/screens/pasien_screens/pasien_dashboard_screen.dart";
 import 'package:tuberculos/screens/pasien_screens/pasien_majalah_screen.dart';
@@ -158,7 +161,23 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
 
     _navigationViews[_currentIndex].controller.value = 1.0;
 
-
+    getPasienAlarmsCollectionReference(currentUser)
+        .getDocuments()
+        .then((QuerySnapshot querySnapshot) {
+      final List<Alarm> alarms = querySnapshot.documents
+          .map((DocumentSnapshot ds) => new Alarm.fromJson(ds.data))
+          .toList();
+      DateTime now = new DateTime.now();
+      final List<Alarm> lateAlarms =
+          alarms.where((Alarm alarm) => alarm.dateTime.compareTo(now) < 0);
+      lateAlarms.sort((Alarm a, Alarm b) => a.dateTime.compareTo(b.dateTime));
+      final Alarm mostRecentAlarm = lateAlarms.last;
+      if (mostRecentAlarm.dateTime.difference(now).inMinutes.abs() < 5) {
+        Navigator.of(context).push(new MaterialPageRoute(
+              builder: (_) => new AlarmScreen(mostRecentAlarm),
+            ));
+      }
+    });
   }
 
   @override
