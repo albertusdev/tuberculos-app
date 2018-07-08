@@ -171,8 +171,9 @@ Future<String> uploadFile(File file) async {
 }
 
 Future<void> insertAlarm(Alarm alarm) async {
-  DocumentReference documentSnapshot =
+  DocumentReference documentReference =
       await getPasienAlarmsCollectionReference(alarm.user).add(alarm.toJson());
+  alarm.id = documentReference.documentID;
   final body = {
     "include_player_ids": [alarm.user.oneSignalPlayerId],
     "headings": {"en": "${alarm.obat.name}"},
@@ -184,13 +185,14 @@ Future<void> insertAlarm(Alarm alarm) async {
     "send_after": OneSignalHttpClient.formatDate(alarm.dateTime),
     "data": {
       "type": "alarm",
-      "id": documentSnapshot.documentID,
+      "id": documentReference.documentID,
       "obat": alarm.obat.toJson(),
+      "user": alarm.user.toJson(),
     },
   };
   dynamic response = await OneSignalHttpClient.post(body: body);
   response = json.decode(response.body);
-  documentSnapshot.updateData({"notificationId": response["id"]});
+  documentReference.updateData({"notificationId": response["id"]});
 }
 
 Future<void> createAlarms(

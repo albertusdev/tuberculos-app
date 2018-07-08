@@ -3,6 +3,7 @@ import 'package:tuberculos/models/obat.dart';
 import 'package:tuberculos/models/user.dart';
 
 class Alarm {
+  String id;
   User user;
   Obat obat;
   DateTime dateTime;
@@ -15,6 +16,7 @@ class Alarm {
     @required this.dateTime,
     @required this.message,
     this.taken = false,
+    this.id,
   });
 
   Alarm.fromJson(Map<dynamic, dynamic> json)
@@ -29,7 +31,8 @@ class Alarm {
         "obat": obat.toJson(),
         "dateTime": dateTime,
         "taken": taken,
-        "message": message
+        "message": message,
+        "id": id,
       };
 
   @override

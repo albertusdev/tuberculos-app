@@ -128,7 +128,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
         title: "Alarm",
         color: Colors.deepPurple,
         vsync: this,
-        child: new PasienAlarmScreen(),
+        child: new PasienAlarmScreen(currentUser),
       ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.library_books),
