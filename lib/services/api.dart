@@ -185,9 +185,8 @@ Future<void> insertAlarm(Alarm alarm) async {
     "send_after": OneSignalHttpClient.formatDate(alarm.dateTime),
     "data": {
       "type": "alarm",
-      "id": documentReference.documentID,
-      "obat": alarm.obat.toJson(),
-      "user": alarm.user.toJson(),
+      "alarmId": documentReference.documentID,
+      "pasienId": alarm.user.email,
     },
   };
   dynamic response = await OneSignalHttpClient.post(body: body);
@@ -240,4 +239,13 @@ Future<DocumentReference> createMajalah({
     downloadUrl: downloadUrl,
   );
   return getMajalahCollectionReference().add(majalah.toJson());
+}
+
+DocumentReference getAlarmDocumentReference({String pasienId, String alarmId}) {
+  return Firestore.instance.document("pasiens/$pasienId/alarms/$alarmId");
+}
+
+Future<Alarm> getAlarm({String pasienId, String alarmId}) async {
+  DocumentSnapshot ds = await getAlarmDocumentReference(pasienId: pasienId, alarmId: alarmId).get();
+  return new Alarm.fromJson(ds.data)..id = ds.documentID;
 }

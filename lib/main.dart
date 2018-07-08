@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_one_signal/flutter_one_signal.dart";
@@ -8,8 +7,10 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_persist/redux_persist.dart';
 import 'package:redux_persist_flutter/redux_persist_flutter.dart';
+import 'package:tuberculos/models/alarm.dart';
 import 'package:tuberculos/models/user.dart';
 import 'package:tuberculos/redux/configure_store.dart';
+import 'package:tuberculos/screens/alarm_screen.dart';
 import 'package:tuberculos/screens/chat_screen.dart';
 import "package:tuberculos/screens/login_screen.dart";
 import "package:tuberculos/screens/register_screen/register_screen.dart";
@@ -64,34 +65,35 @@ class _MyAppState extends State<MyApp> {
                 currentUser: currentUser,
                 otherUser: otherUser,
               )));
-        } else {
-          store.state.navigatorState.pushNamed(Routes.loginScreen.toString());
+        } else  if (additionalData["type"] == "alarm") {
+          getAlarm(pasienId: additionalData["pasienId"], alarmId: additionalData["alarmId"]).then((Alarm alarm) {
+            store.state.navigatorState.push(new MaterialPageRoute(
+                builder: (_) => new AlarmScreen(alarm),
+            ));
+          });
+
         }
-        print('opened : $notification');
-        Firestore.instance.collection("/opened").add({"received": new DateTime.now()});
       },
-      notificationOpenedHandler: (notification) {
-        Map<String, dynamic> parsedJson = json.decode(notification);
-        Map<String, dynamic> additionalData =
-            parsedJson["payload"]["additionalData"];
-        if (additionalData["type"] == "chat") {
-          String chatId = additionalData["chatId"];
-          User currentUser = new User.createSpecificUserFromJson(
-              additionalData["currentUser"]);
-          User otherUser =
-              new User.createSpecificUserFromJson(additionalData["otherUser"]);
-          store.state.navigatorState.push(new MaterialPageRoute(
-              builder: (_) => new ChatScreen(
-                    documentRef: getMessageCollectionReference(chatId),
-                    currentUser: currentUser,
-                    otherUser: otherUser,
-                  )));
-        } else {
-          store.state.navigatorState.pushNamed(Routes.loginScreen.toString());
-        }
-        Firestore.instance.collection("/opened").add({"opened": new DateTime.now()});
-        print('opened : $notification');
-      },
+//      notificationOpenedHandler: (notification) {
+//        Map<String, dynamic> parsedJson = json.decode(notification);
+//        Map<String, dynamic> additionalData =
+//            parsedJson["payload"]["additionalData"];
+//        if (additionalData["type"] == "chat") {
+//          String chatId = additionalData["chatId"];
+//          User currentUser = new User.createSpecificUserFromJson(
+//              additionalData["currentUser"]);
+//          User otherUser =
+//              new User.createSpecificUserFromJson(additionalData["otherUser"]);
+//          store.state.navigatorState.push(new MaterialPageRoute(
+//              builder: (_) => new ChatScreen(
+//                    documentRef: getMessageCollectionReference(chatId),
+//                    currentUser: currentUser,
+//                    otherUser: otherUser,
+//                  )));
+//        } else  if (additionalData["type"] == "alarm") {
+//          store.state.navigatorState.pushNamed(Routes.loginScreen.toString());
+//        }
+//      },
       unsubscribeWhenNotificationsAreDisabled: false,
     );
   }
@@ -104,7 +106,8 @@ class _MyAppState extends State<MyApp> {
             store: store,
             child: new MaterialApp(
               title: "TuberculosApp",
-              home: new SplashScreen(store: store),
+//              home: new SplashScreen(store: store),
+              home: new AlarmScreen(null),
               theme: new ThemeData(
                 backgroundColor: backgroundColor,
                 buttonColor: new Color(0xFF008e49),
