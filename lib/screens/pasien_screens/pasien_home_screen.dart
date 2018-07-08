@@ -157,6 +157,8 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
       view.controller.addListener(_rebuild);
 
     _navigationViews[_currentIndex].controller.value = 1.0;
+
+
   }
 
   @override

@@ -21,6 +21,7 @@ dependencies:
   redux:
   redux_thunk:
   redux_persist_flutter:
+  simple_permissions:
   shared_preferences:
   uuid:
 

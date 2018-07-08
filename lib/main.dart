@@ -106,8 +106,8 @@ class _MyAppState extends State<MyApp> {
             store: store,
             child: new MaterialApp(
               title: "TuberculosApp",
-//              home: new SplashScreen(store: store),
-              home: new AlarmScreen(null),
+              home: new SplashScreen(store: store),
+//              home: new AlarmScreen(null),
               theme: new ThemeData(
                 backgroundColor: backgroundColor,
                 buttonColor: new Color(0xFF008e49),

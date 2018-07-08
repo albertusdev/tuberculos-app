@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:documents_picker/documents_picker.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import "package:simple_permissions/simple_permissions.dart";
 import 'package:tuberculos/redux/configure_store.dart';
 import 'package:tuberculos/screens/input_screen.dart';
 import 'package:tuberculos/services/api.dart';
@@ -150,6 +151,10 @@ class _InputMajalahScreenState extends State<InputMajalahScreen> {
                         textAlign: TextAlign.start,
                       ),
                       onPressed: () async {
+                        bool isStoragePermissionGranted = await SimplePermissions.checkPermission(Permission.WriteExternalStorage);
+                        if (!isStoragePermissionGranted) {
+                          await SimplePermissions.requestPermission(Permission.WriteExternalStorage);
+                        }
                         List<dynamic> filePaths =
                             await DocumentsPicker.pickDocuments;
                         print(filePaths.first);
