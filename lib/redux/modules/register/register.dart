@@ -108,8 +108,8 @@ class RegisterState {
     String role,
   })  : this.apotekerFields = apotekerFields ??
             {
-              "alamatApotek": new RegisterFormField(hint: "Alamat Apotek"),
-              "namaApotek": new RegisterFormField(hint: "Nama Apotek"),
+              "alamatApotek": new RegisterFormField(hint: "Alamat Apoteker"),
+              "namaApotek": new RegisterFormField(hint: "Nama Apoteker"),
               "pasiens": new SimpleField<List>(
                 new List(),
                 () {

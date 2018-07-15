@@ -222,6 +222,10 @@ CollectionReference getMajalahCollectionReference() {
   return Firestore.instance.collection("majalahs");
 }
 
+DocumentReference getMajalahDocumentReference(String id) {
+  return Firestore.instance.document("majalahs/$id");
+}
+
 Future<DocumentReference> createMajalah({
   @required String title,
   @required String description,

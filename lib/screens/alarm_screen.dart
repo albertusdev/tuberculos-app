@@ -36,22 +36,12 @@ class AlarmScreenState extends State<AlarmScreen> {
   @override
   void initState() {
     super.initState();
-    if (alarm == null) {
-      Firestore.instance
-          .document(
-              "pasiens/albertusangga.r@gmail.com/alarms/-LGtP0-pOBpNiIRMc2UQ")
-          .get()
-          .then((ds) {
-        alarm = new Alarm.fromJson(ds.data)..id = ds.documentID;
-        setState(() {});
-        Pasien pasien = alarm.user;
-        getUserDocumentReference(role: User.APOTEKER, email: pasien.apoteker)
-            .get()
-            .then((DocumentSnapshot ds) {
-          apoteker = new Apoteker.fromJson(ds.data);
-        });
-      });
-    }
+    Pasien pasien = alarm.user;
+    getUserDocumentReference(role: User.APOTEKER, email: pasien.apoteker)
+        .get()
+        .then((DocumentSnapshot ds) {
+      apoteker = new Apoteker.fromJson(ds.data);
+    });
   }
   
   void _handleYes(BuildContext context) {

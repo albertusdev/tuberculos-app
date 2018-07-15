@@ -137,7 +137,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
         title: 'Majalah',
         color: Colors.teal,
         vsync: this,
-        child: new InputMajalahScreen(),
+        child: new ApotekerMajalahScreen(),
       ),
       new NavigationIconView(
         activeIcon: const Icon(Icons.chat),
@@ -218,7 +218,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
 
   String _getAppBarTitle() {
     if (_currentIndex == 0) return "HOME";
-    if (_currentIndex == 1) return "INPUT MAJALAH";
+    if (_currentIndex == 1) return "MAJALAH";
     if (_currentIndex == 2) return "CHAT";
     return "";
   }

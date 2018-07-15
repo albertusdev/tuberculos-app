@@ -1,6 +1,7 @@
 import 'package:tuberculos/models/user.dart';
 
 class Majalah {
+  String id;
   String title;
   String description;
   String downloadUrl;
@@ -8,6 +9,7 @@ class Majalah {
   User creator;
 
   Majalah({
+    this.id,
     this.title,
     this.description,
     this.downloadUrl,
