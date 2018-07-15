@@ -46,6 +46,7 @@ class ObatCard extends StatelessWidget {
                       style:
                           new TextStyle(color: Colors.white, fontSize: 24.0)),
                   new Text("Butir", style: new TextStyle(color: Colors.white)),
+                  new Text("sekali minum", style: new TextStyle(color: Colors.white, fontSize: 10.0)),
                 ],
               ),
               padding:
@@ -294,11 +295,7 @@ class PasienDashboardScreen extends StatelessWidget {
                 Map<String, int> frequencyByObatId = new Map<String, int>();
                 upcomingAlarms.forEach((Alarm alarm) {
                   obatById[alarm.obat.id] = alarm.obat;
-                  if (frequencyByObatId.containsKey(alarm.obat.id)) {
-                    frequencyByObatId[alarm.obat.id] += 1;
-                  } else {
-                    frequencyByObatId[alarm.obat.id] = 1;
-                  }
+                  frequencyByObatId[alarm.obat.id] = alarm.quantity;
                 });
 
                 List<Widget> widgets = [];

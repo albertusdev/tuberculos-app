@@ -35,7 +35,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
-        versionName "1.1"
+        versionName "1.1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [
                 onesignal_app_id: 'f501bd63-e51b-45ce-8343-534999ab7085',

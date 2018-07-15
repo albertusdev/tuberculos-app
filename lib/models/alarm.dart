@@ -9,12 +9,14 @@ class Alarm {
   DateTime dateTime;
   bool taken = false;
   String message;
+  int quantity;
 
   Alarm({
     @required this.user,
     @required this.obat,
     @required this.dateTime,
     @required this.message,
+    @required this.quantity,
     this.taken = false,
     this.id,
   });
@@ -24,7 +26,8 @@ class Alarm {
         obat = new Obat.fromJson(json["obat"]),
         dateTime = json["dateTime"],
         taken = json["taken"],
-        message = json["message"];
+        message = json["message"],
+        quantity = json["quantity"];
 
   Map<String, dynamic> toJson() => {
         "user": user.toJson(),
@@ -33,6 +36,7 @@ class Alarm {
         "taken": taken,
         "message": message,
         "id": id,
+        "quantity": quantity
       };
 
   @override
@@ -49,7 +53,6 @@ class Alarm {
   }
 
   @override
-  // TODO: implement hashCode
   int get hashCode =>
       super.hashCode ^
       user.hashCode ^

@@ -3,8 +3,10 @@ import "dart:async";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:tuberculos/models/alarm.dart';
 import "package:tuberculos/models/pasien.dart";
+import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
 import 'package:tuberculos/screens/alarm_screen.dart';
 import "package:tuberculos/screens/chat_screen.dart";
@@ -217,6 +219,7 @@ class _PasienBottomNavigationDemo extends State<PasienHomeScreen>
     } else if (index == _navigationViews.length - 1) {
       // If press Logout
       await FirebaseAuth.instance.signOut();
+      StoreProvider.of<AppState>(context).dispatch(new ActionChangeCurrentUser(currentUser: null));
       Navigator.of(context).pushReplacementNamed(Routes.loginScreen.toString());
     } else {
       setState(() {

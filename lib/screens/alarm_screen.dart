@@ -43,7 +43,7 @@ class AlarmScreenState extends State<AlarmScreen> {
       apoteker = new Apoteker.fromJson(ds.data);
     });
   }
-  
+
   void _handleYes(BuildContext context) {
     showDialog<File>(
       context: context,
@@ -183,7 +183,7 @@ class AlarmScreenState extends State<AlarmScreen> {
       Pasien pasien = alarm.user;
       if (apoteker == null) {
         DocumentSnapshot apotekerDs = await getUserDocumentReference(
-            role: User.APOTEKER, email: pasien.apoteker)
+                role: User.APOTEKER, email: pasien.apoteker)
             .get();
         apoteker = new Apoteker.fromJson(apotekerDs.data);
       }
@@ -191,7 +191,10 @@ class AlarmScreenState extends State<AlarmScreen> {
         final body = {
           "include_player_ids": [apoteker.oneSignalPlayerId],
           "headings": {"en": pasien.displayName},
-          "contents": {"en": "${pasien.displayName} menunda meminum obat ${alarm.obat.name}"},
+          "contents": {
+            "en":
+                "${pasien.displayName} menunda meminum obat ${alarm.obat.name}"
+          },
           "large_icon": pasien.photoUrl,
           "data": {
             "type": "chat",
@@ -202,10 +205,10 @@ class AlarmScreenState extends State<AlarmScreen> {
         };
         final response = await OneSignalHttpClient.post(body: body);
         Scaffold.of(context).showSnackBar(new SnackBar(
-          content: new Text(
-              "Apoteker mu mendapatkan notifikasi mengenai ini."),
-          backgroundColor: Colors.red,
-        ));
+              content:
+                  new Text("Apoteker mu mendapatkan notifikasi mengenai ini."),
+              backgroundColor: Colors.red,
+            ));
         if (Navigator.canPop(context)) Navigator.pop(context);
       } catch (e) {
         print(e.toString());
@@ -282,6 +285,24 @@ class AlarmScreenState extends State<AlarmScreen> {
                             textAlign: TextAlign.center,
                           ),
                           new Container(
+                            child: new Column(
+                              children: <Widget>[
+                                new Text("${alarm.quantity}",
+                                    style: new TextStyle(
+                                        color: Colors.white, fontSize: 24.0)),
+                                new Text("Butir",
+                                    style: new TextStyle(color: Colors.white)),
+                              ],
+                            ),
+                            padding: new EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 12.0),
+                            decoration: new BoxDecoration(
+                              borderRadius: new BorderRadius.circular(12.0),
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            margin: new EdgeInsets.only(top: 8.0, bottom: 4.0),
+                          ),
+                          new Container(
                             child: new Row(children: <Widget>[
                               new Image.network(
                                 alarm.obat.photoUrl,
@@ -307,7 +328,6 @@ class AlarmScreenState extends State<AlarmScreen> {
                                 )
                               ],
                             ),
-                            margin: new EdgeInsets.only(top: 16.0),
                             padding: new EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 16.0),
                           ),
@@ -321,7 +341,8 @@ class AlarmScreenState extends State<AlarmScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            margin: new EdgeInsets.only(top: 24.0, bottom: 24.0),
+                            margin:
+                                new EdgeInsets.only(top: 24.0, bottom: 24.0),
                           ),
                           new Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -335,8 +356,9 @@ class AlarmScreenState extends State<AlarmScreen> {
                                   ),
                                 ),
                                 color: Theme.of(context).primaryColor,
-                                onPressed:
-                                    isLoading ? null : () => _handleYes(context),
+                                onPressed: isLoading
+                                    ? null
+                                    : () => _handleYes(context),
                                 padding: new EdgeInsets.symmetric(
                                     vertical: 12.0, horizontal: 24.0),
                               ),
@@ -349,8 +371,9 @@ class AlarmScreenState extends State<AlarmScreen> {
                                         color: Colors.white, fontSize: 20.0),
                                   ),
                                   color: Colors.red,
-                                  onPressed:
-                                      isLoading ? null : () => _handleNo(context),
+                                  onPressed: isLoading
+                                      ? null
+                                      : () => _handleNo(context),
                                   padding: new EdgeInsets.symmetric(
                                       vertical: 12.0, horizontal: 24.0),
                                 ),

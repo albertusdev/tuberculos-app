@@ -2,7 +2,9 @@ import 'dart:async';
 
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:tuberculos/models/apoteker.dart';
+import 'package:tuberculos/redux/configure_store.dart';
 import "package:tuberculos/routes.dart";
 import 'package:tuberculos/screens/apoteker_screens/apoteker_chat_list_screen.dart';
 import 'package:tuberculos/screens/apoteker_screens/apoteker_dashboard_screen.dart';
@@ -188,6 +190,7 @@ class _ApotekerHomeScreenState extends State<ApotekerHomeScreen>
     if (index == _navigationViews.length - 1) {
       // If press Logout
       await FirebaseAuth.instance.signOut();
+      StoreProvider.of<AppState>(context).dispatch(new ActionChangeCurrentUser(currentUser: null));
       Navigator.of(context).pushReplacementNamed(Routes.loginScreen.toString());
     } else {
       setState(() {

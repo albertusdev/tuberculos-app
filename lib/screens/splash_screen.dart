@@ -1,5 +1,6 @@
 import "dart:async";
 
+import 'package:firebase_auth/firebase_auth.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
@@ -31,8 +32,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void _initTimer() async {
     Store<AppState> store = this.store ?? StoreProvider.of<AppState>(context);
     new Timer(new Duration(seconds: 2), () async {
+      FirebaseUser firebaseUser = await FirebaseAuth.instance.currentUser();
       User currentUser = store.state.currentUser;
-      if (currentUser != null) {
+      if (firebaseUser != null && currentUser != null) {
         Navigator.pushReplacement(context, getRouteBasedOnUser(currentUser: currentUser));
       } else {
         Navigator.pushReplacementNamed(context, Routes.loginScreen.toString());

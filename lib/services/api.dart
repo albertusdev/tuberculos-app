@@ -194,14 +194,16 @@ Future<void> insertAlarm(Alarm alarm) async {
   documentReference.updateData({"notificationId": response["id"]});
 }
 
-Future<void> createAlarms(
-    {Pasien pasien,
-    Obat obat,
-    String message,
-    List<DateTime> dateTimes}) async {
+Future<void> createAlarms({
+  Pasien pasien,
+  Obat obat,
+  String message,
+  List<DateTime> dateTimes,
+  int quantity,
+}) async {
   List<Alarm> alarms = dateTimes
       .map((DateTime dateTime) => new Alarm(
-          user: pasien, obat: obat, message: message, dateTime: dateTime))
+          user: pasien, obat: obat, message: message, dateTime: dateTime, quantity: quantity))
       .toList();
   alarms.forEach((Alarm alarm) async {
     await insertAlarm(alarm);
@@ -250,6 +252,8 @@ DocumentReference getAlarmDocumentReference({String pasienId, String alarmId}) {
 }
 
 Future<Alarm> getAlarm({String pasienId, String alarmId}) async {
-  DocumentSnapshot ds = await getAlarmDocumentReference(pasienId: pasienId, alarmId: alarmId).get();
+  DocumentSnapshot ds =
+      await getAlarmDocumentReference(pasienId: pasienId, alarmId: alarmId)
+          .get();
   return new Alarm.fromJson(ds.data)..id = ds.documentID;
 }

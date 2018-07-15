@@ -20,6 +20,7 @@ class InputAlarmState {
   final Obat selectedObat;
   final TimeOfDay timeOfDay;
   final int occurrence;
+  final int quantity;
   final String message;
   final List<Timestamp> timestamps;
 
@@ -28,6 +29,7 @@ class InputAlarmState {
     this.selectedPasien,
     this.selectedObat,
     this.timeOfDay,
+    this.quantity,
     this.occurrence,
     this.message,
     this.timestamps,
@@ -41,6 +43,7 @@ class InputAlarmState {
     int occurence,
     String message,
     List<Timestamp> timestamps,
+    int quantity,
   }) {
     return new InputAlarmState(
       isLoading: isLoading ?? this.isLoading,
@@ -50,6 +53,7 @@ class InputAlarmState {
       occurrence: occurence ?? this.occurrence,
       message: message ?? this.message,
       timestamps: timestamps ?? this.timestamps,
+      quantity: quantity ?? this.quantity,
     );
   }
 
@@ -61,7 +65,8 @@ class InputAlarmState {
       selectedObat.hashCode ^
       timeOfDay.hashCode ^
       occurrence.hashCode ^
-      message.hashCode;
+      message.hashCode ^
+      quantity.hashCode;
 
   @override
   bool operator ==(other) {
@@ -71,7 +76,8 @@ class InputAlarmState {
             this.selectedObat == other.selectedObat &&
             this.timeOfDay == other.timeOfDay &&
             this.occurrence == other.occurrence &&
-            this.message == other.message);
+            this.message == other.message &&
+            this.quantity == other.quantity);
   }
 }
 
@@ -102,6 +108,11 @@ class ActionInputAlarmSetOccurrence {
 class ActionInputAlarmSetMessage {
   final String message;
   ActionInputAlarmSetMessage(this.message);
+}
+
+class ActionInputAlarmSetQuantity {
+  final int quantity;
+  ActionInputAlarmSetQuantity(this.quantity);
 }
 
 class ActionInputAlarmAddTimestamp {}
@@ -135,6 +146,8 @@ InputAlarmState dailyAlarmReducer(InputAlarmState state, action) {
     newState = state.cloneWithModified(occurence: action.occurrence);
   } else if (action is ActionInputAlarmSetMessage) {
     newState = state.cloneWithModified(message: action.message);
+  } else if (action is ActionInputAlarmSetQuantity) {
+    newState = state.cloneWithModified(quantity: action.quantity);
   } else if (action is ActionInputAlarmReset) {
     newState = new InputAlarmState(timestamps: []);
   } else if (action is ActionInputAlarmAddTimestamp) {
@@ -187,10 +200,12 @@ Future<void> createDailyAlarm(InputAlarmState state) async {
   List<DateTime> dateTimes =
       generateDateTimesFromDailyOccurrence(state.timeOfDay, state.occurrence);
   await createAlarms(
-      pasien: state.selectedPasien,
-      obat: state.selectedObat,
-      message: state.message,
-      dateTimes: dateTimes);
+    pasien: state.selectedPasien,
+    obat: state.selectedObat,
+    message: state.message,
+    quantity: state.quantity,
+    dateTimes: dateTimes,
+  );
 }
 
 Future<void> createCustomAlarm(InputAlarmState state) async {
@@ -206,5 +221,7 @@ Future<void> createCustomAlarm(InputAlarmState state) async {
       pasien: state.selectedPasien,
       obat: state.selectedObat,
       message: state.message,
-      dateTimes: dateTimes);
+      quantity: 1,
+      dateTimes: dateTimes,
+  );
 }
