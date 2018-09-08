@@ -2,29 +2,25 @@
 # TuberculosApp
 An application for pharmacist to help monitor and remind their patient to take their medicine regularly.
 
-## Features & Screenshots
-### Login & Register as Pharmacist / Patient
-![3](/screenshots/3.png)
+## Screenshots
+<div style="display: flex; align-items: flex-start; justify-content: flex-start;">
+  <img src="screenshots/3.png" width="24%">
+  <img style="margin-left: 10px;" src="screenshots/4.jpeg" width="24%">
+  <img style="margin-left: 10px;" src="screenshots/5.png" width="24%">
+  <img style="margin-left: 10px;" src="screenshots/6.png" width="24%">
+  <img src="screenshots/7.jpeg" width="32%">
+  <img style="margin-left: 10px;" src="screenshots/8.png" width="32%">
+  <img style="margin-left: 10px;" src="screenshots/9.png" width="32%">
+</div>
 
-### [Patient] Dashboard Screen to see incoming medicine intake
-![4](/screenshots/4.jpeg)
-
-### [Patient] Alarm Screen to remind Patient to take their medicine
-![5](/screenshots/5.png)
-
-### [Shared] Real time consultation via chat between Pharmacist and Patient
-![6](/screenshots/6.png)
-
-### [Pharmacist] Dashboard to add daily/custom medicine reminder for patient
-![7](/screenshots/7.jpeg)
-
-### [Pharmacist] Add Reminder Screen
-![8](/screenshots/8.png)
-
-### [Pharmacist] Patient Detail screen for monitoring their accuracy statistic
-![9](/screenshots/8.png)
-
-###
+### Features
+- Login & Register as Pharmacist / Patient
+- [Patient] Dashboard Screen to see incoming medicine intake
+- [Patient] Alarm Screen to remind Patient to take their medicine
+- [Shared] Real time consultation via chat between Pharmacist and Patient
+- [Pharmacist] Dashboard to add daily/custom medicine reminder for patient
+- [Pharmacist] Add Reminder Screen
+- [Pharmacist] Patient Detail screen for monitoring their accuracy statistic
 
 ## Tech Stack
 - Flutter
