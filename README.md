@@ -13,7 +13,7 @@ An application for pharmacist to help monitor and remind their patient to take t
   <img style="margin-left: 10px;" src="screenshots/9.png" width="32%">
 </div>
 
-### Features
+## Features
 - Login & Register as Pharmacist / Patient
 - [Patient] Dashboard Screen to see incoming medicine intake
 - [Patient] Alarm Screen to remind Patient to take their medicine
